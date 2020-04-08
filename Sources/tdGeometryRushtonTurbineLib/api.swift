@@ -7,31 +7,65 @@
 
 import Foundation
 
+let tankDiameter = 300
+let testTurbine = getEggelsSomersConfig(gridx: tankDiameter, uav: 0.1, impellerStartupStepsUntilNormalSpeed: 0, startingStep: 0, impellerStartAngle: 0)
 
 
-public func getGeometry() -> [GeomPoints]{
+func getFixedRushtonTurbineGeometry() -> [GeomPoints]{
 
     var pts = [GeomPoints]()
 
+    pts.append(contentsOf: getFixedMidPointGeometry(turbine: testTurbine))
+    //    pts.append(contentsOf: getGeometryGillersion(turbine: testTurbine))
 
-    let tankDiameter = 300
-
-
-    let testTurbine = getEggelsSomersConfig(gridx: tankDiameter, uav: 0.1, impellerStartupStepsUntilNormalSpeed: 0, startingStep: 0, impellerStartAngle: 0)
-
-
-    pts.append(contentsOf: getMidPointGeometry(turbine: testTurbine))
-
-
-//    pts.append(contentsOf: getGeometryGillersion(turbine: testTurbine))
-
-    
     return pts
 }
 
 
 
 
+func getMovingRushtonTurbineGeometry() -> [GeomPoints]{
+    var pts = [GeomPoints]()
+
+    pts.append(contentsOf: getMovingMidPointGeometry(turbine: testTurbine, atθ: 0.0))
+    //    pts.append(contentsOf: getGeometryGillersion(turbine: testTurbine))
+
+    return pts
+}
+
+
+
+
+func updateRushtonTurbineGeometry() -> [GeomPoints]{
+    var pts = [GeomPoints]()
+
+
+    pts.append(contentsOf: updateMidpointGeometry(turbine: testTurbine, atθ: 0.0))
+    //    pts.append(contentsOf: getGeometryGillersion(turbine: testTurbine))
+
+
+    return pts
+}
+
+
+
+
+
+
+
+func loadRushtonTurbineGeometryFromJson() -> [GeomPoints]{
+    var pts = [GeomPoints]()
+
+    return pts
+}
+
+
+
+
+
+
+
+// MARK: - Simple Data
 public func getGeometrySample() -> [GeomPoints] {
 
     //This defines the angle that the impeller will turn every step.
@@ -60,6 +94,7 @@ func getPoints(θ:Double, radius:Double) -> (Int, Int) {
 
     return (i, k)
 }
+
 
 func createTankWallSample(height:Int, diameter:Int, dθ:Double) -> [GeomPoints] {
 

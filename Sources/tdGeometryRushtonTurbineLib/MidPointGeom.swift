@@ -14,17 +14,40 @@ typealias Radian = Double
 typealias Degree = Int
 
 
-func getMidPointGeometry(turbine: RushtonTurbine) -> [GeomPoints]{
+
+
+func getFixedMidPointGeometry(turbine: RushtonTurbine) -> [GeomPoints]{
 
     var pts = [GeomPoints]()
 
     pts.append(contentsOf: getWall(turbine: turbine))
     pts.append(contentsOf: getBaffles(turbine: turbine))
 
-    pts.append(contentsOf: getImpellers(turbine: turbine))
+    return pts
+}
+
+
+func getMovingMidPointGeometry(turbine: RushtonTurbine, atθ: Radian) -> [GeomPoints]{
+
+    var pts = [GeomPoints]()
+
+    pts.append(contentsOf: getImpellers(turbine: turbine, atθ: atθ))
 
     return pts
 }
+
+
+func updateMidpointGeometry(turbine: RushtonTurbine, atθ: Radian) -> [GeomPoints]{
+
+    var pts = [GeomPoints]()
+
+    pts.append(contentsOf: getImpellers(turbine: turbine, atθ: atθ))
+
+    return pts
+}
+
+
+
 
 
 
@@ -32,14 +55,14 @@ func getMidPointGeometry(turbine: RushtonTurbine) -> [GeomPoints]{
 
 // MARK: - Moving Geometry
 
-func getImpellers(turbine: RushtonTurbine)-> [GeomPoints] {
+func getImpellers(turbine: RushtonTurbine, atθ: Radian)-> [GeomPoints] {
 
     var pts = [GeomPoints]()
 
+    pts.append(contentsOf: getBlades(turbine: turbine, atθ: atθ))
     pts.append(contentsOf: getShaft(turbine: turbine))
     pts.append(contentsOf: getHub(turbine: turbine))
     pts.append(contentsOf: getDisc(turbine: turbine))
-    pts.append(contentsOf: getBlades(turbine: turbine))
 
     return pts
 }
@@ -48,7 +71,7 @@ func getImpellers(turbine: RushtonTurbine)-> [GeomPoints] {
 
 
 
-func getBlades(turbine: RushtonTurbine)-> [GeomPoints] {
+func getBlades(turbine: RushtonTurbine, atθ θ: Radian = 0.0)-> [GeomPoints] {
 
     var pts = [GeomPoints]()
 
@@ -61,12 +84,15 @@ func getBlades(turbine: RushtonTurbine)-> [GeomPoints] {
 
     let deltaImpellerOffset: Radian = (2.0 * Radian.pi) / Double(impeller.numBlades)
 
+    var reducedθ = θ
+    while reducedθ > 2 * Radian.pi {reducedθ -= 2 * Radian.pi}
+
 
     for j in blades.top..<blades.bottom {
 
         for nBlade in 0..<impeller.numBlades {
 
-            let bladeAngle: Radian = Radian(impeller.firstBladeOffset) + deltaImpellerOffset * Double(nBlade)
+            let bladeAngle: Radian = reducedθ + Radian(impeller.firstBladeOffset) + deltaImpellerOffset * Double(nBlade)
 
             let outerEdge: Line = getPerpendicularEdge(centerX:centerX, centerY:centerZ, angle: bladeAngle, radius: Double(blades.outerRadius), thickness: blades.thickness)
 
@@ -90,10 +116,9 @@ func getBlades(turbine: RushtonTurbine)-> [GeomPoints] {
             for l in getBresenhamline(x0: innerEdge.x1, y0: innerEdge.y1, x1: outerEdge.x1, y1: outerEdge.y1) {
                 pts.append(GeomPoints(i: l.0, j: j, k: l.1, kind: .MovingBoundary))
             }
-
         }
-
     }
+    
     return pts
 }
 

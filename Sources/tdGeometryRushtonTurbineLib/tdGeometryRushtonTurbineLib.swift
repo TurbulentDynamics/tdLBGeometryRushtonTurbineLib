@@ -37,8 +37,20 @@ public struct GeomPoints {
 }
 
 
-public func getRushtonTurbineGeometry() -> [GeomPoints] {
-    return getGeometry()
+public func getFixedGeometry() -> [GeomPoints]{
+    return getFixedRushtonTurbineGeometry()
+}
+
+public func getMovingGeometry() -> [GeomPoints]{
+     return getMovingRushtonTurbineGeometry()
+}
+
+public func updateGeometry() -> [GeomPoints]{
+    return updateRushtonTurbineGeometry()
+}
+
+public func loadGeometryFromJson() -> [GeomPoints]{
+    return loadRushtonTurbineGeometryFromJson()
 }
 
 

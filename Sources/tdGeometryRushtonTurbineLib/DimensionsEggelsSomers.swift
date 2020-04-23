@@ -8,21 +8,21 @@
 import Foundation
 
 
-func getEggelsSomersConfig(
-                gridx: Int,
-                uav: Double,
-                impellerStartupStepsUntilNormalSpeed: Int,
-                startingStep: Int,
-                impellerStartAngle: Double) -> RushtonTurbine {
+func getEggelsSomersDimensions(
+    gridX: Int,
+    uav: Double,
+    impellerStartupStepsUntilNormalSpeed: Int = 0,
+    startingStep: Int = 0,
+    impellerStartAngle: Double = 0.0) -> (RushtonTurbine, qVecOutputData) {
 
     let MDIAM_BORDER: Double = 2
 
-    let tankDiameter: Double = Double(gridx) - MDIAM_BORDER
+    let tankDiameter: Double = Double(gridX) - MDIAM_BORDER
     let tankHeight: Double = tankDiameter
 
     let shaft = Shaft(radius: Int(tankDiameter * 2.0 / 75.0))
 
-    
+
 
     // MARK: - Baffles
 
@@ -86,7 +86,7 @@ func getEggelsSomersConfig(
         impellerStartAngle: impellerStartAngle,
         shaft: shaft,
         impeller: [0: impeller],
-        gridx: gridx,
+        gridx: gridX,
         impellerStartupStepsUntilNormalSpeed: impellerStartupStepsUntilNormalSpeed,
         baffles: baffles,
         numImpellers: 1,
@@ -95,6 +95,37 @@ func getEggelsSomersConfig(
         resolution: 0.7
     )
 
-    return turbine
+
+
+    //TODO Default output Data, (probably should not live here)
+
+    let xy0 = Ortho2D(at: gridX/2 - 1, every:10)
+    let xy1 = Ortho2D(at: gridX/2,     every:10)
+    let xy2 = Ortho2D(at: gridX/2 + 1, every:10)
+
+    let xz0 = Ortho2D(at: impeller.impellerPosition - 1, every:10)
+    let xz1 = Ortho2D(at: impeller.impellerPosition,     every:10)
+    let xz2 = Ortho2D(at: impeller.impellerPosition + 1, every:10)
+
+
+//    let xzML = Ortho2D(at: impeller.impellerPosition / 2, every:10, from: 1000)
+    //TODO
+    //    let angle = Angle2D(atAngle: <#T##Int#>, every: <#T##Int#>, from: <#T##Int?#>, to: <#T##Int?#>)
+
+
+
+    let yz0 = Ortho2D(at: gridX/2, every:10)
+
+    let v = Volume(every: 100, from: 1000)
+
+
+    let output = qVecOutputData(volume: [v],
+                        ortho2DXY:[xy0, xy1, xy2],
+                        ortho2DXZ:[xz0, xz1, xz2],
+                        ortho2DYZ:[yz0])
+
+
+
+    return (turbine, output)
 
 }

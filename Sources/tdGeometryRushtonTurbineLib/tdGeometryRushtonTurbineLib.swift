@@ -10,48 +10,8 @@ struct tdGeometryRushtonTurbineLib {
 }
 
 
-public enum GeomPointType {
-    //case Fluid
-    case FixedBoundary
-    case MovingBoundary
-}
 
 
-public struct GeomPoints {
-    public let i, j, k : Int
-    public let kind: GeomPointType
-
-    init(i: Int, j: Int, k: Int, kind: GeomPointType){
-        self.i = i
-        self.j = j
-        self.k = k
-        self.kind = kind
-    }
-
-    init(_ i: Int, _ j: Int, _ k: Int, _ kind: GeomPointType){
-        self.i = i
-        self.j = j
-        self.k = k
-        self.kind = kind
-    }
-}
-
-
-public func getFixedGeometry() -> [GeomPoints]{
-    return getFixedRushtonTurbineGeometry()
-}
-
-public func getMovingGeometry() -> [GeomPoints]{
-     return getMovingRushtonTurbineGeometry()
-}
-
-public func updateGeometry() -> [GeomPoints]{
-    return updateRushtonTurbineGeometry()
-}
-
-public func loadGeometryFromJson() -> [GeomPoints]{
-    return loadRushtonTurbineGeometryFromJson()
-}
 
 
 

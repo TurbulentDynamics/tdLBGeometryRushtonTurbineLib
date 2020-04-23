@@ -3,7 +3,7 @@
 //
 //   let rushtonTurbine = try RushtonTurbine(json)
 //
-/////https://app.quicktype.io?share=a4Hldp81TGUIEjNVrBRX
+//https://app.quicktype.io?share=a4Hldp81TGUIEjNVrBRX
 import Foundation
 
 
@@ -16,7 +16,7 @@ extension RushtonTurbine {
 
 
 // MARK: - RushtonTurbine
-struct RushtonTurbine: Codable {
+public struct RushtonTurbine: Codable {
     var tankDiameter, tankHeight:Int
     var impellerStartAngle: Double
     var shaft: Shaft
@@ -97,7 +97,7 @@ extension RushtonTurbine {
 }
 
 // MARK: - Baffles
-struct Baffles: Codable {
+public struct Baffles: Codable {
     var firstBaffleOffset: Double
     var innerRadius, thickness, numBaffles, outerRadius: Int
 }
@@ -146,7 +146,7 @@ extension Baffles {
 }
 
 // MARK: - Impeller
-struct Impeller: Codable {
+public struct Impeller: Codable {
     var blades: Blades
     var uav, bladeTipAngularVelW0: Double
     var impellerPosition: Int
@@ -212,7 +212,7 @@ extension Impeller {
 }
 
 // MARK: - Blades
-struct Blades: Codable {
+public struct Blades: Codable {
     var innerRadius, top: Int
     var thickness:Int
     var outerRadius: Int, bottom: Int
@@ -268,7 +268,7 @@ extension Blades {
 }
 
 // MARK: - Disk
-struct Disk: Codable {
+public struct Disk: Codable {
     var top, bottom, radius: Int
 }
 
@@ -312,7 +312,7 @@ extension Disk {
 }
 
 // MARK: - Shaft
-struct Shaft: Codable {
+public struct Shaft: Codable {
     var radius: Int
 }
 

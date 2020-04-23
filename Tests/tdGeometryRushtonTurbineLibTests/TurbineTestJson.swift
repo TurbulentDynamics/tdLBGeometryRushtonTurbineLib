@@ -4,14 +4,16 @@
 //
 //  Created by Niall Ó Broin on 26/03/2020.
 //
+@testable import tdGeometryRushtonTurbineLib
 
-func getGUIDemoJson() -> RushtonTurbine {
-    let rushtonTurbine = try! RushtonTurbine(json: GUIDemoJson)
+
+func getTurbineTestData() -> RushtonTurbine {
+    let rushtonTurbine = try! RushtonTurbine(json: TurbineTestData)
     return rushtonTurbine
 }
 
 
-let GUIDemoJson = """
+let TurbineTestData = """
 {
     "tankDiameter":300,
     "tankHeight":300,

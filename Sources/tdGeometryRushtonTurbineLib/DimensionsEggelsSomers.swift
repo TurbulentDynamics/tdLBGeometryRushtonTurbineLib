@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import tdLBApi
 
 
 func getEggelsSomersDimensions(
@@ -107,16 +108,13 @@ func getEggelsSomersDimensions(
     let xz1 = Ortho2D(at: impeller.impellerPosition,     every:10)
     let xz2 = Ortho2D(at: impeller.impellerPosition + 1, every:10)
 
-
 //    let xzML = Ortho2D(at: impeller.impellerPosition / 2, every:10, from: 1000)
     //TODO
     //    let angle = Angle2D(atAngle: <#T##Int#>, every: <#T##Int#>, from: <#T##Int?#>, to: <#T##Int?#>)
 
-
-
     let yz0 = Ortho2D(at: gridX/2, every:10)
 
-    let v = Volume(every: 100, from: 1000)
+    let v = Volume(every: 100)
 
 
     let output = qVecOutputData(volume: [v],

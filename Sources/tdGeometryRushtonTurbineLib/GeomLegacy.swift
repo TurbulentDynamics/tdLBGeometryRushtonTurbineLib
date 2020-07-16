@@ -32,7 +32,9 @@ public struct GeometryLegacy: Geometry {
     public var geomFixed = [RotatingGeomPoints]()
     public var geomRotating = [RotatingGeomPoints]()
 
-    public var centerI, centerK:Int
+    public var centerI: Int {return (gridX - turbine.tankDiameter) / 2 + turbine.tankDiameter}
+    public var centerK: Int {return centerI}
+
 
 
     public init(gridX:Int, gridY:Int, gridZ:Int,
@@ -53,12 +55,9 @@ public struct GeometryLegacy: Geometry {
         self.impellerCurrentAngle = 0
 
 
-        //TODO make selectable
+        //TODO make selectable, Eggels or Load Json or other...
         (self.turbine, self.output) = getEggelsSomersDimensions(gridX: gridX, uav: uav, impellerStartupStepsUntilNormalSpeed: s, startingStep: startingStep, impellerStartAngle: impellerStartAngle)
 
-
-        self.centerI = Int(ceil(tGeomCalc(turbine.tankDiameter) / 2.0))
-        self.centerK = centerI
 
 
         createTankWallLegacy()
@@ -92,17 +91,12 @@ public struct GeometryLegacy: Geometry {
         self.impellerStartupStepsUntilNormalSpeed = self.turbine.impellerStartupStepsUntilNormalSpeed
         self.impellerStartAngle = self.turbine.impellerStartAngle
 
-        self.centerI = Int(ceil(tGeomCalc(turbine.tankDiameter) / 2.0))
-        self.centerK = centerI
     }
-
 
 
 
     public mutating func updateGeom(forStep step: Int) {
 
-        let centerI = tGeomCalc(turbine.tankDiameter) / 2.0
-        let centerK = centerI
 
         let impellerIncrementThisStep:tGeomCalc = calcImpellerIncrement(atStep: step)
 
@@ -114,9 +108,9 @@ public struct GeometryLegacy: Geometry {
 
             geomRotating[g].t_polar += impellerIncrementThisStep
 
-            geomRotating[g].i_cart_fp = centerI + geomRotating[g].r_polar * cos(geomRotating[g].t_polar)
+            geomRotating[g].i_cart_fp = tGeomCalc(centerI) + geomRotating[g].r_polar * cos(geomRotating[g].t_polar)
             geomRotating[g].j_cart_fp = 0
-            geomRotating[g].k_cart_fp = centerK + geomRotating[g].r_polar * sin(geomRotating[g].t_polar)
+            geomRotating[g].k_cart_fp = tGeomCalc(centerK) + geomRotating[g].r_polar * sin(geomRotating[g].t_polar)
 
             geomRotating[g].u_delta = -impellerIncrementThisStep * geomRotating[g].r_polar * sin(geomRotating[g].t_polar)
             geomRotating[g].v_delta = 0
@@ -171,8 +165,7 @@ extension GeometryLegacy {
 
     mutating func createTankWallLegacy() {
 
-        let centerI = tGeomCalc(turbine.tankDiameter) / 2.0
-        let centerK = centerI
+
         let tankHeight = turbine.tankDiameter
         let resolution = tGeomCalc(turbine.resolution)
 
@@ -191,9 +184,9 @@ extension GeometryLegacy {
 
 
                 let g = RotatingGeomPoints(
-                    i_cart_fp: centerI + r * cos(theta),
+                    i_cart_fp: tGeomCalc(centerI) + r * cos(theta),
                     j_cart_fp: tGeomCalc(j) + 0.5,
-                    k_cart_fp: centerK + r * sin(theta))
+                    k_cart_fp: tGeomCalc(centerK) + r * sin(theta))
                 //                    g.resolution = resolution
 
 
@@ -210,8 +203,7 @@ extension GeometryLegacy {
 
     mutating func createBafflesLegacy() {
 
-        let centerI = tGeomCalc(turbine.tankDiameter) / 2.0
-        let centerK = centerI
+
         let tankHeight = turbine.tankDiameter
 
         let resolution = tGeomCalc(turbine.resolution)
@@ -247,9 +239,9 @@ extension GeometryLegacy {
 
 
                         let g = RotatingGeomPoints(
-                            i_cart_fp: centerI + r * cos(theta),
+                            i_cart_fp: tGeomCalc(centerI) + r * cos(theta),
                             j_cart_fp: tGeomCalc(j) + 0.5,
-                            k_cart_fp: centerK + r * sin(theta))
+                            k_cart_fp: tGeomCalc(centerK) + r * sin(theta))
                         //                    g.resolution = resolution
 
 
@@ -272,8 +264,6 @@ extension GeometryLegacy {
     mutating func createImpellerBladesLegacy(withIncrement angle: tGeomCalc) {
 
 
-        let centerI = tGeomCalc(turbine.tankDiameter) / 2.0
-        let centerK = centerI
 
         let impellerNum = 0
         let impeller = turbine.impeller[impellerNum]!
@@ -321,9 +311,9 @@ extension GeometryLegacy {
                             r_polar: tGeomCalc(r),
                             t_polar: theta,
 
-                            i_cart_fp: centerI + r * cos(theta),
+                            i_cart_fp: tGeomCalc(centerI) + r * cos(theta),
                             j_cart_fp: tGeomCalc(j) + 0.5,
-                            k_cart_fp: centerK + r * sin(theta),
+                            k_cart_fp: tGeomCalc(centerK) + r * sin(theta),
 
                             u_delta: -angle * tGeomCalc(r) * sin(theta),
                             v_delta: 0,
@@ -349,8 +339,7 @@ extension GeometryLegacy {
 
     mutating func createImpellerDiskLegacy(withIncrement angle: tGeomCalc) {
 
-        let centerI = tGeomCalc(turbine.tankDiameter) / 2.0
-        let centerK = centerI
+
 
 
         let impellerNum = 0
@@ -398,9 +387,9 @@ extension GeometryLegacy {
                     let g = RotatingGeomPoints(
                         r_polar: tGeomCalc(r),
                         t_polar: t_polar,
-                        i_cart_fp: centerI + r * cos(t_polar),
+                        i_cart_fp: tGeomCalc(centerI) + r * cos(t_polar),
                         j_cart_fp: tGeomCalc(j) + 0.5,
-                        k_cart_fp: centerK + r * sin(t_polar),
+                        k_cart_fp: tGeomCalc(centerK) + r * sin(t_polar),
                         u_delta: -angle * tGeomCalc(r) * sin(t_polar),
                         v_delta: 0,
                         w_delta:  angle * tGeomCalc(r) * cos(t_polar))
@@ -426,9 +415,6 @@ extension GeometryLegacy {
 
     mutating func createImpellerHubLegacy(withIncrement angle: tGeomCalc) {
 
-
-        let centerI = tGeomCalc(turbine.tankDiameter) / 2.0
-        let centerK = centerI
 
 
         let impellerNum = 0
@@ -474,9 +460,9 @@ extension GeometryLegacy {
                     let g = RotatingGeomPoints(
                         r_polar: tGeomCalc(r),
                         t_polar: t_polar,
-                        i_cart_fp: centerI + r * cos(t_polar),
+                        i_cart_fp: tGeomCalc(centerI) + r * cos(t_polar),
                         j_cart_fp: tGeomCalc(j) + 0.5,
-                        k_cart_fp: centerK + r * sin(t_polar),
+                        k_cart_fp: tGeomCalc(centerK) + r * sin(t_polar),
                         u_delta: -angle * tGeomCalc(r) * sin(t_polar),
                         v_delta: 0,
                         w_delta:  angle * tGeomCalc(r) * cos(t_polar))
@@ -499,8 +485,6 @@ extension GeometryLegacy {
 
     mutating func createImpellerShaftLegacy(withIncrement angle: tGeomCalc) {
 
-        let centerI = tGeomCalc(turbine.tankDiameter) / 2.0
-        let centerK = centerI
 
 
         for j in 0..<turbine.tankHeight {
@@ -541,9 +525,9 @@ extension GeometryLegacy {
                     let g = RotatingGeomPoints(
                         r_polar: tGeomCalc(r),
                         t_polar: tGeomCalc(theta),
-                        i_cart_fp: centerI + r * cos(theta),
+                        i_cart_fp: tGeomCalc(centerI) + r * cos(theta),
                         j_cart_fp: tGeomCalc(j) + 0.5,
-                        k_cart_fp: centerK + r * sin(theta),
+                        k_cart_fp: tGeomCalc(centerK) + r * sin(theta),
                         u_delta: -angle * tGeomCalc(r) * sin(theta),
                         v_delta: 0,
                         w_delta:  angle * tGeomCalc(r) * cos(theta))
@@ -577,8 +561,6 @@ extension GeometryLegacy {
 
     public mutating func incrementGeom(byAngle angle:Radian, forStep step: Int) {
 
-        let centerI = tGeomCalc(turbine.tankDiameter) / 2.0
-        let centerK = centerI
 
         let impellerIncrementThisStep:tGeomCalc = calcImpellerIncrement(atStep: step)
 
@@ -592,9 +574,9 @@ extension GeometryLegacy {
             geomRotating[g].t_polar += impellerCurrentAngle
 
 
-            geomRotating[g].i_cart_fp = centerI + geomRotating[g].r_polar * cos(geomRotating[g].t_polar)
+            geomRotating[g].i_cart_fp = tGeomCalc(centerI) + geomRotating[g].r_polar * cos(geomRotating[g].t_polar)
             geomRotating[g].j_cart_fp = 0.0
-            geomRotating[g].k_cart_fp = centerK + geomRotating[g].r_polar * sin(geomRotating[g].t_polar)
+            geomRotating[g].k_cart_fp = tGeomCalc(centerK) + geomRotating[g].r_polar * sin(geomRotating[g].t_polar)
 
             geomRotating[g].u_delta = -impellerIncrementThisStep * geomRotating[g].r_polar * sin(geomRotating[g].t_polar);
             geomRotating[g].v_delta = 0.0

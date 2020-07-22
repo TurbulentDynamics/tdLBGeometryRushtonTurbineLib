@@ -6,14 +6,12 @@
 //https://app.quicktype.io?share=a4Hldp81TGUIEjNVrBRX
 import Foundation
 
-
 //TODO Create func to save the object to json, with string keys for impeller
 extension RushtonTurbine {
     func saveAsJson(to url: URL) throws {
         print("Saving to:" + url.absoluteString)
     }
 }
-
 
 // MARK: - RushtonTurbine
 public class RushtonTurbine: ObservableObject, Codable {
@@ -29,6 +27,7 @@ public class RushtonTurbine: ObservableObject, Codable {
     @Published var startingStep: Int
     @Published var name: String
     @Published var resolution: Double
+
 
     enum CodingKeys: String, CodingKey {
         case tankDiameter, tankHeight
@@ -153,7 +152,6 @@ extension RushtonTurbine {
         try self.init(data: try Data(contentsOf: url))
     }
 
-
     func jsonData() throws -> Data {
         return try newJSONEncoder().encode(self)
     }
@@ -166,7 +164,6 @@ extension RushtonTurbine {
         let j = try! jsonString()
         try! j!.write(to: url, atomically: true, encoding: .utf8)
     }
-
 
     func with(
         tankDiameter: Int? = nil,
@@ -435,7 +432,7 @@ extension Impeller {
 // MARK: - Blades
 public class Blades: Codable {
     var innerRadius, top: Int
-    var thickness:Int
+    var thickness: Int
     var outerRadius: Int, bottom: Int
 
     enum CodingKeys: String, CodingKey {

@@ -10,10 +10,9 @@
 import Foundation
 import tdLBApi
 
-
-
-
 public struct GeometryMidPoint: Geometry {
+
+
 
     var gridX, gridY, gridZ: Int
 
@@ -30,9 +29,7 @@ public struct GeometryMidPoint: Geometry {
     var geomFixed = [RotatingGeomPoints]()
     var geomRotating = [RotatingGeomPoints]()
 
-
-
-    public init(gridX:Int, gridY:Int, gridZ:Int, uav: Double, impellerStartupStepsUntilNormalSpeed s: Int = 0, startingStep: Int = 0, impellerStartAngle: Double = 0.0){
+    public init(gridX: Int, gridY: Int, gridZ: Int, uav: Double, impellerStartupStepsUntilNormalSpeed s: Int = 0, startingStep: Int = 0, impellerStartAngle: Double = 0.0) {
 
         self.gridX = gridX
         self.gridY = gridY
@@ -43,26 +40,21 @@ public struct GeometryMidPoint: Geometry {
         self.impellerStartupStepsUntilNormalSpeed = s
         self.impellerStartAngle = impellerStartAngle
 
-        (self.turbine, self.output) = getEggelsSomersDimensions(gridX: gridX, uav: uav, impellerStartupStepsUntilNormalSpeed: s, startingStep: startingStep, impellerStartAngle: impellerStartAngle)
+        (self.turbine, self.output) = useEggelsSomersRatios(gridX: gridX, uav: uav, impellerStartupStepsUntilNormalSpeed: s, startingStep: startingStep, impellerStartAngle: impellerStartAngle)
 
-
-        geomFixed = [RotatingGeomPoints]()
-        geomRotating = [RotatingGeomPoints]()
+        generateFixedGeometry(turbine: self.turbine)
+        generateRotatingGeometry(turbine: self.turbine, atθ: Radian(impellerStartAngle))
 
     }
 
-
-
     public init(fileName: String, outputJson: String) throws {
 
-        self.turbine = try RushtonTurbine(json: fileName)
+        self.turbine = try RushtonTurbine(fileName)
         self.output = try qVecOutputData(json: outputJson)
-
 
         self.gridX = self.turbine.gridx
         self.gridY = self.turbine.gridx
         self.gridZ = self.turbine.gridx
-
 
         self.uav = self.turbine.impeller[0]!.uav
         self.startingStep = self.turbine.startingStep
@@ -71,59 +63,46 @@ public struct GeometryMidPoint: Geometry {
 
     }
 
-
-
-
-    public func getFixedGeomPoints() -> [(Int, Int, Int, Int)] {
-        var pts = [(Int, Int, Int, Int)]()
+    public func getFixedPointCloud() -> [PointCloudElement] {
+        var pts = [PointCloudElement]()
 
         for g in geomFixed {
-            pts.append((g.i_cart, g.j_cart, g.k_cart, 0))
+            pts.append(PointCloudElement(i: g.i_cart, j: g.j_cart, k: g.k_cart, kind: .rotating))
         }
         return pts
     }
 
-    public func getRotatingGeomPoints() -> [(Int, Int, Int, Int)] {
-        var pts = [(Int, Int, Int, Int)]()
+    public func getRotatingPointCloud() -> [PointCloudElement] {
+        var pts = [PointCloudElement]()
 
         for g in geomRotating {
-            pts.append((g.i_cart, g.j_cart, g.k_cart, 1))
+            pts.append(PointCloudElement(i: g.i_cart, j: g.j_cart, k: g.k_cart, kind: .fixed))
         }
         return pts
     }
-
-
-
 
     public mutating func updateGeom(forStep step: Int) {
         //TODO
-        print("hello")
+        print("Need to implement updateGeom!!!!!")
     }
 
-
-
-
 }//end of class
-
-
-
 
 extension GeometryMidPoint {
 
 
-    mutating func getFixedMidPointGeometry(turbine: RushtonTurbine) {
+
+    mutating func generateFixedGeometry(turbine: RushtonTurbine) {
 
         getWall(turbine: turbine)
-        getBaffles(turbine: turbine)
+        getBaffles(turbine: turbine)    }
 
-    }
-
-
-    mutating func getRotatingMidPointGeometry(turbine: RushtonTurbine, atθ: Radian) {
+    mutating func generateRotatingGeometry(turbine: RushtonTurbine, atθ: Radian) {
 
         getImpellers(turbine: turbine, atθ: atθ)
 
     }
+
 
 
     mutating func updateMidpointGeometry(turbine: RushtonTurbine, atθ: Radian) {
@@ -132,13 +111,6 @@ extension GeometryMidPoint {
 //        getImpellers(turbine: turbine, atθ: atθ)
 
     }
-
-
-
-
-
-
-
 
     // MARK: - Rotating Geometry
 
@@ -151,10 +123,6 @@ extension GeometryMidPoint {
 
     }
 
-
-
-
-
     mutating func getBlades(turbine: RushtonTurbine, atθ θ: Radian = 0.0) {
 
         let centerX = turbine.tankDiameter / 2
@@ -166,10 +134,8 @@ extension GeometryMidPoint {
 
         let deltaImpellerOffset: Radian = (2.0 * Radian.pi) / tGeomCalc(impeller.numBlades)
 
-        
         var reducedθ = θ
         while reducedθ > 2 * Radian.pi {reducedθ -= 2 * Radian.pi}
-
 
         for j in blades.top..<blades.bottom {
 
@@ -177,21 +143,17 @@ extension GeometryMidPoint {
 
                 let bladeAngle: Radian = reducedθ + Radian(impeller.firstBladeOffset) + deltaImpellerOffset * tGeomCalc(nBlade)
 
-                let outerEdge: Line = getPerpendicularEdge(centerX:centerX, centerY:centerZ, angle: bladeAngle, radius: tGeomCalc(blades.outerRadius), thickness: blades.thickness)
-
+                let outerEdge: Line = getPerpendicularEdge(centerX: centerX, centerY: centerZ, angle: bladeAngle, radius: tGeomCalc(blades.outerRadius), thickness: blades.thickness)
 
                 for l in getBresenhamline(x0: outerEdge.x0, y0: outerEdge.y0, x1: outerEdge.x1, y1: outerEdge.y1) {
                     geomRotating.append(RotatingGeomPoints(i_cart: l.0, j_cart: j, k_cart: l.1))
                 }
 
-
-                let innerEdge: Line = getPerpendicularEdge(centerX:centerX, centerY:centerZ, angle: bladeAngle, radius: tGeomCalc(blades.innerRadius), thickness: blades.thickness)
+                let innerEdge: Line = getPerpendicularEdge(centerX: centerX, centerY: centerZ, angle: bladeAngle, radius: tGeomCalc(blades.innerRadius), thickness: blades.thickness)
 
                 for l in getBresenhamline(x0: innerEdge.x0, y0: innerEdge.y0, x1: innerEdge.x1, y1: innerEdge.y1) {
                     geomRotating.append(RotatingGeomPoints(i_cart: l.0, j_cart: j, k_cart: l.1))
                 }
-
-
 
                 for l in getBresenhamline(x0: outerEdge.x0, y0: outerEdge.y0, x1: innerEdge.x0, y1: innerEdge.y0) {
                     geomRotating.append(RotatingGeomPoints(i_cart: l.0, j_cart: j, k_cart: l.1))
@@ -204,28 +166,21 @@ extension GeometryMidPoint {
 
     }
 
-
-
-
-
     mutating func getShaft(turbine: RushtonTurbine) {
 
         let radius = turbine.shaft.radius / 2
         let center = turbine.tankDiameter / 2
 
-
-        for j in 0..<turbine.tankHeight{
+        for j in 0..<turbine.tankHeight {
             geomRotating.append(contentsOf: drawCircleIK(atj: j, radius: radius, iCenter: center, kCenter: center))
         }
     }
 
-
-    mutating func getDisc(turbine: RushtonTurbine){
+    mutating func getDisc(turbine: RushtonTurbine) {
 
         let disk = turbine.impeller[0]!.disk
         let radius = disk.radius
         let center = turbine.tankDiameter / 2
-
 
         var j = disk.top
         geomRotating.append(contentsOf: drawHollowDiscIK(atj: j, innerRadius: turbine.shaft.radius, outerRadius: radius, iCenter: center, kCenter: center))
@@ -238,8 +193,6 @@ extension GeometryMidPoint {
         geomRotating.append(contentsOf: drawHollowDiscIK(atj: j, innerRadius: turbine.shaft.radius, outerRadius: radius, iCenter: center, kCenter: center))
 
     }
-
-
 
     mutating func getHub(turbine: RushtonTurbine) {
 
@@ -259,36 +212,24 @@ extension GeometryMidPoint {
 
     }
 
-
-
-
-
-
     // MARK: - Fixed Geometry
     mutating func getWall(turbine: RushtonTurbine) {
 
         let radius = turbine.tankDiameter / 2
         let center = turbine.tankDiameter / 2
 
-        for j in 0..<turbine.tankHeight{
+        for j in 0..<turbine.tankHeight {
             geomFixed.append(contentsOf: drawCircleIK(atj: j, radius: radius, iCenter: center, kCenter: center))
         }
     }
 
-
-
-
     mutating func getBaffles(turbine: RushtonTurbine) {
-
 
         let centerX = turbine.tankDiameter / 2
         let centerZ = centerX
         let tankHeight = turbine.tankDiameter
 
-
-
         let deltaBaffleOffset: Radian = (2.0 * Radian.pi) / tGeomCalc(turbine.baffles.numBaffles)
-
 
         for j in 0..<tankHeight {
 
@@ -296,21 +237,17 @@ extension GeometryMidPoint {
 
                 let baffleAngle: Radian = tGeomCalc(turbine.baffles.firstBaffleOffset) + deltaBaffleOffset * tGeomCalc(nBaffle)
 
-                let outerEdge: Line = getPerpendicularEdge(centerX:centerX, centerY:centerZ, angle: baffleAngle, radius: tGeomCalc(turbine.baffles.outerRadius), thickness: turbine.baffles.thickness)
+                let outerEdge: Line = getPerpendicularEdge(centerX: centerX, centerY: centerZ, angle: baffleAngle, radius: tGeomCalc(turbine.baffles.outerRadius), thickness: turbine.baffles.thickness)
 
                 for l in getBresenhamline(x0: outerEdge.x0, y0: outerEdge.y0, x1: outerEdge.x1, y1: outerEdge.y1) {
                     geomFixed.append(RotatingGeomPoints(i_cart: l.0, j_cart: j, k_cart: l.1))
                 }
 
-
-
-                let innerEdge: Line = getPerpendicularEdge(centerX:centerX, centerY:centerZ, angle: baffleAngle, radius: tGeomCalc(turbine.baffles.innerRadius), thickness: turbine.baffles.thickness)
+                let innerEdge: Line = getPerpendicularEdge(centerX: centerX, centerY: centerZ, angle: baffleAngle, radius: tGeomCalc(turbine.baffles.innerRadius), thickness: turbine.baffles.thickness)
 
                 for l in getBresenhamline(x0: innerEdge.x0, y0: innerEdge.y0, x1: innerEdge.x1, y1: innerEdge.y1) {
                     geomFixed.append(RotatingGeomPoints(i_cart: l.0, j_cart: j, k_cart: l.1))
                 }
-
-
 
                 for l in getBresenhamline(x0: outerEdge.x0, y0: outerEdge.y0, x1: innerEdge.x0, y1: innerEdge.y0) {
                     geomFixed.append(RotatingGeomPoints(i_cart: l.0, j_cart: j, k_cart: l.1))
@@ -324,38 +261,25 @@ extension GeometryMidPoint {
         }
     }
 
-
-
-
-
-
-
-
-
-
-
     // MARK: - primitives
 
     struct Line {
         var x0, y0, x1, y1: Int
-        init(x0:Int, y0:Int, x1:Int, y1:Int){
+        init(x0: Int, y0: Int, x1: Int, y1: Int) {
             self.x0 = x0
             self.y0 = y0
             self.x1 = x1
             self.y1 = y1
         }
-        init(x0:tGeomCalc, y0:tGeomCalc, x1:tGeomCalc, y1:tGeomCalc){
-            self.init(x0:Int(x0), y0:Int(y0), x1:Int(x1), y1:Int(y1))
+        init(x0: tGeomCalc, y0: tGeomCalc, x1: tGeomCalc, y1: tGeomCalc) {
+            self.init(x0: Int(x0), y0: Int(y0), x1: Int(x1), y1: Int(y1))
         }
     }
 
-    
-
-    func getPerpendicularEdge(centerX:Int, centerY:Int, angle: Radian, radius: tGeomCalc, thickness: Int) -> Line {
+    func getPerpendicularEdge(centerX: Int, centerY: Int, angle: Radian, radius: tGeomCalc, thickness: Int) -> Line {
 
         let midPointEdgeX = tGeomCalc(centerX) + radius * cos(angle)
         let midPointEdgeY = tGeomCalc(centerY) + radius * sin(angle)
-
 
         let edgeAngle: Radian = angle + 0.5 * Radian.pi
 
@@ -370,10 +294,8 @@ extension GeometryMidPoint {
         x1.round()
         y1.round()
 
-
-        return Line(x0:x0, y0:y0, x1:x1, y1:y1)
+        return Line(x0: x0, y0: y0, x1: x1, y1: y1)
     }
-
 
     func drawHollowDiscIK(atj: Int, innerRadius: Int, outerRadius: Int, iCenter: Int, kCenter: Int) -> [RotatingGeomPoints] {
 
@@ -413,11 +335,6 @@ extension GeometryMidPoint {
         return points
     }
 
-
-
-
-
-
     func drawDiscIK(atj: Int, radius: Int, iCenter: Int, kCenter: Int) -> [RotatingGeomPoints] {
 
         let pts = drawMidPointCircle(radius: radius, xCenter: iCenter, yCenter: kCenter)
@@ -428,7 +345,7 @@ extension GeometryMidPoint {
             let min = kList.min()!
             let max = kList.max()!
 
-            for k in min...max{
+            for k in min...max {
                 points.append(RotatingGeomPoints(i_cart: i, j_cart: atj, k_cart: k))
             }
 
@@ -436,12 +353,9 @@ extension GeometryMidPoint {
         return points
     }
 
-
-
     func drawCircleIK(atj: Int, radius: Int, iCenter: Int, kCenter: Int) -> [RotatingGeomPoints] {
 
         let pts = drawMidPointCircle(radius: radius, xCenter: iCenter, yCenter: kCenter)
-
 
         var points = [RotatingGeomPoints]()
 
@@ -451,26 +365,18 @@ extension GeometryMidPoint {
             }
         }
 
-
         return points
     }
 
-
-
-
     //http://rosettacode.org/wiki/Bitmap/Midpoint_circle_algorithm#Python
     func drawMidPointCircle(radius: Int, xCenter: Int, yCenter: Int) -> [Int: [Int]] {
-
 
         //TODO add throws
         if radius > xCenter {print("ERROR")}
         if radius > yCenter {print("ERROR")}
 
-
-        let x0:Int = Int(xCenter)
-        let y0:Int = Int(yCenter)
-
-
+        let x0: Int = Int(xCenter)
+        let y0: Int = Int(yCenter)
 
         var f: Int = 1 - Int(radius)
         var ddF_x: Int = 0
@@ -478,14 +384,11 @@ extension GeometryMidPoint {
         var x: Int = 0
         var y: Int = Int(radius)
 
-
         var pts: [Int: [Int]] = [:]
-
 
         pts[x0] = [y0 + radius, y0 - radius]
         pts[x0 + radius] = [y0]
         pts[x0 - radius] = [y0]
-
 
         while x < y {
 
@@ -498,7 +401,6 @@ extension GeometryMidPoint {
             x += 1
             ddF_x += 2
             f += ddF_x + 1
-
 
             pts[x0 + Int(x), default: [Int]()].append(y0 + Int(y))
             pts[x0 - Int(x), default: [Int]()].append(y0 + Int(y))
@@ -515,11 +417,8 @@ extension GeometryMidPoint {
         return pts
     }
 
-
-
-
     //http://rosettacode.org/wiki/Bitmap/Bresenham%27s_line_algorithm#Python
-    func getBresenhamline(x0:Int, y0:Int, x1:Int, y1:Int) -> [(Int, Int)] {
+    func getBresenhamline(x0: Int, y0: Int, x1: Int, y1: Int) -> [(Int, Int)] {
 
         //    var pts: [Int: [Int]] = [:]
         var pts: [(Int, Int)] = []
@@ -534,7 +433,6 @@ extension GeometryMidPoint {
 
         let sx = (x0 > x1 ? -1 : 1)
         let sy = (y0 > y1 ? -1 : 1)
-
 
         if dx > dy {
             var err = Float(dx) / 2.0
@@ -565,7 +463,5 @@ extension GeometryMidPoint {
 
         return pts
     }
-
-
 
 }//end of extension

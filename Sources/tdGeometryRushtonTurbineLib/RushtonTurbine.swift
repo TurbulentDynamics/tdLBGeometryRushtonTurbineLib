@@ -6,7 +6,6 @@
 //https://app.quicktype.io?share=a4Hldp81TGUIEjNVrBRX
 import Foundation
 
-
 //TODO Create func to save the object to json, with string keys for impeller
 extension RushtonTurbine {
     func saveAsJson(to url: URL) throws {
@@ -14,10 +13,9 @@ extension RushtonTurbine {
     }
 }
 
-
 // MARK: - RushtonTurbine
 public struct RushtonTurbine: Codable {
-    var tankDiameter, tankHeight:Int
+    var tankDiameter, tankHeight: Int
     var impellerStartAngle: Double
     var shaft: Shaft
     var impeller: [Int: Impeller]
@@ -55,7 +53,6 @@ extension RushtonTurbine {
     init(fromURL url: URL) throws {
         try self.init(data: try Data(contentsOf: url))
     }
-
 
     func with(
         tankDiameter: Int? = nil,
@@ -214,7 +211,7 @@ extension Impeller {
 // MARK: - Blades
 public struct Blades: Codable {
     var innerRadius, top: Int
-    var thickness:Int
+    var thickness: Int
     var outerRadius: Int, bottom: Int
 
     enum CodingKeys: String, CodingKey {
@@ -353,7 +350,7 @@ extension Shaft {
 
 // MARK: - Helper functions for creating encoders and decoders
 
-func newJSONDecoder() -> JSONDecoder {
+private func newJSONDecoder() -> JSONDecoder {
     let decoder = JSONDecoder()
     if #available(iOS 10.0, OSX 10.12, tvOS 10.0, watchOS 3.0, *) {
         decoder.dateDecodingStrategy = .iso8601
@@ -361,7 +358,7 @@ func newJSONDecoder() -> JSONDecoder {
     return decoder
 }
 
-func newJSONEncoder() -> JSONEncoder {
+private func newJSONEncoder() -> JSONEncoder {
     let encoder = JSONEncoder()
     if #available(iOS 10.0, OSX 10.12, tvOS 10.0, watchOS 3.0, *) {
         encoder.dateEncodingStrategy = .iso8601

@@ -37,6 +37,21 @@ public struct RushtonTurbine: Codable {
         case startingStep = "starting_step"
         case name, resolution
     }
+
+    public init(tankDiameter: Int, tankHeight: Int, impellerStartAngle: Double, shaft: Shaft, impeller: [Int: Impeller], gridx: Int, impellerStartupStepsUntilNormalSpeed: Int, baffles: Baffles, numImpellers: Int, startingStep: Int, name: String, resolution: Double) {
+        self.tankDiameter = tankDiameter
+        self.tankHeight = tankHeight
+        self.impellerStartAngle = impellerStartAngle
+        self.shaft = shaft
+        self.impeller = impeller
+        self.gridx = gridx
+        self.impellerStartupStepsUntilNormalSpeed = impellerStartupStepsUntilNormalSpeed
+        self.baffles = baffles
+        self.numImpellers = numImpellers
+        self.startingStep = startingStep
+        self.name = name
+        self.resolution = resolution
+    }
 }
 
 // MARK: RushtonTurbine convenience initializers and mutators
@@ -103,6 +118,14 @@ public struct Baffles: Codable {
     public var thickness: Int
     public var numBaffles: Int
     public var outerRadius: Int
+
+    public init(firstBaffleOffset: Double, innerRadius: Int, thickness: Int, numBaffles: Int, outerRadius: Int) {
+        self.firstBaffleOffset = firstBaffleOffset
+        self.innerRadius = innerRadius
+        self.thickness = thickness
+        self.numBaffles = numBaffles
+        self.outerRadius = outerRadius
+    }    
 }
 
 // MARK: Baffles convenience initializers and mutators
@@ -165,6 +188,17 @@ public struct Impeller: Codable {
         case impellerPosition = "impeller_position"
         case disk, numBlades, firstBladeOffset, hub
     }
+
+    public init(blades: Blades, uav: Double, bladeTipAngularVelW0: Double, impellerPosition: Int, disk: Disk, numBlades: Int, firstBladeOffset: Int, hub: Disk) {
+        self.blades = blades
+        self.uav = uav
+        self.bladeTipAngularVelW0 = bladeTipAngularVelW0
+        self.impellerPosition = impellerPosition
+        self.disk = disk
+        self.numBlades = numBlades
+        self.firstBladeOffset = firstBladeOffset
+        self.hub = hub
+    }    
 }
 
 // MARK: Impeller convenience initializers and mutators
@@ -229,6 +263,14 @@ public struct Blades: Codable {
         case thickness = "bladeThickness"
         case outerRadius, bottom
     }
+
+    public init(innerRadius: Int, top: Int, thickness: Int, outerRadius: Int, bottom: Int) {
+        self.innerRadius = innerRadius
+        self.top = top
+        self.thickness = thickness
+        self.outerRadius = outerRadius
+        self.bottom = bottom
+    }    
 }
 
 // MARK: Blades convenience initializers and mutators
@@ -279,6 +321,12 @@ public struct Disk: Codable {
     public var top: Int
     public var bottom: Int
     public var radius: Int
+
+    public init(top: Int, bottom: Int, radius: Int) {
+        self.top = top
+        self.bottom = bottom
+        self.radius = radius
+    }    
 }
 
 // MARK: Disk convenience initializers and mutators
@@ -323,6 +371,10 @@ public extension Disk {
 // MARK: - Shaft
 public struct Shaft: Codable {
     public var radius: Int
+
+    public init(radius: Int) {
+        self.radius = radius
+    }    
 }
 
 // MARK: Shaft convenience initializers and mutators

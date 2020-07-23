@@ -15,15 +15,18 @@ extension RushtonTurbine {
 
 // MARK: - RushtonTurbine
 public struct RushtonTurbine: Codable {
-    var tankDiameter, tankHeight: Int
-    var impellerStartAngle: Double
-    var shaft: Shaft
-    var impeller: [Int: Impeller]
-    var gridx, impellerStartupStepsUntilNormalSpeed: Int
-    var baffles: Baffles
-    var numImpellers, startingStep: Int
-    var name: String
-    var resolution: Double
+    public var tankDiameter: Int
+    public var tankHeight: Int
+    public var impellerStartAngle: Double
+    public var shaft: Shaft
+    public var impeller: [Int: Impeller]
+    public var gridx: Int
+    public var impellerStartupStepsUntilNormalSpeed: Int
+    public var baffles: Baffles
+    public var numImpellers: Int
+    public var startingStep: Int
+    public var name: String
+    public var resolution: Double
 
     enum CodingKeys: String, CodingKey {
         case tankDiameter, tankHeight
@@ -38,7 +41,7 @@ public struct RushtonTurbine: Codable {
 
 // MARK: RushtonTurbine convenience initializers and mutators
 
-extension RushtonTurbine {
+public extension RushtonTurbine {
     init(data: Data) throws {
         self = try newJSONDecoder().decode(RushtonTurbine.self, from: data)
     }
@@ -95,13 +98,16 @@ extension RushtonTurbine {
 
 // MARK: - Baffles
 public struct Baffles: Codable {
-    var firstBaffleOffset: Double
-    var innerRadius, thickness, numBaffles, outerRadius: Int
+    public var firstBaffleOffset: Double
+    public var innerRadius: Int
+    public var thickness: Int
+    public var numBaffles: Int
+    public var outerRadius: Int
 }
 
 // MARK: Baffles convenience initializers and mutators
 
-extension Baffles {
+public extension Baffles {
     init(data: Data) throws {
         self = try newJSONDecoder().decode(Baffles.self, from: data)
     }
@@ -144,12 +150,14 @@ extension Baffles {
 
 // MARK: - Impeller
 public struct Impeller: Codable {
-    var blades: Blades
-    var uav, bladeTipAngularVelW0: Double
-    var impellerPosition: Int
-    var disk: Disk
-    var numBlades, firstBladeOffset: Int
-    var hub: Disk
+    public var blades: Blades
+    public var uav: Double
+    public var bladeTipAngularVelW0: Double
+    public var impellerPosition: Int
+    public var disk: Disk
+    public var numBlades: Int
+    public var firstBladeOffset: Int
+    public var hub: Disk
 
     enum CodingKeys: String, CodingKey {
         case blades, uav
@@ -161,7 +169,7 @@ public struct Impeller: Codable {
 
 // MARK: Impeller convenience initializers and mutators
 
-extension Impeller {
+public extension Impeller {
     init(data: Data) throws {
         self = try newJSONDecoder().decode(Impeller.self, from: data)
     }
@@ -210,9 +218,11 @@ extension Impeller {
 
 // MARK: - Blades
 public struct Blades: Codable {
-    var innerRadius, top: Int
-    var thickness: Int
-    var outerRadius: Int, bottom: Int
+    public var innerRadius: Int
+    public var top: Int
+    public var thickness: Int
+    public var outerRadius: Int
+    public var bottom: Int
 
     enum CodingKeys: String, CodingKey {
         case innerRadius, top
@@ -223,7 +233,7 @@ public struct Blades: Codable {
 
 // MARK: Blades convenience initializers and mutators
 
-extension Blades {
+public extension Blades {
     init(data: Data) throws {
         self = try newJSONDecoder().decode(Blades.self, from: data)
     }
@@ -266,12 +276,14 @@ extension Blades {
 
 // MARK: - Disk
 public struct Disk: Codable {
-    var top, bottom, radius: Int
+    public var top: Int
+    public var bottom: Int
+    public var radius: Int
 }
 
 // MARK: Disk convenience initializers and mutators
 
-extension Disk {
+public extension Disk {
     init(data: Data) throws {
         self = try newJSONDecoder().decode(Disk.self, from: data)
     }
@@ -310,12 +322,12 @@ extension Disk {
 
 // MARK: - Shaft
 public struct Shaft: Codable {
-    var radius: Int
+    public var radius: Int
 }
 
 // MARK: Shaft convenience initializers and mutators
 
-extension Shaft {
+public extension Shaft {
     init(data: Data) throws {
         self = try newJSONDecoder().decode(Shaft.self, from: data)
     }

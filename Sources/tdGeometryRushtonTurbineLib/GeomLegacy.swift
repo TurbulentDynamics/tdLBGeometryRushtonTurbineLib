@@ -6,20 +6,20 @@
 //
 
 import Foundation
-import tdLBApi
+import tdGeometryLib
 
 public struct GeometryLegacy: Geometry {
 
 
 
-    var gridX, gridY, gridZ: Int
+    public var gridX, gridY, gridZ: Int
 
     let uav: Double
-    let startingStep, impellerStartupStepsUntilNormalSpeed: Int
+    public let startingStep, impellerStartupStepsUntilNormalSpeed: Int
     let impellerStartAngle: Double
 
     public let turbine: RushtonTurbine
-    public let output: qVecOutputData
+    public let output: OutputData
 
     var impellerIncrementFullStep: Radian = 0
     public var impellerCurrentAngle: Radian = 0
@@ -29,6 +29,36 @@ public struct GeometryLegacy: Geometry {
 
     public var centerI: Int {return (gridX - turbine.tankDiameter) / 2 + turbine.tankDiameter}
     public var centerK: Int {return centerI}
+
+
+
+
+
+
+
+    public init(gridX: Int, gridY: Int, gridZ: Int, startingStep: Int) {
+        self.gridX = gridX
+        self.gridY = gridY
+        self.gridZ = gridZ
+        self.startingStep = startingStep
+
+
+        self.uav = 0
+        self.impellerStartupStepsUntilNormalSpeed = 0
+
+        self.impellerStartAngle = 0
+
+        self.impellerCurrentAngle = 0
+
+//        self.turbine = RushtonTurbine(
+
+    }
+
+
+
+
+
+
 
     public init(gridX: Int, gridY: Int, gridZ: Int,
                 uav: Double,
@@ -50,15 +80,16 @@ public struct GeometryLegacy: Geometry {
         //TODO make selectable, Eggels or Load Json or other...
         (self.turbine, self.output) = useEggelsSomersRatios(gridX: gridX, uav: uav, impellerStartupStepsUntilNormalSpeed: s, startingStep: startingStep, impellerStartAngle: impellerStartAngle)
 
-        generateFixedGeometry(turbine: self.turbine)
-        generateRotatingGeometry(turbine: self.turbine, atθ: Radian(impellerStartAngle))
+        generateFixedGeometry()
+        generateRotatingGeometry(atθ: Radian(impellerStartAngle))
 
     }
+
 
     public init(fileName: String, outputJson: String) throws {
 
         self.turbine = try RushtonTurbine(fileName)
-        self.output = try qVecOutputData(json: outputJson)
+        self.output = try OutputData(json: outputJson)
 
         self.gridX = self.turbine.gridx
         self.gridY = self.turbine.gridx
@@ -116,14 +147,14 @@ public struct GeometryLegacy: Geometry {
 extension GeometryLegacy {
 
 
-    mutating func generateFixedGeometry(turbine: RushtonTurbine) {
+    public mutating func generateFixedGeometry() {
 
         generateTankWallLegacy()
         generateBafflesLegacy()
 
     }
 
-    mutating func generateRotatingGeometry(turbine: RushtonTurbine, atθ: Radian) {
+    public mutating func generateRotatingGeometry(atθ: Radian) {
 
         let increment = calcImpellerIncrement(atStep: 0)
         createImpellerHubLegacy(withIncrement: increment)

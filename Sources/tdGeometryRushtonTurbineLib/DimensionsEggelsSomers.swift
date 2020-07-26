@@ -6,14 +6,14 @@
 //
 
 import Foundation
-import tdLBApi
+import tdGeometryLib
 
 func useEggelsSomersRatios(
-    gridX: Int,
-    uav: Double,
-    impellerStartupStepsUntilNormalSpeed: Int = 0,
-    startingStep: Int = 0,
-    impellerStartAngle: Double = 0.0) -> (RushtonTurbine, qVecOutputData) {
+        gridX: Int,
+        uav: Double,
+        impellerStartupStepsUntilNormalSpeed: Int = 0,
+        startingStep: Int = 0,
+        impellerStartAngle: Double = 0.0) -> (RushtonTurbine, OutputData) {
 
     let MDIAM_BORDER: Double = 2
 
@@ -87,6 +87,10 @@ func useEggelsSomersRatios(
         resolution: 0.7
     )
 
+
+
+
+
     //TODO Default output Data, (probably should not live here)
 
     let xy0 = Ortho2D(at: gridX/2 - 1, every: 10)
@@ -105,7 +109,7 @@ func useEggelsSomersRatios(
 
     let v = Volume(every: 100)
 
-    let output = qVecOutputData(volume: [v],
+    let output = OutputData(volume: [v],
                         ortho2DXY: [xy0, xy1, xy2],
                         ortho2DXZ: [xz0, xz1, xz2],
                         ortho2DYZ: [yz0])

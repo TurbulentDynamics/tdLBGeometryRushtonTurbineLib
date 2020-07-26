@@ -13,6 +13,8 @@ extension RushtonTurbine {
     }
 }
 
+
+
 // MARK: - RushtonTurbine
 public class RushtonTurbine: ObservableObject, Codable {
     @Published var tankDiameter: Int

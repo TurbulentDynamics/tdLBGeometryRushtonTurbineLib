@@ -8,26 +8,49 @@
 //http://rosettacode.org/wiki/Bitmap/Midpoint_circle_algorithm#Python
 
 import Foundation
-import tdLBApi
+import tdGeometryLib
+
+
+
+
+
+
+
 
 public struct GeometryMidPoint: Geometry {
 
 
 
-    var gridX, gridY, gridZ: Int
+
+
+
+
+
+    public var gridX, gridY, gridZ: Int
 
     let uav: Double
-    let startingStep, impellerStartupStepsUntilNormalSpeed: Int
+    public let startingStep:Int
+    let impellerStartupStepsUntilNormalSpeed: Int
     let impellerStartAngle: Double
 
     public let turbine: RushtonTurbine
-    public let output: qVecOutputData
+    public let output: OutputData
 
     var impellerIncrementFullStep: Radian = 0
     var impellerCurrentAngle: Radian = 0
 
-    var geomFixed = [RotatingGeomPoints]()
-    var geomRotating = [RotatingGeomPoints]()
+    public var geomFixed = [RotatingGeomPoints]()
+    public var geomRotating = [RotatingGeomPoints]()
+
+
+    public init(gridX: Int, gridY: Int, gridZ: Int, startingStep: Int) {
+        self.gridX = gridX
+        self.gridY = gridY
+        self.gridZ = gridZ
+        self.startingStep = startingStep
+    }
+
+
 
     public init(gridX: Int, gridY: Int, gridZ: Int, uav: Double, impellerStartupStepsUntilNormalSpeed s: Int = 0, startingStep: Int = 0, impellerStartAngle: Double = 0.0) {
 
@@ -42,15 +65,15 @@ public struct GeometryMidPoint: Geometry {
 
         (self.turbine, self.output) = useEggelsSomersRatios(gridX: gridX, uav: uav, impellerStartupStepsUntilNormalSpeed: s, startingStep: startingStep, impellerStartAngle: impellerStartAngle)
 
-        generateFixedGeometry(turbine: self.turbine)
-        generateRotatingGeometry(turbine: self.turbine, atθ: Radian(impellerStartAngle))
+        generateFixedGeometry()
+        generateRotatingGeometry(atθ: Radian(impellerStartAngle))
 
     }
 
     public init(fileName: String, outputJson: String) throws {
 
         self.turbine = try RushtonTurbine(fileName)
-        self.output = try qVecOutputData(json: outputJson)
+        self.output = try OutputData(json: outputJson)
 
         self.gridX = self.turbine.gridx
         self.gridY = self.turbine.gridx
@@ -92,12 +115,12 @@ extension GeometryMidPoint {
 
 
 
-    mutating func generateFixedGeometry(turbine: RushtonTurbine) {
+    mutating public func generateFixedGeometry() {
 
         getWall(turbine: turbine)
         getBaffles(turbine: turbine)    }
 
-    mutating func generateRotatingGeometry(turbine: RushtonTurbine, atθ: Radian) {
+    public mutating func generateRotatingGeometry(atθ: Radian) {
 
         getImpellers(turbine: turbine, atθ: atθ)
 

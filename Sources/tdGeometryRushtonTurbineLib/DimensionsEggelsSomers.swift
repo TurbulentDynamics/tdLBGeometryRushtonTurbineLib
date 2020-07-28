@@ -6,14 +6,14 @@
 //
 
 import Foundation
-import tdLBApi
+import tdGeometryLib
 
-func useEggelsSomersRatios(
-    gridX: Int,
-    uav: Double,
-    impellerStartupStepsUntilNormalSpeed: Int = 0,
-    startingStep: Int = 0,
-    impellerStartAngle: Double = 0.0) -> (RushtonTurbine, qVecOutputData) {
+func getEggelsSomersGeometry(
+        gridX: Int,
+        uav: Double,
+        impellerStartupStepsUntilNormalSpeed: Int = 0,
+        startingStep: Int = 0,
+        impellerStartAngle: Double = 0.0) -> RushtonTurbine {
 
     let MDIAM_BORDER: Double = 2
 
@@ -77,7 +77,7 @@ func useEggelsSomersRatios(
         tankHeight: Int(tankHeight),
         impellerStartAngle: impellerStartAngle,
         shaft: shaft,
-        impeller: [0: impeller],
+        impeller: ["0": impeller],
         gridx: gridX,
         impellerStartupStepsUntilNormalSpeed: impellerStartupStepsUntilNormalSpeed,
         baffles: baffles,
@@ -86,30 +86,44 @@ func useEggelsSomersRatios(
         name: "Eggels and Somers 1997",
         resolution: 0.7
     )
+    return turbine
+}
 
-    //TODO Default output Data, (probably should not live here)
 
-    let xy0 = Ortho2D(at: gridX/2 - 1, every: 10)
-    let xy1 = Ortho2D(at: gridX/2, every: 10)
-    let xy2 = Ortho2D(at: gridX/2 + 1, every: 10)
 
-    let xz0 = Ortho2D(at: impeller.impellerPosition - 1, every: 10)
-    let xz1 = Ortho2D(at: impeller.impellerPosition, every: 10)
-    let xz2 = Ortho2D(at: impeller.impellerPosition + 1, every: 10)
 
-//    let xzML = Ortho2D(at: impeller.impellerPosition / 2, every:10, from: 1000)
+func exampleTurbineOutput(turbine: RushtonTurbine) -> OutputData {
+
+    var output = OutputData()
+    
+    let xy0 = Ortho2D(at: turbine.tankDiameter/2 - 1, repeatStep: 10)
+    let xy1 = Ortho2D(at: turbine.tankDiameter/2, repeatStep: 10)
+    let xy2 = Ortho2D(at: turbine.tankDiameter/2 + 1, repeatStep: 10)
+    output.add(xy:xy0)
+    output.add(xy:xy1)
+    output.add(xy:xy2)
+
+    
+    let xz0 = Ortho2D(at: turbine.impeller["0"]!.impellerPosition - 1, repeatStep: 10)
+    let xz1 = Ortho2D(at: turbine.impeller["0"]!.impellerPosition, repeatStep: 10)
+    let xz2 = Ortho2D(at: turbine.impeller["0"]!.impellerPosition + 1, repeatStep: 10)
+    output.add(xz:xz0)
+    output.add(xz:xz1)
+    output.add(xz:xz2)
+    
+    let yz0 = Ortho2D(at: turbine.tankDiameter/2, repeatStep: 10)
+    output.add(yz:yz0)
+
+    let v = Volume(repeatStep: 100)
+    output.add(v)
+    
+    
+    
+//    let xzML = Ortho2D(at: impeller.impellerPosition / 2, repeatStep:10, from: 1000)
     //TODO
-    //    let angle = Angle2D(atAngle: <#T##Int#>, every: <#T##Int#>, from: <#T##Int?#>, to: <#T##Int?#>)
+    //    let angle = Angle2D(atAngle: <#T##Int#>, repeatStep: <#T##Int#>, from: <#T##Int?#>, to: <#T##Int?#>)
 
-    let yz0 = Ortho2D(at: gridX/2, every: 10)
 
-    let v = Volume(every: 100)
-
-    let output = qVecOutputData(volume: [v],
-                        ortho2DXY: [xy0, xy1, xy2],
-                        ortho2DXZ: [xz0, xz1, xz2],
-                        ortho2DYZ: [yz0])
-
-    return (turbine, output)
+    return output
 
 }

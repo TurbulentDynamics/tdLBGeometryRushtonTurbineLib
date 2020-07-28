@@ -7,7 +7,7 @@
 @testable import tdGeometryRushtonTurbineLib
 
 func getTurbineTestData() -> RushtonTurbine {
-    let rushtonTurbine = try! RushtonTurbine(json: TurbineTestData)
+    let rushtonTurbine = try! RushtonTurbine(TurbineTestData)
     return rushtonTurbine
 }
 

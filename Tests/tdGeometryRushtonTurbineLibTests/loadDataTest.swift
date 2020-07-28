@@ -15,7 +15,7 @@ class dataTests: XCTestCase {
 
     func testMidPointGeometry() {
 
-        let g = GeometryMidPoint(gridX: 300, gridY: 300, gridZ: 300, uav: 0.1)
+        let g = RushtonTurbineMidPoint(gridX: 300, gridY: 300, gridZ: 300, uav: 0.1)
 
         XCTAssertEqual(g.gridX, 300)
 
@@ -28,7 +28,7 @@ class dataTests: XCTestCase {
 
     func testGeometryLegacy() {
 
-        let g = GeometryLegacy(gridX: 300, gridY: 300, gridZ: 300, uav: 0.1)
+        let g = RushtonTurbineLegacy(gridX: 300, gridY: 300, gridZ: 300, uav: 0.1)
 
         var geomLegacy = g.geomFixed
         geomLegacy.append(contentsOf: g.geomRotating)
@@ -39,13 +39,15 @@ class dataTests: XCTestCase {
 
     func testCompareLegacyToMidPoint() {
 
-        let gLegacy = GeometryLegacy(gridX: 300, gridY: 300, gridZ: 300, uav: 0.1)
+        let gMidPoint = RushtonTurbineMidPoint(gridX: 300, gridY: 300, gridZ: 300, uav: 0.1)
+        var geomMidPoint = gMidPoint.geomFixed
+        geomMidPoint.append(contentsOf: gMidPoint.geomRotating)
+
+
+        let gLegacy = RushtonTurbineLegacy(gridX: 300, gridY: 300, gridZ: 300, uav: 0.1)
         var geomLegacy = gLegacy.geomFixed
         geomLegacy.append(contentsOf: gLegacy.geomRotating)
 
-        let gMidPoint = GeometryMidPoint(gridX: 300, gridY: 300, gridZ: 300, uav: 0.1)
-        var geomMidPoint = gMidPoint.geomFixed
-        geomMidPoint.append(contentsOf: gMidPoint.geomRotating)
 
 //        XCTAssertEqual(geomMidPoint, geomLegacy)
 
@@ -53,19 +55,20 @@ class dataTests: XCTestCase {
 
     func testSampleTurbineConfig() {
 
-        let (TurbineES, OutputES) = useEggelsSomersRatios(gridX: 300, uav: 0.1)
+        let turbineES = getEggelsSomersGeometry(gridX: 300, uav: 0.1)
+        let outputES = exampleTurbineOutput(turbine: turbineES)
+            
+        XCTAssertEqual(turbineES.tankDiameter, 298)
+        XCTAssertEqual(turbineES.numImpellers, 1)
+        XCTAssertEqual(turbineES.impeller["0"]!.blades.top, 188)
 
-        XCTAssertEqual(TurbineES.tankDiameter, 298)
-        XCTAssertEqual(TurbineES.numImpellers, 1)
-        XCTAssertEqual(TurbineES.impeller[0]!.blades.top, 188)
-
-        XCTAssertEqual(OutputES.ortho2DXY[0].at, 149)
+        XCTAssertEqual(outputES.ortho2DXY[0].at, 148)
 
         let TurbineGUIDemo = getTurbineTestData()
         XCTAssertEqual(TurbineGUIDemo.tankDiameter, 300)
         XCTAssertEqual(TurbineGUIDemo.numImpellers, 3)
-        XCTAssertEqual(TurbineGUIDemo.impeller[0]!.blades.top, 240)
-        XCTAssertEqual(TurbineGUIDemo.impeller[1]!.blades.top, 20)
+        XCTAssertEqual(TurbineGUIDemo.impeller["0"]!.blades.top, 240)
+        XCTAssertEqual(TurbineGUIDemo.impeller["1"]!.blades.top, 20)
 
         //        turbines.append(getLegacy(gridx: <#T##Int#>, uav: <#T##Double#>, impellerStartupStepsUntilNormalSpeed: <#T##Int#>, startingStep: <#T##Int#>, impellerStartAngle: <#T##Double#>))
 

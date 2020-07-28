@@ -8,7 +8,7 @@
 import Foundation
 import tdGeometryLib
 
-func getEggelsSomersGeometry(
+public func getEggelsSomersGeometry(
         gridX: Int,
         uav: Double,
         impellerStartupStepsUntilNormalSpeed: Int = 0,

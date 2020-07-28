@@ -21,7 +21,7 @@ public class RushtonTurbine: ObservableObject, Codable {
     @Published var tankHeight: Int
     @Published var impellerStartAngle: Double
     @Published var shaft: Shaft
-    @Published var impeller: [Int: Impeller]
+    @Published var impeller: [String: Impeller]
     @Published var gridx: Int
     @Published var impellerStartupStepsUntilNormalSpeed: Int
     @Published var baffles: Baffles
@@ -46,7 +46,7 @@ public class RushtonTurbine: ObservableObject, Codable {
         tankHeight: Int,
         impellerStartAngle: Double,
         shaft: Shaft,
-        impeller: [Int: Impeller],
+        impeller: [String: Impeller],
         gridx: Int,
         impellerStartupStepsUntilNormalSpeed: Int,
         baffles: Baffles,
@@ -80,7 +80,7 @@ public class RushtonTurbine: ObservableObject, Codable {
         impellerStartAngle = try container.decode(Double.self, forKey: .impellerStartAngle)
         shaft = try container.decode(Shaft.self, forKey: .shaft)
 
-        impeller = try container.decode([Int.self, Impeller.self], forKey: .impeller)
+        impeller = try container.decode([String: Impeller].self, forKey: .impeller)
 
         gridx = try container.decode(Int.self, forKey: .gridx)
         impellerStartupStepsUntilNormalSpeed = try container.decode(Int.self,
@@ -172,7 +172,7 @@ extension RushtonTurbine {
         tankHeight: Int? = nil,
         impellerStartAngle: Double? = nil,
         shaft: Shaft? = nil,
-        impeller: [Int: Impeller]? = nil,
+        impeller: [String: Impeller]? = nil,
         gridx: Int? = nil,
         impellerStartupStepsUntilNormalSpeed: Int? = nil,
         baffles: Baffles? = nil,

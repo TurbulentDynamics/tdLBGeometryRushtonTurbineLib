@@ -79,7 +79,7 @@ public struct GeometryMidPoint: Geometry {
         self.gridY = self.turbine.gridx
         self.gridZ = self.turbine.gridx
 
-        self.uav = self.turbine.impeller[0]!.uav
+        self.uav = self.turbine.impeller["0"]!.uav
         self.startingStep = self.turbine.startingStep
         self.impellerStartupStepsUntilNormalSpeed = self.turbine.impellerStartupStepsUntilNormalSpeed
         self.impellerStartAngle = self.turbine.impellerStartAngle
@@ -152,7 +152,7 @@ extension GeometryMidPoint {
         let centerZ = centerX
 
         let impellerNum = 0
-        let impeller = turbine.impeller[impellerNum]!
+        let impeller = turbine.impeller[String(impellerNum)]!
         let blades = impeller.blades
 
         let deltaImpellerOffset: Radian = (2.0 * Radian.pi) / tGeomCalc(impeller.numBlades)
@@ -201,7 +201,7 @@ extension GeometryMidPoint {
 
     mutating func getDisc(turbine: RushtonTurbine) {
 
-        let disk = turbine.impeller[0]!.disk
+        let disk = turbine.impeller["0"]!.disk
         let radius = disk.radius
         let center = turbine.tankDiameter / 2
 
@@ -219,7 +219,7 @@ extension GeometryMidPoint {
 
     mutating func getHub(turbine: RushtonTurbine) {
 
-        let hub = turbine.impeller[0]!.hub
+        let hub = turbine.impeller["0"]!.hub
         let radius = hub.radius
         let center = turbine.tankDiameter / 2
 

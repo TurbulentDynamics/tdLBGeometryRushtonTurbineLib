@@ -95,7 +95,7 @@ public struct GeometryLegacy: Geometry {
         self.gridY = self.turbine.gridx
         self.gridZ = self.turbine.gridx
 
-        self.uav = self.turbine.impeller[0]!.uav
+        self.uav = self.turbine.impeller["0"]!.uav
         self.startingStep = self.turbine.startingStep
         self.impellerStartupStepsUntilNormalSpeed = self.turbine.impellerStartupStepsUntilNormalSpeed
         self.impellerStartAngle = self.turbine.impellerStartAngle
@@ -169,7 +169,7 @@ extension GeometryLegacy {
             return impellerIncrementFullStep
         }
 
-        return 0.5 * tGeomCalc(turbine.impeller[0]!.bladeTipAngularVelW0) * (1.0 - cos(tGeomCalc.pi * tGeomCalc(step) / tGeomCalc(turbine.impellerStartupStepsUntilNormalSpeed)))
+        return 0.5 * tGeomCalc(turbine.impeller["0"]!.bladeTipAngularVelW0) * (1.0 - cos(tGeomCalc.pi * tGeomCalc(step) / tGeomCalc(turbine.impellerStartupStepsUntilNormalSpeed)))
     }
 
     mutating func generateTankWallLegacy() {
@@ -250,7 +250,7 @@ extension GeometryLegacy {
     mutating func createImpellerBladesLegacy(withIncrement angle: tGeomCalc) {
 
         let impellerNum = 0
-        let impeller = turbine.impeller[impellerNum]!
+        let impeller = turbine.impeller[String(impellerNum)]!
 
         let innerRadius = tGeomCalc(impeller.blades.innerRadius)
         let outerRadius = tGeomCalc(impeller.blades.outerRadius)
@@ -312,7 +312,7 @@ extension GeometryLegacy {
     mutating func createImpellerDiskLegacy(withIncrement angle: tGeomCalc) {
 
         let impellerNum = 0
-        let impeller = turbine.impeller[impellerNum]!
+        let impeller = turbine.impeller[String(impellerNum)]!
 
         let hubRadius = tGeomCalc(impeller.hub.radius)
         let diskRadius = tGeomCalc(impeller.disk.radius)
@@ -377,9 +377,9 @@ extension GeometryLegacy {
     mutating func createImpellerHubLegacy(withIncrement angle: tGeomCalc) {
 
         let impellerNum = 0
-        let impeller = turbine.impeller[impellerNum]!
+        let impeller = turbine.impeller[String(impellerNum)]!
 
-        let hubRadius: tGeomCalc = tGeomCalc(turbine.impeller[0]!.hub.radius)
+        let hubRadius: tGeomCalc = tGeomCalc(turbine.impeller["0"]!.hub.radius)
 
         let nPointsR: Int = Int((hubRadius - tGeomCalc(turbine.shaft.radius)) / tGeomCalc(turbine.resolution))
         let resolutionR: tGeomCalc = (hubRadius - tGeomCalc(turbine.shaft.radius)) / tGeomCalc(nPointsR)
@@ -402,7 +402,7 @@ extension GeometryLegacy {
                 }
 
                 //TODO Change to zero. Check this
-                var theta0: tGeomCalc = tGeomCalc(turbine.impeller[0]!.firstBladeOffset)
+                var theta0: tGeomCalc = tGeomCalc(turbine.impeller["0"]!.firstBladeOffset)
 
                 if (idxR & 1) == 0 {theta0 += 0.5 * dTheta}
                 if (j & 1) == 0 {theta0 += 0.5 * dTheta}

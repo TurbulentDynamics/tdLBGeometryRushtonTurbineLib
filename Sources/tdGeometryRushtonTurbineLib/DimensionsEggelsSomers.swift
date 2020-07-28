@@ -77,7 +77,7 @@ func useEggelsSomersRatios(
         tankHeight: Int(tankHeight),
         impellerStartAngle: impellerStartAngle,
         shaft: shaft,
-        impeller: [0: impeller],
+        impeller: ["0": impeller],
         gridx: gridX,
         impellerStartupStepsUntilNormalSpeed: impellerStartupStepsUntilNormalSpeed,
         baffles: baffles,

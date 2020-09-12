@@ -5,7 +5,7 @@
 //  Created by Niall Ó Broin on 24/03/2020.
 //
 import XCTest
-@testable import tdGeometryRushtonTurbineLib
+@testable import tdLBGeometryRushtonTurbineLib
 
 class dataTests: XCTestCase {
 
@@ -60,15 +60,19 @@ class dataTests: XCTestCase {
             
         XCTAssertEqual(turbineES.tankDiameter, 298)
         XCTAssertEqual(turbineES.numImpellers, 1)
-        XCTAssertEqual(turbineES.impeller["0"]!.blades.top, 188)
+        XCTAssertEqual(turbineES.impeller.blades.top, 188)
+//        XCTAssertEqual(turbineES.impeller["0"]!.blades.top, 188)
 
         XCTAssertEqual(outputES.ortho2DXY[0].at, 148)
 
         let TurbineGUIDemo = getTurbineTestData()
         XCTAssertEqual(TurbineGUIDemo.tankDiameter, 300)
-        XCTAssertEqual(TurbineGUIDemo.numImpellers, 3)
-        XCTAssertEqual(TurbineGUIDemo.impeller["0"]!.blades.top, 240)
-        XCTAssertEqual(TurbineGUIDemo.impeller["1"]!.blades.top, 20)
+        XCTAssertEqual(TurbineGUIDemo.numImpellers, 1)
+//        XCTAssertEqual(TurbineGUIDemo.numImpellers, 3)
+        XCTAssertEqual(TurbineGUIDemo.impeller.blades.top, 20)
+
+//        XCTAssertEqual(TurbineGUIDemo.impeller["0"]!.blades.top, 240)
+//        XCTAssertEqual(TurbineGUIDemo.impeller["1"]!.blades.top, 20)
 
         //        turbines.append(getLegacy(gridx: <#T##Int#>, uav: <#T##Double#>, impellerStartupStepsUntilNormalSpeed: <#T##Int#>, startingStep: <#T##Int#>, impellerStartAngle: <#T##Double#>))
 

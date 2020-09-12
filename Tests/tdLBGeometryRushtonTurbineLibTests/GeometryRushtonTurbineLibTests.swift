@@ -1,5 +1,5 @@
 import XCTest
-@testable import tdGeometryRushtonTurbineLib
+@testable import tdLBGeometryRushtonTurbineLib
 
 final class tdGeometryRushtonTurbineLibTests: XCTestCase {
     func testExample() {

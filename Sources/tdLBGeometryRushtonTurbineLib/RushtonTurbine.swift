@@ -6,6 +6,7 @@
 //https://app.quicktype.io?share=a4Hldp81TGUIEjNVrBRX
 import Foundation
 
+
 //TODO Create func to save the object to json, with string keys for impeller
 extension RushtonTurbine {
     func saveAsJson(to url: URL) throws {
@@ -17,20 +18,23 @@ extension RushtonTurbine {
 
 // MARK: - RushtonTurbine
 public class RushtonTurbine: ObservableObject, Codable {
-    @Published var tankDiameter: Int
-    @Published var tankHeight: Int
-    @Published var impellerStartAngle: Double
-    @Published var shaft: Shaft
-    @Published var impeller: [String: Impeller]
-    @Published var gridx: Int
-    @Published var impellerStartupStepsUntilNormalSpeed: Int
-    @Published var baffles: Baffles
-    @Published var numImpellers: Int
-    @Published var startingStep: Int
-    @Published var name: String
-    @Published var resolution: Double
+    @Published public var tankDiameter: Int
+    @Published public var tankHeight: Int
+    @Published public var impellerStartAngle: Double
+    @Published public var shaft: Shaft
+    @Published public var gridx: Int
+    @Published public var impellerStartupStepsUntilNormalSpeed: Int
+    @Published public var baffles: Baffles
+    @Published public var numImpellers: Int
+    @Published public var startingStep: Int
+    @Published public var name: String
+    @Published public var resolution: Double
 
-
+    //TODO
+//    @Published public var impeller: [String: Impeller]
+    @Published public var impeller: Impeller
+    
+    
     enum CodingKeys: String, CodingKey {
         case tankDiameter, tankHeight
         case impellerStartAngle = "impeller_start_angle"
@@ -41,12 +45,28 @@ public class RushtonTurbine: ObservableObject, Codable {
         case name, resolution
     }
 
+    public init(){
+        self.tankDiameter = 300
+        self.tankHeight = 300
+        self.impellerStartAngle = 0
+        self.shaft = Shaft(radius: 10)
+        self.impeller = Impeller(blades: Blades(innerRadius: 50, top: 60, thickness: 5, outerRadius: 110, bottom: 130), uav: 0.7, bladeTipAngularVelW0: 0.1, impellerPosition: 100, disk: Disk(top: 90, bottom: 110, radius: 100), numBlades: 4, firstBladeOffset: 0, hub: Disk(top: 80, bottom: 120, radius: 60))
+        self.gridx = 100
+        self.impellerStartupStepsUntilNormalSpeed = 100
+        self.baffles = Baffles(firstBaffleOffset: 0, innerRadius: 130, thickness: 5, numBaffles: 6, outerRadius: 150)
+        self.numImpellers = 6
+        self.startingStep = 0
+        self.name = "Default"
+        self.resolution = 0.7
+    }
+    
     public init(
         tankDiameter: Int,
         tankHeight: Int,
         impellerStartAngle: Double,
         shaft: Shaft,
-        impeller: [String: Impeller],
+//        impeller: [String: Impeller],
+        impeller: Impeller,
         gridx: Int,
         impellerStartupStepsUntilNormalSpeed: Int,
         baffles: Baffles,
@@ -80,7 +100,8 @@ public class RushtonTurbine: ObservableObject, Codable {
         impellerStartAngle = try container.decode(Double.self, forKey: .impellerStartAngle)
         shaft = try container.decode(Shaft.self, forKey: .shaft)
 
-        impeller = try container.decode([String: Impeller].self, forKey: .impeller)
+//        impeller = try container.decode([String: Impeller].self, forKey: .impeller)
+        impeller = try container.decode(Impeller.self, forKey: .impeller)
 
         gridx = try container.decode(Int.self, forKey: .gridx)
         impellerStartupStepsUntilNormalSpeed = try container.decode(Int.self,
@@ -172,7 +193,8 @@ extension RushtonTurbine {
         tankHeight: Int? = nil,
         impellerStartAngle: Double? = nil,
         shaft: Shaft? = nil,
-        impeller: [String: Impeller]? = nil,
+//        impeller: [String: Impeller]? = nil,
+        impeller: Impeller? = nil,
         gridx: Int? = nil,
         impellerStartupStepsUntilNormalSpeed: Int? = nil,
         baffles: Baffles? = nil,
@@ -200,8 +222,8 @@ extension RushtonTurbine {
 
 // MARK: - Baffles
 public class Baffles: Codable {
-    var firstBaffleOffset: Double
-    var innerRadius, thickness, numBaffles, outerRadius: Int
+    public var firstBaffleOffset: Double
+    public var innerRadius, thickness, numBaffles, outerRadius: Int
 
     enum CodingKeys: String, CodingKey {
         case firstBaffleOffset
@@ -304,12 +326,12 @@ extension Baffles {
 
 // MARK: - Impeller
 public class Impeller: Codable {
-    var blades: Blades
-    var uav, bladeTipAngularVelW0: Double
-    var impellerPosition: Int
-    var disk: Disk
-    var numBlades, firstBladeOffset: Int
-    var hub: Disk
+    public var blades: Blades
+    public var uav, bladeTipAngularVelW0: Double
+    public var impellerPosition: Int
+    public var disk: Disk
+    public var numBlades, firstBladeOffset: Int
+    public var hub: Disk
 
     enum CodingKeys: String, CodingKey {
         case blades, uav
@@ -433,9 +455,9 @@ extension Impeller {
 
 // MARK: - Blades
 public class Blades: Codable {
-    var innerRadius, top: Int
-    var thickness: Int
-    var outerRadius: Int, bottom: Int
+    public var innerRadius, top: Int
+    public var thickness: Int
+    public var outerRadius: Int, bottom: Int
 
     enum CodingKeys: String, CodingKey {
         case innerRadius, top
@@ -538,7 +560,7 @@ extension Blades {
 
 // MARK: - Disk
 public class Disk: Codable {
-    var top, bottom, radius: Int
+    public var top, bottom, radius: Int
 
     enum CodingKeys: String, CodingKey {
         case top, bottom, radius
@@ -624,7 +646,7 @@ extension Disk {
 
 // MARK: - Shaft
 public class Shaft: Codable {
-    var radius: Int
+    public var radius: Int
 
     enum CodingKeys: String, CodingKey {
         case radius

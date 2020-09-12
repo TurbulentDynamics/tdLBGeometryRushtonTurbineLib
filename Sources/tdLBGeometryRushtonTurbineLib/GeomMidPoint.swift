@@ -8,7 +8,9 @@
 //http://rosettacode.org/wiki/Bitmap/Midpoint_circle_algorithm#Python
 
 import Foundation
-import tdGeometryLib
+import tdLB
+import tdLBGeometry
+import tdLBOutputGeometry
 
 
 public struct RushtonTurbineMidPoint: Geometry {
@@ -22,7 +24,7 @@ public struct RushtonTurbineMidPoint: Geometry {
     let impellerStartAngle: Double
 
     public let turbine: RushtonTurbine
-    public let output: OutputData
+    public let output: OutputGeometry
 
     var impellerIncrementFullStep: Radian = 0
     var impellerCurrentAngle: Radian = 0
@@ -55,13 +57,15 @@ public struct RushtonTurbineMidPoint: Geometry {
     public init(fileName: String, outputJson: String) throws {
 
         self.turbine = try RushtonTurbine(fileName)
-        self.output = try OutputData(json: outputJson)
+        self.output = try OutputGeometry(json: outputJson)
 
         self.gridX = self.turbine.gridx
         self.gridY = self.turbine.gridx
         self.gridZ = self.turbine.gridx
 
-        self.uav = self.turbine.impeller["0"]!.uav
+//        self.uav = self.turbine.impeller["0"]!.uav
+        self.uav = self.turbine.impeller.uav
+
         self.startingStep = self.turbine.startingStep
         self.impellerStartupStepsUntilNormalSpeed = self.turbine.impellerStartupStepsUntilNormalSpeed
         self.impellerStartAngle = self.turbine.impellerStartAngle
@@ -134,7 +138,8 @@ extension RushtonTurbineMidPoint {
         let centerZ = centerX
 
         let impellerNum = 0
-        let impeller = turbine.impeller[String(impellerNum)]!
+//        let impeller = turbine.impeller[String(impellerNum)]!
+        let impeller = turbine.impeller
         let blades = impeller.blades
 
         let deltaImpellerOffset: Radian = (2.0 * Radian.pi) / Radian(impeller.numBlades)
@@ -183,7 +188,8 @@ extension RushtonTurbineMidPoint {
 
     mutating func getDisc(turbine: RushtonTurbine) {
 
-        let disk = turbine.impeller["0"]!.disk
+//        let disk = turbine.impeller["0"]!.disk
+        let disk = turbine.impeller.disk
         let radius = disk.radius
         let center = turbine.tankDiameter / 2
 
@@ -201,7 +207,8 @@ extension RushtonTurbineMidPoint {
 
     mutating func getHub(turbine: RushtonTurbine) {
 
-        let hub = turbine.impeller["0"]!.hub
+//        let hub = turbine.impeller["0"]!.hub
+        let hub = turbine.impeller.hub
         let radius = hub.radius
         let center = turbine.tankDiameter / 2
 

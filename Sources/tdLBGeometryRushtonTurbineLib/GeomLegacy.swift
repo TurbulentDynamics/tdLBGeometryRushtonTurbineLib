@@ -6,11 +6,12 @@
 //
 
 import Foundation
-import tdGeometryLib
+import tdLB
+import tdLBGeometry
+import tdLBOutputGeometry
 
 
 public struct RushtonTurbineLegacy: Geometry {
-    
     
 
     public var gridX, gridY, gridZ: Int
@@ -21,7 +22,7 @@ public struct RushtonTurbineLegacy: Geometry {
     let impellerStartAngle: Double
 
     public let turbine: RushtonTurbine
-    public let output: OutputData
+    public let output: OutputGeometry
 
     var impellerIncrementFullStep: Radian = 0
     var impellerCurrentAngle: Radian = 0
@@ -66,13 +67,14 @@ public struct RushtonTurbineLegacy: Geometry {
     public init(fileName: String, outputJson: String) throws {
 
         self.turbine = try RushtonTurbine(fileName)
-        self.output = try OutputData(json: outputJson)
+        self.output = try OutputGeometry(json: outputJson)
 
         self.gridX = self.turbine.gridx
         self.gridY = self.turbine.gridx
         self.gridZ = self.turbine.gridx
 
-        self.uav = self.turbine.impeller["0"]!.uav
+//        self.uav = self.turbine.impeller["0"]!.uav
+        self.uav = self.turbine.impeller.uav
         self.startingStep = self.turbine.startingStep
         self.impellerStartupStepsUntilNormalSpeed = self.turbine.impellerStartupStepsUntilNormalSpeed
         self.impellerStartAngle = self.turbine.impellerStartAngle
@@ -141,8 +143,9 @@ extension RushtonTurbineLegacy {
         if step >= turbine.impellerStartupStepsUntilNormalSpeed {
             return impellerIncrementFullStep
         }
+//        return 0.5 * Radian(turbine.impeller["0"]!.bladeTipAngularVelW0) * (1.0 - cos(Radian.pi * Radian(step) / Radian(turbine.impellerStartupStepsUntilNormalSpeed)))
 
-        return 0.5 * Radian(turbine.impeller["0"]!.bladeTipAngularVelW0) * (1.0 - cos(Radian.pi * Radian(step) / Radian(turbine.impellerStartupStepsUntilNormalSpeed)))
+        return 0.5 * Radian(turbine.impeller.bladeTipAngularVelW0) * (1.0 - cos(Radian.pi * Radian(step) / Radian(turbine.impellerStartupStepsUntilNormalSpeed)))
     }
 
     mutating func generateTankWallLegacy() {
@@ -223,7 +226,8 @@ extension RushtonTurbineLegacy {
     mutating func createImpellerBladesLegacy(withIncrement angle: Radian) {
 
         let impellerNum = 0
-        let impeller = turbine.impeller[String(impellerNum)]!
+//        let impeller = turbine.impeller[String(impellerNum)]!
+        let impeller = turbine.impeller
 
         let innerRadius = Radian(impeller.blades.innerRadius)
         let outerRadius = Radian(impeller.blades.outerRadius)
@@ -285,7 +289,8 @@ extension RushtonTurbineLegacy {
     mutating func createImpellerDiskLegacy(withIncrement angle: Radian) {
 
         let impellerNum = 0
-        let impeller = turbine.impeller[String(impellerNum)]!
+//        let impeller = turbine.impeller[String(impellerNum)]!
+        let impeller = turbine.impeller
 
         let hubRadius = Radian(impeller.hub.radius)
         let diskRadius = Radian(impeller.disk.radius)
@@ -350,9 +355,11 @@ extension RushtonTurbineLegacy {
     mutating func createImpellerHubLegacy(withIncrement angle: Radian) {
 
         let impellerNum = 0
-        let impeller = turbine.impeller[String(impellerNum)]!
+//        let impeller = turbine.impeller[String(impellerNum)]!
+        let impeller = turbine.impeller
 
-        let hubRadius: Radian = Radian(turbine.impeller["0"]!.hub.radius)
+//        let hubRadius: Radian = Radian(turbine.impeller["0"]!.hub.radius)
+        let hubRadius: Radian = Radian(turbine.impeller.hub.radius)
 
         let nPointsR: Int = Int((hubRadius - Radian(turbine.shaft.radius)) / Radian(turbine.resolution))
         let resolutionR: Radian = (hubRadius - Radian(turbine.shaft.radius)) / Radian(nPointsR)
@@ -375,8 +382,10 @@ extension RushtonTurbineLegacy {
                 }
 
                 //TODO Change to zero. Check this
-                var theta0: Radian = Radian(turbine.impeller["0"]!.firstBladeOffset)
+//                var theta0: Radian = Radian(turbine.impeller["0"]!.firstBladeOffset)
+                var theta0: Radian = Radian(turbine.impeller.firstBladeOffset)
 
+                
                 if (idxR & 1) == 0 {theta0 += 0.5 * dTheta}
                 if (j & 1) == 0 {theta0 += 0.5 * dTheta}
 

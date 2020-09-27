@@ -29,11 +29,7 @@ public class RushtonTurbine: ObservableObject, Codable {
     @Published public var startingStep: Int
     @Published public var name: String
     @Published public var resolution: Double
-
-    //TODO
-//    @Published public var impeller: [String: Impeller]
-    @Published public var impeller: Impeller
-    
+    @Published public var impeller: [String: Impeller]
     
     enum CodingKeys: String, CodingKey {
         case tankDiameter, tankHeight
@@ -50,11 +46,15 @@ public class RushtonTurbine: ObservableObject, Codable {
         self.tankHeight = 300
         self.impellerStartAngle = 0
         self.shaft = Shaft(radius: 10)
-        self.impeller = Impeller(blades: Blades(innerRadius: 50, top: 60, thickness: 5, outerRadius: 110, bottom: 130), uav: 0.7, bladeTipAngularVelW0: 0.1, impellerPosition: 100, disk: Disk(top: 90, bottom: 110, radius: 100), numBlades: 4, firstBladeOffset: 0, hub: Disk(top: 80, bottom: 120, radius: 60))
+        self.impeller = [
+            "0": Impeller(blades: Blades(innerRadius: 50, top: 60, thickness: 5, outerRadius: 110, bottom: 130), uav: 0.7, bladeTipAngularVelW0: 0.1, impellerPosition: 0, disk: Disk(top: 90, bottom: 110, radius: 100), numBlades: 6, firstBladeOffset: 0, hub: Disk(top: 80, bottom: 120, radius: 60)),
+            "1": Impeller(blades: Blades(innerRadius: 50, top: 60, thickness: 5, outerRadius: 110, bottom: 130), uav: 0.7, bladeTipAngularVelW0: 0.1, impellerPosition: 100, disk: Disk(top: 90, bottom: 110, radius: 100), numBlades: 6, firstBladeOffset: 0, hub: Disk(top: 80, bottom: 120, radius: 60)),
+            "2": Impeller(blades: Blades(innerRadius: 50, top: 60, thickness: 5, outerRadius: 110, bottom: 130), uav: 0.7, bladeTipAngularVelW0: 0.1, impellerPosition: 200, disk: Disk(top: 90, bottom: 110, radius: 100), numBlades: 6, firstBladeOffset: 0, hub: Disk(top: 80, bottom: 120, radius: 60))
+        ]
         self.gridx = 100
         self.impellerStartupStepsUntilNormalSpeed = 100
         self.baffles = Baffles(firstBaffleOffset: 0, innerRadius: 130, thickness: 5, numBaffles: 6, outerRadius: 150)
-        self.numImpellers = 6
+        self.numImpellers = 1
         self.startingStep = 0
         self.name = "Default"
         self.resolution = 0.7
@@ -65,8 +65,7 @@ public class RushtonTurbine: ObservableObject, Codable {
         tankHeight: Int,
         impellerStartAngle: Double,
         shaft: Shaft,
-//        impeller: [String: Impeller],
-        impeller: Impeller,
+        impeller: [String: Impeller],
         gridx: Int,
         impellerStartupStepsUntilNormalSpeed: Int,
         baffles: Baffles,
@@ -100,9 +99,8 @@ public class RushtonTurbine: ObservableObject, Codable {
         impellerStartAngle = try container.decode(Double.self, forKey: .impellerStartAngle)
         shaft = try container.decode(Shaft.self, forKey: .shaft)
 
-//        impeller = try container.decode([String: Impeller].self, forKey: .impeller)
-        impeller = try container.decode(Impeller.self, forKey: .impeller)
-
+        impeller = try container.decode([String: Impeller].self, forKey: .impeller)
+        
         gridx = try container.decode(Int.self, forKey: .gridx)
         impellerStartupStepsUntilNormalSpeed = try container.decode(Int.self,
                                                                     forKey: .impellerStartupStepsUntilNormalSpeed)
@@ -193,8 +191,7 @@ extension RushtonTurbine {
         tankHeight: Int? = nil,
         impellerStartAngle: Double? = nil,
         shaft: Shaft? = nil,
-//        impeller: [String: Impeller]? = nil,
-        impeller: Impeller? = nil,
+        impeller: [String: Impeller]? = nil,
         gridx: Int? = nil,
         impellerStartupStepsUntilNormalSpeed: Int? = nil,
         baffles: Baffles? = nil,
@@ -221,9 +218,12 @@ extension RushtonTurbine {
 }
 
 // MARK: - Baffles
-public class Baffles: Codable {
-    public var firstBaffleOffset: Double
-    public var innerRadius, thickness, numBaffles, outerRadius: Int
+public class Baffles: Codable, ObservableObject {
+    @Published public var firstBaffleOffset: Double
+    @Published public var innerRadius: Int
+    @Published public var thickness: Int
+    @Published public var numBaffles: Int
+    @Published public var outerRadius: Int
 
     enum CodingKeys: String, CodingKey {
         case firstBaffleOffset
@@ -325,13 +325,19 @@ extension Baffles {
 }
 
 // MARK: - Impeller
-public class Impeller: Codable {
-    public var blades: Blades
-    public var uav, bladeTipAngularVelW0: Double
-    public var impellerPosition: Int
-    public var disk: Disk
-    public var numBlades, firstBladeOffset: Int
-    public var hub: Disk
+public class Impeller: Codable, ObservableObject, Equatable {
+    public static func == (lhs: Impeller, rhs: Impeller) -> Bool {
+        lhs === rhs
+    }
+    
+    @Published public var blades: Blades
+    @Published public var uav: Double
+    @Published public var bladeTipAngularVelW0: Double
+    @Published public var impellerPosition: Int
+    @Published public var disk: Disk
+    @Published public var numBlades: Int
+    @Published public var firstBladeOffset: Int
+    @Published public var hub: Disk
 
     enum CodingKeys: String, CodingKey {
         case blades, uav
@@ -454,10 +460,12 @@ extension Impeller {
 }
 
 // MARK: - Blades
-public class Blades: Codable {
-    public var innerRadius, top: Int
-    public var thickness: Int
-    public var outerRadius: Int, bottom: Int
+public class Blades: Codable, ObservableObject {
+    @Published public var innerRadius: Int
+    @Published public var top: Int
+    @Published public var thickness: Int
+    @Published public var outerRadius: Int
+    @Published public var bottom: Int
 
     enum CodingKeys: String, CodingKey {
         case innerRadius, top
@@ -477,6 +485,10 @@ public class Blades: Codable {
         self.thickness = thickness
         self.outerRadius = outerRadius
         self.bottom = bottom
+    }
+    
+    public var height: Int {
+        bottom - top
     }
 
     public required init(from decoder: Decoder) throws {
@@ -559,8 +571,10 @@ extension Blades {
 }
 
 // MARK: - Disk
-public class Disk: Codable {
-    public var top, bottom, radius: Int
+public class Disk: Codable, ObservableObject {
+    @Published public var top: Int
+    @Published public var bottom: Int
+    @Published public var radius: Int
 
     enum CodingKeys: String, CodingKey {
         case top, bottom, radius
@@ -574,6 +588,10 @@ public class Disk: Codable {
         self.top = top
         self.bottom = bottom
         self.radius = radius
+    }
+    
+    public var height: Int {
+        bottom - top
     }
 
     public required init(from decoder: Decoder) throws {
@@ -645,8 +663,8 @@ extension Disk {
 }
 
 // MARK: - Shaft
-public class Shaft: Codable {
-    public var radius: Int
+public class Shaft: Codable, ObservableObject {
+    @Published public var radius: Int
 
     enum CodingKeys: String, CodingKey {
         case radius

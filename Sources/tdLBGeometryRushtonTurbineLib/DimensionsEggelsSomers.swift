@@ -79,8 +79,7 @@ public func getEggelsSomersGeometry(
         tankHeight: Int(tankHeight),
         impellerStartAngle: impellerStartAngle,
         shaft: shaft,
-//        impeller: ["0": impeller],
-        impeller: impeller,
+        impeller: ["0": impeller],
         gridx: gridX,
         impellerStartupStepsUntilNormalSpeed: impellerStartupStepsUntilNormalSpeed,
         baffles: baffles,
@@ -107,13 +106,13 @@ func exampleTurbineOutput(turbine: RushtonTurbine) -> OutputGeometry {
     output.add(xy:xy2)
 
     
-//    let xz0 = Ortho2D(at: turbine.impeller["0"]!.impellerPosition - 1, repeatStep: 10)
-//    let xz1 = Ortho2D(at: turbine.impeller["0"]!.impellerPosition, repeatStep: 10)
-//    let xz2 = Ortho2D(at: turbine.impeller["0"]!.impellerPosition + 1, repeatStep: 10)
+    let xz0 = Ortho2D(at: turbine.impeller["0"]!.impellerPosition - 1, repeatStep: 10)
+    let xz1 = Ortho2D(at: turbine.impeller["0"]!.impellerPosition, repeatStep: 10)
+    let xz2 = Ortho2D(at: turbine.impeller["0"]!.impellerPosition + 1, repeatStep: 10)
     
-    let xz0 = Ortho2D(at: turbine.impeller.impellerPosition - 1, repeatStep: 10)
-    let xz1 = Ortho2D(at: turbine.impeller.impellerPosition, repeatStep: 10)
-    let xz2 = Ortho2D(at: turbine.impeller.impellerPosition + 1, repeatStep: 10)
+//    let xz0 = Ortho2D(at: turbine.impeller.impellerPosition - 1, repeatStep: 10)
+//    let xz1 = Ortho2D(at: turbine.impeller.impellerPosition, repeatStep: 10)
+//    let xz2 = Ortho2D(at: turbine.impeller.impellerPosition + 1, repeatStep: 10)
     
     
     output.add(xz:xz0)

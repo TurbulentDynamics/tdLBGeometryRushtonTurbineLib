@@ -7,7 +7,7 @@
 @testable import tdLBGeometryRushtonTurbineLib
 
 func getTurbineTestData() -> RushtonTurbine {
-    let rushtonTurbine = try! RushtonTurbine(TurbineTestData_1Impeller)
+    let rushtonTurbine = try! RushtonTurbine(TurbineTestData)
     return rushtonTurbine
 }
 
@@ -19,7 +19,7 @@ let TurbineTestData_1Impeller = """
     "shaft":{
         "radius":8
     },
-    "impeller":{
+    "impeller":["0", {
             "blades":{
                 "innerRadius":25,
                 "top":20,
@@ -42,7 +42,7 @@ let TurbineTestData_1Impeller = """
                 "bottom":71,
                 "radius":16
             }
-        },
+        }],
     "gridx":300,
     "impeller_startup_steps_until_normal_speed":0,
     "baffles":{

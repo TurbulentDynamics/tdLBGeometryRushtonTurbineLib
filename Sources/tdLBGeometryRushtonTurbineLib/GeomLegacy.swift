@@ -73,8 +73,7 @@ public struct RushtonTurbineLegacy: Geometry {
         self.gridY = self.turbine.gridx
         self.gridZ = self.turbine.gridx
 
-//        self.uav = self.turbine.impeller["0"]!.uav
-        self.uav = self.turbine.impeller.uav
+        self.uav = self.turbine.impeller["0"]!.uav
         self.startingStep = self.turbine.startingStep
         self.impellerStartupStepsUntilNormalSpeed = self.turbine.impellerStartupStepsUntilNormalSpeed
         self.impellerStartAngle = self.turbine.impellerStartAngle
@@ -143,9 +142,7 @@ extension RushtonTurbineLegacy {
         if step >= turbine.impellerStartupStepsUntilNormalSpeed {
             return impellerIncrementFullStep
         }
-//        return 0.5 * Radian(turbine.impeller["0"]!.bladeTipAngularVelW0) * (1.0 - cos(Radian.pi * Radian(step) / Radian(turbine.impellerStartupStepsUntilNormalSpeed)))
-
-        return 0.5 * Radian(turbine.impeller.bladeTipAngularVelW0) * (1.0 - cos(Radian.pi * Radian(step) / Radian(turbine.impellerStartupStepsUntilNormalSpeed)))
+        return 0.5 * Radian(turbine.impeller["0"]!.bladeTipAngularVelW0) * (1.0 - cos(Radian.pi * Radian(step) / Radian(turbine.impellerStartupStepsUntilNormalSpeed)))
     }
 
     mutating func generateTankWallLegacy() {
@@ -225,38 +222,36 @@ extension RushtonTurbineLegacy {
 
     mutating func createImpellerBladesLegacy(withIncrement angle: Radian) {
 
-        let impellerNum = 0
-//        let impeller = turbine.impeller[String(impellerNum)]!
         let impeller = turbine.impeller
 
-        let innerRadius = Radian(impeller.blades.innerRadius)
-        let outerRadius = Radian(impeller.blades.outerRadius)
+        let innerRadius = Radian(impeller["0"]!.blades.innerRadius)
+        let outerRadius = Radian(impeller["0"]!.blades.outerRadius)
 
         let resolution = Radian(turbine.resolution)
 
         let nPointsR = Int(Radian(outerRadius - innerRadius) / resolution)
-        var nPointsThickness = Int(Radian(impeller.blades.thickness) / resolution)
+        var nPointsThickness = Int(Radian(impeller["0"]!.blades.thickness) / resolution)
         if nPointsThickness == 0 {nPointsThickness = 1}
 
-        let resolutionBladeThickness: Radian = Radian(impeller.blades.thickness) / Radian(nPointsThickness)
+        let resolutionBladeThickness: Radian = Radian(impeller["0"]!.blades.thickness) / Radian(nPointsThickness)
 
         let deltaR = (outerRadius - innerRadius) / Radian(nPointsR)
 
-        let deltaTheta: Radian = 2.0 / Radian(impeller.numBlades) * Radian.pi
+        let deltaTheta: Radian = 2.0 / Radian(impeller["0"]!.numBlades) * Radian.pi
 
-        for nBlade in 1...impeller.numBlades {
-            for j in impeller.blades.top...impeller.blades.bottom {
+        for nBlade in 1...impeller["0"]!.numBlades {
+            for j in impeller["0"]!.blades.top...impeller["0"]!.blades.bottom {
                 for idxR in 0...nPointsR {
 
                     let r: Radian = innerRadius + deltaR * Radian(idxR)
 
                     for idxThickness in 0...nPointsThickness {
 
-                        let offset: Radian = deltaTheta * Radian(nBlade) + Radian(impeller.firstBladeOffset)
+                        let offset: Radian = deltaTheta * Radian(nBlade) + Radian(impeller["0"]!.firstBladeOffset)
 
                         let theta = offset + (Radian(idxThickness - nPointsThickness) / 2.0) * resolutionBladeThickness / r
 
-                        let insideDisk: Bool = (Int(r) <= impeller.disk.radius) && (j >= impeller.disk.bottom) && (j <= impeller.disk.top)
+                        let insideDisk: Bool = (Int(r) <= impeller["0"]!.disk.radius) && (j >= impeller["0"]!.disk.bottom) && (j <= impeller["0"]!.disk.top)
                         if insideDisk {continue}
 
 //                        let isSurface:Bool = idxThickness == 0 || idxThickness == nPointsThickness || idxR == 0 || idxR == nPointsR || j == impeller.blades.bottom || j == impeller.blades.top
@@ -287,10 +282,7 @@ extension RushtonTurbineLegacy {
     }
 
     mutating func createImpellerDiskLegacy(withIncrement angle: Radian) {
-
-        let impellerNum = 0
-//        let impeller = turbine.impeller[String(impellerNum)]!
-        let impeller = turbine.impeller
+        let impeller = turbine.impeller["0"]!
 
         let hubRadius = Radian(impeller.hub.radius)
         let diskRadius = Radian(impeller.disk.radius)
@@ -354,12 +346,10 @@ extension RushtonTurbineLegacy {
 
     mutating func createImpellerHubLegacy(withIncrement angle: Radian) {
 
-        let impellerNum = 0
-//        let impeller = turbine.impeller[String(impellerNum)]!
-        let impeller = turbine.impeller
+        let impeller = turbine.impeller["0"]!
 
 //        let hubRadius: Radian = Radian(turbine.impeller["0"]!.hub.radius)
-        let hubRadius: Radian = Radian(turbine.impeller.hub.radius)
+        let hubRadius: Radian = Radian(impeller.hub.radius)
 
         let nPointsR: Int = Int((hubRadius - Radian(turbine.shaft.radius)) / Radian(turbine.resolution))
         let resolutionR: Radian = (hubRadius - Radian(turbine.shaft.radius)) / Radian(nPointsR)
@@ -383,7 +373,7 @@ extension RushtonTurbineLegacy {
 
                 //TODO Change to zero. Check this
 //                var theta0: Radian = Radian(turbine.impeller["0"]!.firstBladeOffset)
-                var theta0: Radian = Radian(turbine.impeller.firstBladeOffset)
+                var theta0: Radian = Radian(impeller.firstBladeOffset)
 
                 
                 if (idxR & 1) == 0 {theta0 += 0.5 * dTheta}

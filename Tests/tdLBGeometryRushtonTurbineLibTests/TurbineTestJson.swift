@@ -11,56 +11,6 @@ func getTurbineTestData() -> RushtonTurbine {
     return rushtonTurbine
 }
 
-let TurbineTestData_1Impeller = """
-{
-    "tankDiameter":300,
-    "tankHeight":300,
-    "impeller_start_angle":0,
-    "shaft":{
-        "radius":8
-    },
-    "impeller":["0", {
-            "blades":{
-                "innerRadius":25,
-                "top":20,
-                "bladeThickness":4,
-                "outerRadius":50,
-                "bottom":71
-            },
-            "uav":0.10000000149011612,
-            "blade_tip_angular_vel_w0":0.0058823530562222004,
-            "impeller_position":150,
-            "disk":{
-                "top":4,
-                "bottom":68,
-                "radius":37
-            },
-            "numBlades":6,
-            "firstBladeOffset":0,
-            "hub":{
-                "top":20,
-                "bottom":71,
-                "radius":16
-            }
-        }],
-    "gridx":300,
-    "impeller_startup_steps_until_normal_speed":0,
-    "baffles":{
-        "firstBaffleOffset":0.78539818525314331,
-        "innerRadius":120,
-        "thickness":4,
-        "numBaffles":4,
-        "outerRadius":150
-    },
-    "numImpellers":1,
-    "starting_step":0,
-    "name":"GeometryConfig",
-    "resolution":0.69999998807907104
-}
-"""
-
-
-
 let TurbineTestData = """
 {
     "tankDiameter":300,

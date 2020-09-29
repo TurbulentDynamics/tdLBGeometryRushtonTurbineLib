@@ -17,7 +17,7 @@ extension RushtonTurbine {
 
 
 // MARK: - RushtonTurbine
-public class RushtonTurbine: ObservableObject, Codable {
+public final class RushtonTurbine: ObservableObject, Codable {
     @Published public var tankDiameter: Int
     @Published public var tankHeight: Int
     @Published public var impellerStartAngle: Double
@@ -25,18 +25,17 @@ public class RushtonTurbine: ObservableObject, Codable {
     @Published public var gridx: Int
     @Published public var impellerStartupStepsUntilNormalSpeed: Int
     @Published public var baffles: Baffles
-    @Published public var numImpellers: Int
     @Published public var startingStep: Int
     @Published public var name: String
     @Published public var resolution: Double
-    @Published public var impeller: [String: Impeller]
+    @Published public var impellers: [String: Impeller]
     
     enum CodingKeys: String, CodingKey {
         case tankDiameter, tankHeight
         case impellerStartAngle = "impeller_start_angle"
-        case shaft, impeller, gridx
+        case shaft, impellers, gridx
         case impellerStartupStepsUntilNormalSpeed = "impeller_startup_steps_until_normal_speed"
-        case baffles, numImpellers
+        case baffles
         case startingStep = "starting_step"
         case name, resolution
     }
@@ -46,7 +45,7 @@ public class RushtonTurbine: ObservableObject, Codable {
         self.tankHeight = 300
         self.impellerStartAngle = 0
         self.shaft = Shaft(radius: 10)
-        self.impeller = [
+        self.impellers = [
             "0": Impeller(blades: Blades(innerRadius: 50, top: 60, thickness: 5, outerRadius: 110, bottom: 130), uav: 0.7, bladeTipAngularVelW0: 0.1, impellerPosition: 75, disk: Disk(top: 90, bottom: 110, radius: 100), numBlades: 6, firstBladeOffset: 0, hub: Disk(top: 80, bottom: 120, radius: 60)),
             "1": Impeller(blades: Blades(innerRadius: 50, top: 60, thickness: 5, outerRadius: 110, bottom: 130), uav: 0.7, bladeTipAngularVelW0: 0.1, impellerPosition: 150, disk: Disk(top: 90, bottom: 110, radius: 100), numBlades: 6, firstBladeOffset: 0, hub: Disk(top: 80, bottom: 120, radius: 60)),
             "2": Impeller(blades: Blades(innerRadius: 50, top: 60, thickness: 5, outerRadius: 110, bottom: 130), uav: 0.7, bladeTipAngularVelW0: 0.1, impellerPosition: 225, disk: Disk(top: 90, bottom: 110, radius: 100), numBlades: 6, firstBladeOffset: 0, hub: Disk(top: 80, bottom: 120, radius: 60))
@@ -54,7 +53,6 @@ public class RushtonTurbine: ObservableObject, Codable {
         self.gridx = 100
         self.impellerStartupStepsUntilNormalSpeed = 100
         self.baffles = Baffles(firstBaffleOffset: 0, innerRadius: 130, thickness: 5, numBaffles: 6, outerRadius: 150)
-        self.numImpellers = 1
         self.startingStep = 0
         self.name = "Default"
         self.resolution = 0.7
@@ -69,7 +67,6 @@ public class RushtonTurbine: ObservableObject, Codable {
         gridx: Int,
         impellerStartupStepsUntilNormalSpeed: Int,
         baffles: Baffles,
-        numImpellers: Int,
         startingStep: Int,
         name: String,
         resolution: Double){
@@ -78,18 +75,14 @@ public class RushtonTurbine: ObservableObject, Codable {
         self.tankHeight = tankHeight
         self.impellerStartAngle = impellerStartAngle
         self.shaft = shaft
-        self.impeller = impeller
+        self.impellers = impeller
         self.gridx = gridx
         self.impellerStartupStepsUntilNormalSpeed = impellerStartupStepsUntilNormalSpeed
         self.baffles = baffles
-        self.numImpellers = numImpellers
         self.startingStep = startingStep
         self.name = name
         self.resolution = resolution
     }
-
-
-
 
     public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -99,13 +92,12 @@ public class RushtonTurbine: ObservableObject, Codable {
         impellerStartAngle = try container.decode(Double.self, forKey: .impellerStartAngle)
         shaft = try container.decode(Shaft.self, forKey: .shaft)
 
-        impeller = try container.decode([String: Impeller].self, forKey: .impeller)
+        impellers = try container.decode([String: Impeller].self, forKey: .impellers)
         
         gridx = try container.decode(Int.self, forKey: .gridx)
         impellerStartupStepsUntilNormalSpeed = try container.decode(Int.self,
                                                                     forKey: .impellerStartupStepsUntilNormalSpeed)
         baffles = try container.decode(Baffles.self, forKey: .baffles)
-        numImpellers = try container.decode(Int.self, forKey: .numImpellers)
         startingStep = try container.decode(Int.self, forKey: .startingStep)
         name = try container.decode(String.self, forKey: .name)
         resolution = try container.decode(Double.self, forKey: .resolution)
@@ -121,13 +113,12 @@ public class RushtonTurbine: ObservableObject, Codable {
         try container.encode(impellerStartAngle, forKey: .impellerStartAngle)
         try container.encode(shaft, forKey: .shaft)
 
-        try container.encode(impeller, forKey: .impeller)
+        try container.encode(impellers, forKey: .impellers)
 
         try container.encode(gridx, forKey: .gridx)
         try container.encode(impellerStartupStepsUntilNormalSpeed, forKey: .impellerStartupStepsUntilNormalSpeed)
 
         try container.encode(baffles, forKey: .baffles)
-        try container.encode(numImpellers, forKey: .numImpellers)
         try container.encode(startingStep, forKey: .startingStep)
         try container.encode(name, forKey: .name)
         try container.encode(resolution, forKey: .resolution)
@@ -150,12 +141,11 @@ extension RushtonTurbine {
             impellerStartAngle: me.impellerStartAngle,
             shaft: me.shaft,
 
-            impeller: me.impeller,
+            impeller: me.impellers,
 
             gridx: me.gridx,
             impellerStartupStepsUntilNormalSpeed: me.impellerStartupStepsUntilNormalSpeed,
             baffles: me.baffles,
-            numImpellers: me.numImpellers,
             startingStep: me.startingStep,
             name: me.name,
             resolution: me.resolution
@@ -195,7 +185,6 @@ extension RushtonTurbine {
         gridx: Int? = nil,
         impellerStartupStepsUntilNormalSpeed: Int? = nil,
         baffles: Baffles? = nil,
-        numImpellers: Int? = nil,
         startingStep: Int? = nil,
         name: String? = nil,
         resolution: Double? = nil
@@ -205,11 +194,10 @@ extension RushtonTurbine {
             tankHeight: tankHeight ?? self.tankHeight,
             impellerStartAngle: impellerStartAngle ?? self.impellerStartAngle,
             shaft: shaft ?? self.shaft,
-            impeller: impeller ?? self.impeller,
+            impeller: impeller ?? self.impellers,
             gridx: gridx ?? self.gridx,
             impellerStartupStepsUntilNormalSpeed: impellerStartupStepsUntilNormalSpeed ?? self.impellerStartupStepsUntilNormalSpeed,
             baffles: baffles ?? self.baffles,
-            numImpellers: numImpellers ?? self.numImpellers,
             startingStep: startingStep ?? self.startingStep,
             name: name ?? self.name,
             resolution: resolution ?? self.resolution

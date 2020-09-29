@@ -83,7 +83,6 @@ public func getEggelsSomersGeometry(
         gridx: gridX,
         impellerStartupStepsUntilNormalSpeed: impellerStartupStepsUntilNormalSpeed,
         baffles: baffles,
-        numImpellers: 1,
         startingStep: startingStep,
         name: "Eggels and Somers 1997",
         resolution: 0.7
@@ -106,9 +105,9 @@ func exampleTurbineOutput(turbine: RushtonTurbine) -> OutputGeometry {
     output.add(xy:xy2)
 
     
-    let xz0 = Ortho2D(at: turbine.impeller["0"]!.impellerPosition - 1, repeatStep: 10)
-    let xz1 = Ortho2D(at: turbine.impeller["0"]!.impellerPosition, repeatStep: 10)
-    let xz2 = Ortho2D(at: turbine.impeller["0"]!.impellerPosition + 1, repeatStep: 10)
+    let xz0 = Ortho2D(at: turbine.impellers["0"]!.impellerPosition - 1, repeatStep: 10)
+    let xz1 = Ortho2D(at: turbine.impellers["0"]!.impellerPosition, repeatStep: 10)
+    let xz2 = Ortho2D(at: turbine.impellers["0"]!.impellerPosition + 1, repeatStep: 10)
     
 //    let xz0 = Ortho2D(at: turbine.impeller.impellerPosition - 1, repeatStep: 10)
 //    let xz1 = Ortho2D(at: turbine.impeller.impellerPosition, repeatStep: 10)

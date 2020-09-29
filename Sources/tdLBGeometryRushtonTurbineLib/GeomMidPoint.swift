@@ -63,7 +63,7 @@ public struct RushtonTurbineMidPoint: Geometry {
         self.gridY = self.turbine.gridx
         self.gridZ = self.turbine.gridx
 
-        self.uav = self.turbine.impeller["0"]!.uav
+        self.uav = self.turbine.impellers["0"]!.uav
         //self.uav = self.turbine.impeller.uav
 
         self.startingStep = self.turbine.startingStep
@@ -138,7 +138,7 @@ extension RushtonTurbineMidPoint {
         let centerZ = centerX
 
         let impellerNum = 0
-        let impeller = turbine.impeller[String(impellerNum)]!
+        let impeller = turbine.impellers[String(impellerNum)]!
         //let impeller = turbine.impeller
         let blades = impeller.blades
 
@@ -188,7 +188,7 @@ extension RushtonTurbineMidPoint {
 
     mutating func getDisc(turbine: RushtonTurbine) {
 
-        let disk = turbine.impeller["0"]!.disk
+        let disk = turbine.impellers["0"]!.disk
         let radius = disk.radius
         let center = turbine.tankDiameter / 2
 
@@ -206,7 +206,7 @@ extension RushtonTurbineMidPoint {
 
     mutating func getHub(turbine: RushtonTurbine) {
 
-        let hub = turbine.impeller["0"]!.hub
+        let hub = turbine.impellers["0"]!.hub
         let radius = hub.radius
         let center = turbine.tankDiameter / 2
 

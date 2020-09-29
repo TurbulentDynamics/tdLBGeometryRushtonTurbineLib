@@ -19,7 +19,7 @@ let TurbineTestData = """
     "shaft":{
         "radius":8
     },
-    "impeller":{
+    "impellers":{
         "1":{
             "blades":{
                 "innerRadius":25,

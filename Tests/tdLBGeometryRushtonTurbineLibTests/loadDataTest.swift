@@ -59,15 +59,13 @@ class dataTests: XCTestCase {
         let outputES = exampleTurbineOutput(turbine: turbineES)
             
         XCTAssertEqual(turbineES.tankDiameter, 298)
-        XCTAssertEqual(turbineES.numImpellers, 1)
-        XCTAssertEqual(turbineES.impeller["0"]?.blades.top, 188)
+        XCTAssertEqual(turbineES.impellers["0"]?.blades.top, 188)
 
         XCTAssertEqual(outputES.ortho2DXY[0].at, 148)
 
         let TurbineGUIDemo = getTurbineTestData()
         XCTAssertEqual(TurbineGUIDemo.tankDiameter, 300)
-        XCTAssertEqual(TurbineGUIDemo.numImpellers, 3)
-        XCTAssertEqual(TurbineGUIDemo.impeller["0"]?.blades.top, 240)
+        XCTAssertEqual(TurbineGUIDemo.impellers["0"]?.blades.top, 240)
     }
 
     static var allTests = [

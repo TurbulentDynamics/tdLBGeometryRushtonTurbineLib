@@ -73,7 +73,7 @@ public struct RushtonTurbineLegacy: Geometry {
         self.gridY = self.turbine.gridx
         self.gridZ = self.turbine.gridx
 
-        self.uav = self.turbine.impeller["0"]!.uav
+        self.uav = self.turbine.impellers["0"]!.uav
         self.startingStep = self.turbine.startingStep
         self.impellerStartupStepsUntilNormalSpeed = self.turbine.impellerStartupStepsUntilNormalSpeed
         self.impellerStartAngle = self.turbine.impellerStartAngle
@@ -142,7 +142,7 @@ extension RushtonTurbineLegacy {
         if step >= turbine.impellerStartupStepsUntilNormalSpeed {
             return impellerIncrementFullStep
         }
-        return 0.5 * Radian(turbine.impeller["0"]!.bladeTipAngularVelW0) * (1.0 - cos(Radian.pi * Radian(step) / Radian(turbine.impellerStartupStepsUntilNormalSpeed)))
+        return 0.5 * Radian(turbine.impellers["0"]!.bladeTipAngularVelW0) * (1.0 - cos(Radian.pi * Radian(step) / Radian(turbine.impellerStartupStepsUntilNormalSpeed)))
     }
 
     mutating func generateTankWallLegacy() {
@@ -222,7 +222,7 @@ extension RushtonTurbineLegacy {
 
     mutating func createImpellerBladesLegacy(withIncrement angle: Radian) {
 
-        let impeller = turbine.impeller
+        let impeller = turbine.impellers
 
         let innerRadius = Radian(impeller["0"]!.blades.innerRadius)
         let outerRadius = Radian(impeller["0"]!.blades.outerRadius)
@@ -282,7 +282,7 @@ extension RushtonTurbineLegacy {
     }
 
     mutating func createImpellerDiskLegacy(withIncrement angle: Radian) {
-        let impeller = turbine.impeller["0"]!
+        let impeller = turbine.impellers["0"]!
 
         let hubRadius = Radian(impeller.hub.radius)
         let diskRadius = Radian(impeller.disk.radius)
@@ -346,9 +346,9 @@ extension RushtonTurbineLegacy {
 
     mutating func createImpellerHubLegacy(withIncrement angle: Radian) {
 
-        let impeller = turbine.impeller["0"]!
+        let impeller = turbine.impellers["0"]!
 
-//        let hubRadius: Radian = Radian(turbine.impeller["0"]!.hub.radius)
+//        let hubRadius: Radian = Radian(turbine.impellers["0"]!.hub.radius)
         let hubRadius: Radian = Radian(impeller.hub.radius)
 
         let nPointsR: Int = Int((hubRadius - Radian(turbine.shaft.radius)) / Radian(turbine.resolution))
@@ -356,7 +356,7 @@ extension RushtonTurbineLegacy {
 
         for j in impeller.hub.top...impeller.hub.bottom {
 
-//            var isWithinDisk:Bool = j >= turbine.impeller[0]!.disk.bottom && j <= turbine.impeller[0]!.disk.top
+//            var isWithinDisk:Bool = j >= turbine.impellers[0]!.disk.bottom && j <= turbine.impellers[0]!.disk.top
 
             for idxR in 1...nPointsR {
 
@@ -372,7 +372,7 @@ extension RushtonTurbineLegacy {
                 }
 
                 //TODO Change to zero. Check this
-//                var theta0: Radian = Radian(turbine.impeller["0"]!.firstBladeOffset)
+//                var theta0: Radian = Radian(turbine.impellers["0"]!.firstBladeOffset)
                 var theta0: Radian = Radian(impeller.firstBladeOffset)
 
                 
@@ -381,7 +381,7 @@ extension RushtonTurbineLegacy {
 
                 for idxTheta in 0..<nPointsTheta {
 
-//                    let isSurface:Bool = (j == turbine.impeller[0]!.hub.bottom || j == turbine.impeller[0]!.hub.top || idxR == nPointsR) && !isWithinDisk
+//                    let isSurface:Bool = (j == turbine.impellers[0]!.hub.bottom || j == turbine.impellers[0]!.hub.top || idxR == nPointsR) && !isWithinDisk
 
                     let t_polar = theta0 + Radian(idxTheta) * dTheta
                     let g = RotatingGeomPoints(
@@ -410,7 +410,7 @@ extension RushtonTurbineLegacy {
 
         for j in 0..<turbine.tankHeight {
 
-//            let isWithinHub:Bool = j > turbine.impeller[0]!.hub.bottom && j < turbine.impeller[0]!.hub.top
+//            let isWithinHub:Bool = j > turbine.impellers[0]!.hub.bottom && j < turbine.impellers[0]!.hub.top
 
             let rEnd: Radian = Radian(turbine.shaft.radius) // isWithinHub ? turbine.hub.radius : turbine.shaft.radius
             let nPointsR: Int = Int(rEnd / Radian(turbine.resolution))

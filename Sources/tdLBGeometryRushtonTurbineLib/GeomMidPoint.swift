@@ -31,9 +31,9 @@ public struct RushtonTurbineMidPoint: Geometry {
     var impellerIncrementFullStep: Radian = 0
     var impellerCurrentAngle: Radian = 0
 
-    public var geomFixed = [Pos3d]()
-    public var geomRotating = [Pos3d]()
-    public var geomTranslating = [Pos3d]()
+    public var geomFixed: [Pos3d]
+    public var geomRotating: [Pos3d]
+    public var geomTranslating: [Pos3d]
 
     private let iCenter: Int = 0
     private let kCenter: Int = 0
@@ -54,6 +54,10 @@ public struct RushtonTurbineMidPoint: Geometry {
 
         self.output = exampleTurbineOutput(turbine: self.turbine)
 
+        geomFixed = []
+        geomRotating = []
+        geomTranslating = []
+        
         generateFixedGeometry()
         generateRotatingGeometry(atθ: Radian(impellerStartAngle))
 
@@ -73,7 +77,10 @@ public struct RushtonTurbineMidPoint: Geometry {
         self.startingStep = self.turbine.startingStep
         self.impellerStartupStepsUntilNormalSpeed = self.turbine.impellerStartupStepsUntilNormalSpeed
         self.impellerStartAngle = self.turbine.impellerStartAngle
-
+        
+        geomFixed = []
+        geomRotating = []
+        geomTranslating = []
     }
 
     public mutating func generateFixedGeometry() {

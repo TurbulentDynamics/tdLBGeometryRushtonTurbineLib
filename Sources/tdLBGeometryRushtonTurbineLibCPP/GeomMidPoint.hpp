@@ -17,17 +17,13 @@
 #include "RushtonTurbine.hpp"
 
 
-template <typename T>
-struct Point2D{
-    T x;
-    T y;
-};
 
 template <typename T>
 struct Pos2d{
-    T x;
-    T y;
+    T p;
+    T q;
 };
+
 
 
 template <typename T>
@@ -39,7 +35,7 @@ struct Pos3d{
 
 
 template <typename T>
-struct Line{
+struct Line2d{
     T x0;
     T y0;
     T x1;
@@ -47,6 +43,55 @@ struct Line{
 };
 
 
+
+template <typename T>
+struct Extents{
+    T x0;
+    T x1;
+    T y0;
+    T y1;
+    T z0;
+    T z1;
+
+    bool containsI(T i){
+        if (i >= x0 && i <= x1) return true;
+        else return false;
+    }
+    bool containsJ(T j){
+        if (j > y0 && j < y1) return true;
+        else return false;
+    }
+    bool containsK(T k){
+        if (k > z0 && k < z1) return true;
+        else return false;
+    }
+    bool containsIK(T i, T k){
+        if (i > x0 && i < x1 && k > z0 && k < z1) return true;
+        else return false;
+    }
+
+    
+    bool doesntContainI(T i){
+        if (i < x0 || i > x1) return true;
+        else return false;
+    }
+    bool doesntContainJ(T j){
+        if (j < y0 || j > y1) return true;
+        else return false;
+    }
+    bool doesntContainK(T k){
+        if (k < z0 || k > z1) return true;
+        else return false;
+    }
+    bool doesntContainIK(T i, T k){
+        if (i < x0 || i > x1 || k < z0 || k > z1) return true;
+        else return false;
+    }
+    bool doesntContainIJK(T i, T j, T k){
+        if (i < x0 || i > x1 || j < y0 || j > y1 || k < z0 || k > z1) return true;
+        else return false;
+    }
+};
 
 
 
@@ -59,10 +104,19 @@ public:
     
     RushtonTurbine turbine;
     
+    Extents<T> extents;
     
     std::vector<Pos3d<T>> geomFixed;
+    
+    //These are circular rotating points that would replace one another if "rotating."
+    std::vector<Pos3d<T>> geomRotatingNonUpdating;
+    
+    //Points that move and need to be removed as they move.
     std::vector<Pos3d<T>> geomRotating;
+    
+    
     std::vector<Pos3d<T>> geomTranslating;
+    
     
     int iCenter;
     int kCenter;
@@ -80,34 +134,37 @@ public:
 //    tGeomShape calc_this_step_impeller_increment(tStep step);
 
 
-    RushtonTurbineMidPointCPP(std::string jsonFile){
+    RushtonTurbineMidPointCPP(std::string jsonFile, Extents<T> ext){
     
         RushtonTurbine turbineData;
         turbineData.loadGeometryConfigAsJSON(jsonFile);
 
         turbine = turbineData;
         
-    }
-
-    
-    
-    RushtonTurbineMidPointCPP(RushtonTurbine turbineData){
-    
-        turbine = turbineData;
         tankRadius = turbine.tankDiameter / 2;
         tankHeight = turbine.tankDiameter;
         iCenter = tankRadius;
         kCenter = tankRadius;
         
-    }
-    
-    RushtonTurbineMidPointCPP(double angle, tStep step, int gridx, RushtonTurbine turbineData){
-        
-        turbine = turbineData;
+        extents = ext;
         
     }
 
     
+    
+    RushtonTurbineMidPointCPP(RushtonTurbine turbineData, Extents<T> ext){
+   
+        turbine = turbineData;
+        tankRadius = turbine.tankDiameter / 2;
+        tankHeight = turbine.tankDiameter;
+        iCenter = tankRadius;
+        kCenter = tankRadius;
+   
+        extents = ext;
+        
+    }
+    
+
     
     
     void setGeometryStartup(tStep startingStep, tGeomShape impellerStartAngle,
@@ -125,6 +182,7 @@ public:
     void clear_vectors(){
 
         geomFixed.clear();
+        geomRotatingNonUpdating.clear();
         geomRotating.clear();
         geomTranslating.clear();
     }
@@ -135,104 +193,159 @@ public:
     
     void generateFixedGeometry() {
         
-        getWall(turbine);
-        getBaffles(turbine);
+        addWall(turbine);
+        addBaffles(turbine);
     }
 
 
-    
-    void generateRotatingGeometry(double atTheta) {
+    void generateRotatingGeometryNonUpdating() {
         
-        getImpellers(turbine, atTheta);
+        addRotatingPartsNonUpdating(turbine);
+        
+    }
+    
+    
+    void generateRotatingGeometry(double atTheta){
+        
+        addImpellerBlades(turbine, atTheta);
+        
     }
 
 
-
-
+    void updateRotatingGeometry(double atTheta){
+        
+        geomRotating.clear();
+        addImpellerBlades(turbine, atTheta);
+        
+    }
 
     
-    void getImpellers(RushtonTurbine turbine, double atTheta){
+    void generateTranslatingGeometry(int step){
+    }
+    
+    
 
+    
+    void addRotatingPartsNonUpdating(RushtonTurbine turbine){
         
-        std::vector<Pos2d<T>> shaft = midPointCircle2D(turbine.shaft.radius, iCenter, kCenter);
         
         for (auto imp = 0; imp < turbine.impellers.size(); imp++){
         
-            getImpellerHub(turbine, imp);
-            getImpellerDisc(turbine, imp);
-            
-            
-            //TODO HACK
-            getTurbineShaft(turbine, turbine.tankDiameter, 0);
+            addImpellerHub(turbine, imp);
+            addImpellerDisc(turbine, imp);
 
-                
-            getImpellerBlades(turbine, atTheta, imp);
         }
 
-        //TODO SHAFT
+        std::vector<T> jShafts;
+        jShafts.push_back(0);
+
         for (auto imp = 0; imp < turbine.impellers.size(); imp++){
-            
-            for (int j=turbine.impellers[imp].impellerPosition; j<turbine.impellers[imp].impellerPosition; j++){
-                
-                for (const auto& p: shaft){
-                    geomRotating.push_back(Pos3d<T>{p.x, j, p.y});
+
+            jShafts.push_back(turbine.impellers[imp].hub.bottom);
+
+            jShafts.push_back(turbine.impellers[imp].hub.top);
+
+        }
+        //Height
+        jShafts.push_back(turbine.tankDiameter);
+
+        //Sort points as impellers may not be in order
+        std::sort(jShafts.begin(), jShafts.end());
+
+
+
+        //Circular cross section
+        std::vector<Pos2d<T>> shaftSection = midPointCircle2D(turbine.shaft.radius, iCenter, kCenter);
+
+        std::vector<Pos2d<T>> filteredShaftSection = filterPos2d(shaftSection);
+        
+
+        for (int index=0; index<jShafts.size(); index+=2){
+            for (T j=jShafts[index]; j<jShafts[index + 1]; j++){
+
+                if (extents.doesntContainJ(j)) continue;
+
+                for (const auto& p: filteredShaftSection){
+
+                    geomRotatingNonUpdating.push_back(Pos3d<T>{p.p, j, p.q});
                 }
             }
         }
-
+        
+        
     }
 
 
-    
-    void getImpellerBlades(RushtonTurbine turbine, double atTheta, int imp){
 
-        Impeller impeller = turbine.impellers[imp];
-        Blades blades = impeller.blades;
-        
-        double deltaImpellerOffset = (2.0 * M_PI) / double(impeller.numBlades);
 
-        double reducedTheta = 0;
-        while (reducedTheta > 2.0 * M_PI) {
-            reducedTheta -= 2.0 * M_PI;
-        }
-        
-     
-        for (int nBlade = 0; nBlade < impeller.numBlades; nBlade ++){
 
-            double bladeAngle = reducedTheta + double(impeller.firstBladeOffset) + deltaImpellerOffset * double(nBlade);
+
+    void addImpellerBlades(RushtonTurbine turbine, double atTheta){
+
+
+        for (auto imp = 0; imp < turbine.impellers.size(); imp++){
+
+            Impeller impeller = turbine.impellers[imp];
+            Blades blades = impeller.blades;
             
-            
-            std::vector<Pos2d<T>> box = getBoxOnRadius2D(bladeAngle, blades.outerRadius, blades.innerRadius, blades.thickness, iCenter, kCenter);
+            double deltaImpellerOffset = (2.0 * M_PI) / double(impeller.numBlades);
 
-            for (int j=blades.top+1; j<blades.bottom-1; j++){
+            double reducedTheta = atTheta;
+            
+            while (reducedTheta > 2.0 * M_PI) {
+                reducedTheta -= 2.0 * M_PI;
+            }
+            
+         
+            for (int nBlade = 0; nBlade < impeller.numBlades; nBlade ++){
+
+                double bladeAngle = reducedTheta + double(impeller.firstBladeOffset) + deltaImpellerOffset * double(nBlade);
                 
-                for (const auto& p: box){
-                    geomRotating.push_back({p.x, j, p.y});
+                
+                std::vector<Pos2d<T>> box = getBoxOnRadius2D(bladeAngle, blades.outerRadius, blades.innerRadius, blades.thickness, iCenter, kCenter);
+                
+                std::vector<Pos2d<T>> filteredBox = filterPos2d(box);
+
+                for (int j=blades.bottom+1; j<blades.top-1; j++){
+                    
+                    if (extents.doesntContainJ(j)) continue;
+
+                    for (const auto& p: filteredBox){
+                        geomRotating.push_back({p.p, j, p.q});
+                    }
                 }
-            }
-            
-            
-            
-            std::vector<Pos3d<T>> lid = getBoxLidOnRadius2D(blades.bottom, box);
-            for (const auto& p: lid){
-                geomRotating.push_back(p);
-            }
-            std::vector<Pos3d<T>> lid2 = getBoxLidOnRadius2D(blades.top, box);
-            for (const auto& p: lid2){
-                geomRotating.push_back(p);
-            }
+                
+                
+                
+                if (extents.containsJ(blades.bottom)){
+                    std::vector<Pos3d<T>> lid = drawBoxLidOnRadius2D(blades.bottom, box);
+                    for (const auto& p: lid){
+                        geomRotating.push_back(p);
+                    }
+                }
 
+                
+                if (extents.containsJ(blades.top)){
+                    std::vector<Pos3d<T>> lid2 = drawBoxLidOnRadius2D(blades.top, box);
+                    for (const auto& p: lid2){
+                        geomRotating.push_back(p);
+                    }
+                }
+                
+                
+            }
+            
         }
-
     }
 
     
-    void getTurbineShaft(RushtonTurbine turbine, int bottom, int height) {
-     
-        std::vector<Pos3d<T>> shaft = getCylinderWallIK(turbine.shaft.radius, height, bottom, iCenter, kCenter);
+    
+    void addTurbineShaft(RushtonTurbine turbine, int bottom, int height) {
+
+        std::vector<Pos3d<T>> shaft = drawCylinderWallIK(turbine.shaft.radius, height, bottom, iCenter, kCenter);
         
         for (const auto& p: shaft){
-            geomRotating.push_back(p);
+            geomRotatingNonUpdating.push_back(p);
         }
         
     }
@@ -241,20 +354,20 @@ public:
 
 
     
-    void getImpellerDisc(RushtonTurbine turbine, int impeller) {
+    void addImpellerDisc(RushtonTurbine turbine, int impeller) {
         
         Disk disk = turbine.impellers[impeller].disk;
         
-        std::vector<Pos3d<T>> diskPoints  = getThickHollowDisc(turbine.shaft.radius, disk.radius, disk.top-disk.bottom, disk.bottom, iCenter, kCenter);
+        std::vector<Pos3d<T>> diskPoints  = drawThickHollowDisc(turbine.shaft.radius, disk.radius, disk.top-disk.bottom, disk.bottom, iCenter, kCenter);
         
         for (const auto& p: diskPoints){
-            geomRotating.push_back(p);
+            geomRotatingNonUpdating.push_back(p);
         }
         
-        std::vector<Pos3d<T>> wall = getCylinderWallIK(disk.radius, disk.top-disk.bottom, disk.bottom, iCenter, kCenter);
+        std::vector<Pos3d<T>> wall = drawCylinderWallIK(disk.radius, disk.top-disk.bottom, disk.bottom, iCenter, kCenter);
 
         for (const auto& p: wall){
-            geomFixed.push_back(p);
+            geomRotatingNonUpdating.push_back(p);
         }
 
         
@@ -263,20 +376,22 @@ public:
 
 
     
-    void getImpellerHub(RushtonTurbine turbine, int impeller) {
+    void addImpellerHub(RushtonTurbine turbine, int impeller) {
         
         Disk hub = turbine.impellers[impeller].hub;
 
-        std::vector<Pos3d<T>> hubPoints  = getThickHollowDisc(turbine.shaft.radius, hub.radius, hub.top - hub.bottom, hub.bottom, iCenter, kCenter);
+        std::vector<Pos3d<T>> hubPoints  = drawThickHollowDisc(turbine.shaft.radius, hub.radius, hub.top - hub.bottom, hub.bottom, iCenter, kCenter);
         
         for (const auto& p: hubPoints){
-            geomRotating.push_back(p);
+            
+            geomRotatingNonUpdating.push_back(p);
         }
         
-        std::vector<Pos3d<T>> wall = getCylinderWallIK(hub.radius, hub.top-hub.bottom, hub.bottom, iCenter, kCenter);
+        std::vector<Pos3d<T>> wall = drawCylinderWallIK(hub.radius, hub.top-hub.bottom, hub.bottom, iCenter, kCenter);
 
         for (const auto& p: wall){
-            geomFixed.push_back(p);
+
+            geomRotatingNonUpdating.push_back(p);
         }
         
     }
@@ -288,17 +403,18 @@ public:
 
 
     
-    void getWall(RushtonTurbine turbine){
+    void addWall(RushtonTurbine turbine){
 
-        std::vector<Pos3d<T>> wall = getCylinderWallIK(tankRadius, turbine.tankDiameter, 0, iCenter, kCenter);
+        std::vector<Pos3d<T>> wall = drawCylinderWallIK(tankRadius, turbine.tankDiameter, 0, iCenter, kCenter);
         
         for (const auto& p: wall){
             geomFixed.push_back(p);
         }
     }
 
+
     
-    void getBaffles(RushtonTurbine turbine){
+    void addBaffles(RushtonTurbine turbine){
         
 
         double deltaBaffleOffset = (2.0 * M_PI) / turbine.baffles.numBaffles;
@@ -309,9 +425,14 @@ public:
             
             std::vector<Pos2d<T>> box = getBoxOnRadius2D(baffleAngle, turbine.baffles.outerRadius, turbine.baffles.innerRadius, turbine.baffles.thickness, iCenter, kCenter);
 
+            std::vector<Pos2d<T>> filteredBox = filterPos2d(box);
+            
             for (T h = 0; h < tankHeight; h++){
-                for (const auto& p: box){
-                    geomFixed.push_back({p.x, h, p.y});
+                
+                if (extents.doesntContainJ(h)) continue;
+
+                for (const auto& p: filteredBox){
+                    geomFixed.push_back({p.p, h, p.q});
                 }
             }
 
@@ -344,7 +465,7 @@ public:
 
         std::ofstream myfile;
         myfile.open (filename);
-        myfile << "ply\nformat ascii 1.0\nelement vertex " << geomRotating.size() + geomFixed.size();
+        myfile << "ply\nformat ascii 1.0\nelement vertex " << geomFixed.size() + geomRotating.size() + geomRotatingNonUpdating.size() + geomTranslating.size();
         myfile << "\nproperty int x\nproperty int y\nproperty int z\nend_header\n";
         
         for (const auto& v: geomFixed){
@@ -357,6 +478,15 @@ public:
             myfile << v.i << " " << v.j << " " << v.k << "\n";
         }
 
+        for (const auto& v: geomRotatingNonUpdating){
+
+            myfile << v.i << " " << v.j << " " << v.k << "\n";
+        }
+
+        for (const auto& v: geomTranslating){
+
+            myfile << v.i << " " << v.j << " " << v.k << "\n";
+        }
         
         myfile.close();
 
@@ -368,16 +498,16 @@ public:
 
 
     
-    std::vector<Pos3d<T>> getBoxLidOnRadius2D(T atJ, std::vector<Pos2d<T>> box){
+    std::vector<Pos3d<T>> drawBoxLidOnRadius2D(T atJ, std::vector<Pos2d<T>> box){
 
         
         std::map<T, std::vector<T>> boxMap;
         
         for ( const auto &p : box ) {
-            boxMap[p.x] = {};
+            boxMap[p.p] = {};
         }
         for ( const auto &p : box ) {
-            boxMap[p.x].push_back(p.y);
+            boxMap[p.p].push_back(p.q);
         }
         
 
@@ -388,6 +518,8 @@ public:
 
             for (T k=*minmax.first; k<*minmax.second; k++){
                 
+                if (extents.doesntContainIK(map.first, k)) continue;
+
                 lid.push_back({map.first, atJ, k});
           }
         }
@@ -403,8 +535,8 @@ public:
     std::vector<Pos2d<T>> getBoxOnRadius2D(double angle, T outerRadius, T innerRadius, T thickness, T iCenter, T kCenter){
         
         
-        Line<T> outerEdge = getPerpendicularEdgeToRadius2D(angle, outerRadius, thickness, iCenter, kCenter);
-        Line<T> innerEdge = getPerpendicularEdgeToRadius2D(angle, innerRadius, thickness, iCenter, kCenter);
+        Line2d<T> outerEdge = getPerpendicularEdgeToRadius2D(angle, outerRadius, thickness, iCenter, kCenter);
+        Line2d<T> innerEdge = getPerpendicularEdgeToRadius2D(angle, innerRadius, thickness, iCenter, kCenter);
 
         std::vector<Pos2d<T>> outerEdgePoints = getBresenhamLine2D(outerEdge.x0, outerEdge.y0, outerEdge.x1, outerEdge.y1);
         std::vector<Pos2d<T>> innerEdgePoints = getBresenhamLine2D(innerEdge.x0, innerEdge.y0, innerEdge.x1, innerEdge.y1);
@@ -417,16 +549,16 @@ public:
         std::vector<Pos2d<T>> box;
         
         for (const auto& p: outerEdgePoints){
-            box.push_back({p.x, p.y});
+            box.push_back({p.p, p.q});
         }
         for (const auto& p: innerEdgePoints){
-            box.push_back({p.x, p.y});
+            box.push_back({p.p, p.q});
         }
         for (const auto& p: sidePointsPos){
-            box.push_back({p.x, p.y});
+            box.push_back({p.p, p.q});
         }
         for (const auto& p: sidePointsNeg){
-            box.push_back({p.x, p.y});
+            box.push_back({p.p, p.q});
         }
 
 
@@ -439,26 +571,32 @@ public:
 
 
     
-    std::vector<Pos3d<T>> getThickHollowDisc(T innerRadius, T outerRadius, T height, T bottom, T iCenter, T kCenter) {
+    std::vector<Pos3d<T>> drawThickHollowDisc(T innerRadius, T outerRadius, T height, T bottom, T iCenter, T kCenter) {
 
         std::vector<Pos3d<T>> thickHollowDisc;
 
-        std::vector<Pos3d<T>> wall = getCylinderWallIK(outerRadius, height, bottom, iCenter, kCenter);
+        std::vector<Pos3d<T>> wall = drawCylinderWallIK(outerRadius, height, bottom, iCenter, kCenter);
 
         for (const auto& v: wall){
             thickHollowDisc.push_back(v);
         }
             
         
-        std::vector<Pos3d<T>> top_cap = drawHollowDiscIK(bottom+height, innerRadius, outerRadius, iCenter, kCenter);
-        std::vector<Pos3d<T>> bottom_cap = drawHollowDiscIK(bottom, innerRadius, outerRadius, iCenter, kCenter);
-
-        for (const auto& v: top_cap){
-            thickHollowDisc.push_back(v);
+        if (extents.containsJ(bottom+height)) {
+            std::vector<Pos3d<T>> top_cap = drawHollowDiscIK(bottom+height, innerRadius, outerRadius, iCenter, kCenter);
+            for (const auto& v: top_cap){
+                thickHollowDisc.push_back(v);
+            }
         }
 
-        for (const auto& v: bottom_cap){
-            thickHollowDisc.push_back(v);
+        
+        
+        if (extents.containsJ(bottom)) {
+            std::vector<Pos3d<T>> bottom_cap = drawHollowDiscIK(bottom, innerRadius, outerRadius, iCenter, kCenter);
+            
+            for (const auto& v: bottom_cap){
+                thickHollowDisc.push_back(v);
+            }
         }
 
         return thickHollowDisc;
@@ -492,17 +630,20 @@ public:
                 
                 for (T k=*minmaxOuterY.first; k<=*minmaxInnerY.first; k++){
         
+                    if (extents.doesntContainIK(outerX, k)) continue;
                     disk3d.push_back(Pos3d<T>{outerX, atj, k});
                 }
                 for (T k=*minmaxInnerY.second; k<=*minmaxOuterY.second; k++){
                     
+                    if (extents.doesntContainIK(outerX, k)) continue;
                     disk3d.push_back({outerX, atj, k});
                 }
                 
                 
             }else{
                 for (T k=*minmaxOuterY.first; k<=*minmaxOuterY.second; k++){
-                    
+
+                    if (extents.doesntContainIK(outerX, k)) continue;
                     disk3d.push_back({outerX, atj, k});
                 }
             }
@@ -530,6 +671,8 @@ public:
 
             for (T k=*minmax.first; k<=*minmax.second; k++){
                 
+                if (extents.doesntContainIK(map.first, k)) continue;
+
                 disk3d.push_back(Pos3d<T>{map.first, atj, k});
           }
         }
@@ -538,16 +681,23 @@ public:
 
 
     
-    std::vector<Pos3d<T>> getCylinderWallIK(T radius, T height, T bottom, T iCenter, T kCenter) {
+    std::vector<Pos3d<T>> drawCylinderWallIK(T radius, T height, T bottom, T iCenter, T kCenter) {
 
         std::vector<Pos3d<T>> cylinder;
 
         std::vector<Pos2d<T>> circumference = midPointCircle2D(radius, iCenter, kCenter);
 
+        
+        
         for (T j=bottom; j<bottom+height; j++){
-            for (const auto& v: circumference){
-                
-                cylinder.push_back(Pos3d<T>{v.x, j, v.y});
+
+            if (extents.doesntContainJ(j)) continue;
+            
+            for (const auto& p: circumference){
+
+                if (extents.doesntContainIK(p.p, p.q)) continue;
+
+                cylinder.push_back(Pos3d<T>{p.p, j, p.q});
             }
         }
             
@@ -565,6 +715,9 @@ public:
         std::vector<Pos2d<T>> circle2d = midPointCircle2D(radius, iCenter, kCenter);
         
         for ( const auto &p : circle2d ) {
+
+            if (extents.doesntContainIK(p.x, p.y)) continue;
+
             circle3d.push_back(Pos3d<T>{p.x, atj, p.y});
         }
         
@@ -574,7 +727,17 @@ public:
 
 
 
-
+    std::vector<Pos2d<T>> filterPos2d(std::vector<Pos2d<T>> points){
+        
+        std::vector<Pos2d<T>> filteredPoints;
+        
+        for (const auto& p: points){
+            if (extents.containsIK(p.p, p.q)){
+                filteredPoints.push_back(p);
+            }
+        }
+        return filteredPoints;
+    }
 
     
     std::vector<Pos3d<T>> midPointEllipse2D(T xRadius, T yRadius, T xCenter, T yCenter){
@@ -750,7 +913,7 @@ public:
     }
 
     
-    Line<T> getPerpendicularEdgeToRadius2D(double angle, T radius, T halfThickness, T xCenter, T yCenter){
+    Line2d<T> getPerpendicularEdgeToRadius2D(double angle, T radius, T halfThickness, T xCenter, T yCenter){
         
         T midPointEdgeX = xCenter + radius * cos(angle);
         T midPointEdgeY = yCenter + radius * sin(angle);
@@ -763,7 +926,7 @@ public:
         T x1 = midPointEdgeX + halfThickness * cos(edgeAngle);
         T y1 = midPointEdgeY + halfThickness * sin(edgeAngle);
      
-        return Line<T>{x0, y0, x1, y1};
+        return Line2d<T>{x0, y0, x1, y1};
     }
 
 

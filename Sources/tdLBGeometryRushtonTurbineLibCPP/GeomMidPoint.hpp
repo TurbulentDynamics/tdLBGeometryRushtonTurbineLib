@@ -113,8 +113,7 @@ public:
     
     //Points that move and need to be removed as they move.
     std::vector<Pos3d<T>> geomRotating;
-    
-    
+        
     std::vector<Pos3d<T>> geomTranslating;
     
     
@@ -190,6 +189,23 @@ public:
     
     
     
+    std::vector<Pos3d<T>> returnFixedGeometry() {
+        return geomFixed;
+    }
+
+    std::vector<Pos3d<T>> returnRotatingGeometryNonUpdating() {
+        return geomRotatingNonUpdating;
+    }
+    
+    std::vector<Pos3d<T>> returnRotatingGeometry(double atTheta){
+        return geomRotating;
+    }
+
+    std::vector<Pos3d<T>> returnTranslatingGeometry(int step){
+        return geomTranslating;
+    }
+    
+    
     
     void generateFixedGeometry() {
         
@@ -201,30 +217,35 @@ public:
     void generateRotatingGeometryNonUpdating() {
         
         addRotatingPartsNonUpdating(turbine);
-        
     }
     
     
     void generateRotatingGeometry(double atTheta){
         
         addImpellerBlades(turbine, atTheta);
-        
     }
-
-
+    
     void updateRotatingGeometry(double atTheta){
         
         geomRotating.clear();
         addImpellerBlades(turbine, atTheta);
-        
     }
 
     
     void generateTranslatingGeometry(int step){
     }
     
+    void updateTranslatingGeometry(int step){
+    }
     
-
+    
+    
+    
+    
+    
+    
+    
+    
     
     void addRotatingPartsNonUpdating(RushtonTurbine turbine){
         

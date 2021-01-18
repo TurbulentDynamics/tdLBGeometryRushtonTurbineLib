@@ -18,6 +18,8 @@ import tdLBOutputGeometry
 
 public struct RushtonTurbineMidPoint: Geometry {
 
+    
+
     public var gridX, gridY, gridZ: Int
     public let startingStep:Int
 
@@ -33,6 +35,7 @@ public struct RushtonTurbineMidPoint: Geometry {
 
     public var geomFixed: [Pos3d]
     public var geomRotating: [Pos3d]
+    public var geomRotatingNonUpdating: [Pos3d]
     public var geomTranslating: [Pos3d]
 
     private let iCenter: Int = 0
@@ -56,10 +59,12 @@ public struct RushtonTurbineMidPoint: Geometry {
 
         geomFixed = []
         geomRotating = []
+        geomRotatingNonUpdating = []
         geomTranslating = []
         
         generateFixedGeometry()
         generateRotatingGeometry(atθ: Radian(impellerStartAngle))
+        generateRotatingNonUpdatingGeometry()
 
     }
 
@@ -80,36 +85,74 @@ public struct RushtonTurbineMidPoint: Geometry {
         
         geomFixed = []
         geomRotating = []
+        geomRotatingNonUpdating = []
         geomTranslating = []
     }
 
-    public mutating func generateFixedGeometry() {
+    
+    
+    
+    
+    public func returnFixedGeometry() -> [Pos3d]{
+        return self.geomFixed
+    }
+
+    public func returnRotatingNonUpdatingGeometry(atθ: Radian) -> [Pos3d] {
+        return self.geomRotatingNonUpdating
+    }
+
+    public func returnRotatingGeometry(atθ: Radian) -> [Pos3d] {
+        return self.geomRotating
+    }
+
+    public func returnTranslatingGeometry() -> [Pos3d] {
+        return self.geomTranslating
+    }
+
+  
+    
+    
+    public mutating func generateFixedGeometry(){
 
         getWall(turbine: turbine)
         getBaffles(turbine: turbine)
     }
 
+    public mutating func generateRotatingNonUpdatingGeometry() {
+
+        getImpellersNonUpdating(turbine: turbine)
+    }
+
     public mutating func generateRotatingGeometry(atθ: Radian) {
 
-        getImpellers(turbine: turbine, atθ: atθ)
+        getImpellersRotating(turbine: turbine, atθ: atθ)
+    }
 
+    public mutating func updateRotatingGeometry(atθ: Radian) {
+        self.geomRotating.removeAll()
+        getImpellersRotating(turbine: turbine, atθ: atθ)
     }
     
+    
     public mutating func generateTranslatingGeometry() {
-        
-    }
-
-    public mutating func updateGeometry(forStep step: Int) {
         //TODO
-        print("Need to implement updateGeom!!!!!")
+        print("Need to implement generateTranslatingGeometry!!!!!")
+    }
+
+    public mutating func updateTranslatingGeometry(forStep step: Int) {
+        //TODO
+        print("Need to implement updateTranslatingGeometry!!!!!")
     }
 
 
+    
+    
+    
     
     public func getFixedPointCloud() -> [PointCloudVertex] {
         var pts = [PointCloudVertex]()
         for g in 0..<geomFixed.count {
-            pts.append(PointCloudVertex(i: geomRotating[g].i, j: geomRotating[g].j, k: geomRotating[g].k, t: .fixed))
+            pts.append(PointCloudVertex(i: geomFixed[g].i, j: geomFixed[g].j, k: geomFixed[g].k, t: .fixed))
 
         }
         return pts
@@ -125,6 +168,16 @@ public struct RushtonTurbineMidPoint: Geometry {
         return pts
     }
 
+    public func getRotatingNonUpdatingPointCloud() -> [PointCloudVertex] {
+        var pts = [PointCloudVertex]()
+
+        for g in 0..<geomRotatingNonUpdating.count {
+            pts.append(PointCloudVertex(i: geomRotatingNonUpdating[g].i, j: geomRotatingNonUpdating[g].j, k: geomRotatingNonUpdating[g].k, t: .rotating))
+
+        }
+        return pts
+    }
+    
 }//end of class
 
 
@@ -132,9 +185,17 @@ public struct RushtonTurbineMidPoint: Geometry {
 // MARK: - Rotating Geometry
 extension RushtonTurbineMidPoint {
 
-    mutating func getImpellers(turbine: RushtonTurbine, atθ: Radian) {
+    mutating func getImpellersRotating(turbine: RushtonTurbine, atθ: Radian) {
 
-        
+    
+        for imp in 0..<turbine.impellers.count {
+
+            self.getImpellerBlades(turbine: turbine, atθ: atθ, impeller: String(imp))
+        }
+
+    }
+    mutating func getImpellersNonUpdating(turbine: RushtonTurbine) {
+
         
         let shaft = drawMidPointCircle(radius: turbine.shaft.radius, xCenter: self.iCenter, yCenter: self.kCenter)
         
@@ -142,9 +203,6 @@ extension RushtonTurbineMidPoint {
         for imp in 0..<turbine.impellers.count {
             self.getImpellerHub(turbine: turbine, impeller: String(imp))
             self.getImpellerDisc(turbine: turbine, impeller: String(imp))
-
-
-            self.getImpellerBlades(turbine: turbine, atθ: atθ, impeller: String(imp))
         }
 
         //Shaft parts

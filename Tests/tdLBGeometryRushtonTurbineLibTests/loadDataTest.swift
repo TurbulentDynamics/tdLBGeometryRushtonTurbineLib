@@ -26,32 +26,6 @@ class dataTests: XCTestCase {
 
     }
 
-//    func testGeometryLegacy() {
-//
-//        let g = RushtonTurbineLegacy(gridX: 300, gridY: 300, gridZ: 300, uav: 0.1)
-//
-//        var geomLegacy = g.geomFixed
-//        geomLegacy.append(contentsOf: g.geomRotating)
-//
-//        XCTAssertEqual(geomLegacy.count, 807048)
-//
-//    }
-//
-//    func testCompareLegacyToMidPoint() {
-//
-//        let gMidPoint = RushtonTurbineMidPoint(gridX: 300, gridY: 300, gridZ: 300, uav: 0.1)
-//        var geomMidPoint = gMidPoint.geomFixed
-//        geomMidPoint.append(contentsOf: gMidPoint.geomRotating)
-//
-//
-//        let gLegacy = RushtonTurbineLegacy(gridX: 300, gridY: 300, gridZ: 300, uav: 0.1)
-//        var geomLegacy = gLegacy.geomFixed
-//        geomLegacy.append(contentsOf: gLegacy.geomRotating)
-//
-//
-////        XCTAssertEqual(geomMidPoint, geomLegacy)
-//
-//    }
 
     func testSampleTurbineConfig() {
 
@@ -70,7 +44,6 @@ class dataTests: XCTestCase {
 
     static var allTests = [
         ("testMidPointGeometry", testMidPointGeometry),
-//        ("testGeometryLegacy", testGeometryLegacy),
         ("testSampleTurbineConfig", testSampleTurbineConfig)
     ]
 

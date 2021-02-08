@@ -23,6 +23,11 @@ NS_ASSUME_NONNULL_BEGIN
 -(void)generateRotatingGeometry:(double)atTheta;
 -(void)updateRotatingGeometry:(double)atTheta;
 
+//-(void)returnFixedGeometry;
+//-(void)returnRotatingGeometryNonUpdating;
+//-(void)returnRotatingGeometry;
+
+
 @end
 
 NS_ASSUME_NONNULL_END

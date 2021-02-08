@@ -8,11 +8,11 @@
 import Foundation
 import tdLBGeometryRushtonTurbineLibObjC
 
-public struct RushtonTurbineMidPointSwift {
+public struct RushtonTurbineMidPointCPP {
 
     var tdLBGeometryRushtonTurbineLibObjC_inst: tdLBGeometryRushtonTurbineLibObjC?
     
-    public init(rushtonTurbine: RushtonTurbineSwift, extents: ExtentsSwift) {
+    public init(rushtonTurbine: RushtonTurbineCPP, extents: ExtentsCPP) {
         
         tdLBGeometryRushtonTurbineLibObjC_inst = tdLBGeometryRushtonTurbineLibObjC(rushtonTurbine.rushtonTurbineObjC_inst!, ext: extents.extentsObjC_inst!)
     }
@@ -36,9 +36,27 @@ public struct RushtonTurbineMidPointSwift {
     
         tdLBGeometryRushtonTurbineLibObjC_inst?.updateRotatingGeometry(atTheta)
     }
+
+
+//    public func returnFixedGeometry() {
+//
+//        tdLBGeometryRushtonTurbineLibObjC_inst?.returnFixedGeometry()
+//    }
+//
+//    public func returnRotatingGeometryNonUpdating() {
+//
+//        tdLBGeometryRushtonTurbineLibObjC_inst?.returnRotatingGeometryNonUpdating()
+//    }
+//
+//    public func returnRotatingGeometry() {
+//
+//        tdLBGeometryRushtonTurbineLibObjC_inst?.returnRotatingGeometry()
+//    }
+
+
 }
 
-public struct RushtonTurbineSwift {
+public struct RushtonTurbineCPP {
 
     var rushtonTurbineObjC_inst: RushtonTurbineObjC?
     
@@ -49,7 +67,7 @@ public struct RushtonTurbineSwift {
     
 }
 
-public struct ExtentsSwift {
+public struct ExtentsCPP {
 
     var extentsObjC_inst: ExtentsObjC?
     

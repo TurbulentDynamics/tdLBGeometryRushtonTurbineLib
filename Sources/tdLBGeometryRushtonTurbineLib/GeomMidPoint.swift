@@ -17,7 +17,6 @@ import tdLBOutputGeometry
 
 
 public struct RushtonTurbineMidPoint: Geometry {
-
     
 
     public var gridX, gridY, gridZ: Int
@@ -91,17 +90,40 @@ public struct RushtonTurbineMidPoint: Geometry {
 
     
     
+    public init(turbine: RushtonTurbine) {
+
+        self.turbine = turbine
+        self.output = exampleTurbineOutput(turbine: self.turbine)
+
+        self.gridX = self.turbine.gridx
+        self.gridY = self.turbine.gridx
+        self.gridZ = self.turbine.gridx
+
+        //TOFIX
+        self.uav = self.turbine.impellers["0"]!.uav
+
+        self.startingStep = self.turbine.startingStep
+        self.impellerStartupStepsUntilNormalSpeed = self.turbine.impellerStartupStepsUntilNormalSpeed
+        self.impellerStartAngle = self.turbine.impellerStartAngle
+        
+        geomFixed = []
+        geomRotating = []
+        geomRotatingNonUpdating = []
+        geomTranslating = []
+    }
+    
+    
     
     
     public func returnFixedGeometry() -> [Pos3d]{
         return self.geomFixed
     }
 
-    public func returnRotatingNonUpdatingGeometry(atθ: Radian) -> [Pos3d] {
+    public func returnRotatingNonUpdatingGeometry() -> [Pos3d] {
         return self.geomRotatingNonUpdating
     }
 
-    public func returnRotatingGeometry(atθ: Radian) -> [Pos3d] {
+    public func returnRotatingGeometry() -> [Pos3d] {
         return self.geomRotating
     }
 
@@ -133,6 +155,9 @@ public struct RushtonTurbineMidPoint: Geometry {
         getImpellersRotating(turbine: turbine, atθ: atθ)
     }
     
+    public mutating func updateGeometry(forStep step: Int) {
+        //TODO
+    }
     
     public mutating func generateTranslatingGeometry() {
         //TODO
@@ -144,40 +169,7 @@ public struct RushtonTurbineMidPoint: Geometry {
         print("Need to implement updateTranslatingGeometry!!!!!")
     }
 
-
-    
-    
-    
-    
-    public func getFixedPointCloud() -> [PointCloudVertex] {
-        var pts = [PointCloudVertex]()
-        for g in 0..<geomFixed.count {
-            pts.append(PointCloudVertex(i: geomFixed[g].i, j: geomFixed[g].j, k: geomFixed[g].k, t: .fixed))
-
-        }
-        return pts
-    }
-
-    public func getRotatingPointCloud() -> [PointCloudVertex] {
-        var pts = [PointCloudVertex]()
-
-        for g in 0..<geomRotating.count {
-            pts.append(PointCloudVertex(i: geomRotating[g].i, j: geomRotating[g].j, k: geomRotating[g].k, t: .rotating))
-
-        }
-        return pts
-    }
-
-    public func getRotatingNonUpdatingPointCloud() -> [PointCloudVertex] {
-        var pts = [PointCloudVertex]()
-
-        for g in 0..<geomRotatingNonUpdating.count {
-            pts.append(PointCloudVertex(i: geomRotatingNonUpdating[g].i, j: geomRotatingNonUpdating[g].j, k: geomRotatingNonUpdating[g].k, t: .rotating))
-
-        }
-        return pts
-    }
-    
+ 
 }//end of class
 
 

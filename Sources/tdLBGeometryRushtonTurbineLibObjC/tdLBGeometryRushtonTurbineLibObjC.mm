@@ -53,4 +53,25 @@
     rushtonTurbineMidPointCPP-> updateRotatingGeometry(atTheta);
 }
 
+
+
+//-(void)returnFixedGeometry {
+//    RushtonTurbineMidPointCPP<int>* rushtonTurbineMidPointCPP = (RushtonTurbineMidPointCPP<int>*) self.rushtonTurbineMidPointCPP;
+//
+//    rushtonTurbineMidPointCPP-> returnFixedGeometry();
+//}
+//
+//-(void)returnRotatingGeometryNonUpdating {
+//    RushtonTurbineMidPointCPP<int>* rushtonTurbineMidPointCPP = (RushtonTurbineMidPointCPP<int>*) self.rushtonTurbineMidPointCPP;
+//
+//    rushtonTurbineMidPointCPP-> returnRotatingGeometryNonUpdating();
+//}
+//
+//-(void)returnRotatingGeometry:(double)atTheta {
+//    RushtonTurbineMidPointCPP<int>* rushtonTurbineMidPointCPP = (RushtonTurbineMidPointCPP<int>*) self.rushtonTurbineMidPointCPP;
+//
+//    rushtonTurbineMidPointCPP-> returnRotatingGeometry(atTheta);
+//}
+
+
 @end

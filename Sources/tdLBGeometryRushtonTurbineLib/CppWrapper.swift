@@ -38,20 +38,32 @@ public struct RushtonTurbineMidPointCPP {
     }
 
 
-//    public func returnFixedGeometry() {
-//
-//        tdLBGeometryRushtonTurbineLibObjC_inst?.returnFixedGeometry()
-//    }
-//
-//    public func returnRotatingGeometryNonUpdating() {
-//
-//        tdLBGeometryRushtonTurbineLibObjC_inst?.returnRotatingGeometryNonUpdating()
-//    }
-//
-//    public func returnRotatingGeometry() {
-//
-//        tdLBGeometryRushtonTurbineLibObjC_inst?.returnRotatingGeometry()
-//    }
+    public func returnFixedGeometry() -> [Pos3d_int] {
+
+        if let tdLBGeometryRushtonTurbineLibObjC_inst = tdLBGeometryRushtonTurbineLibObjC_inst {
+            return tdLBGeometryRushtonTurbineLibObjC_inst.returnFixedGeometry()
+        } else {
+            return []
+        }
+    }
+
+    public func returnRotatingGeometryNonUpdating() -> [Pos3d_int] {
+
+        if let tdLBGeometryRushtonTurbineLibObjC_inst = tdLBGeometryRushtonTurbineLibObjC_inst {
+            return tdLBGeometryRushtonTurbineLibObjC_inst.returnRotatingGeometryNonUpdating()
+        } else {
+            return []
+        }
+    }
+
+    public func returnRotatingGeometry() -> [Pos3d_int] {
+
+        if let tdLBGeometryRushtonTurbineLibObjC_inst = tdLBGeometryRushtonTurbineLibObjC_inst {
+            return tdLBGeometryRushtonTurbineLibObjC_inst.returnRotatingGeometry()
+        } else {
+            return []
+        }
+    }
 
 
 }

@@ -12,6 +12,14 @@ NS_ASSUME_NONNULL_BEGIN
 @class RushtonTurbineObjC;
 @class ExtentsObjC;
 
+@interface Pos3d_int : NSObject {
+    int i;
+    int j;
+    int k;
+}
+
+@end
+
 @interface tdLBGeometryRushtonTurbineLibObjC : NSObject
 
 @property void* rushtonTurbineMidPointCPP; // RushtonTurbineMidPointCPP<NSObject*>*
@@ -23,10 +31,9 @@ NS_ASSUME_NONNULL_BEGIN
 -(void)generateRotatingGeometry:(double)atTheta;
 -(void)updateRotatingGeometry:(double)atTheta;
 
-//-(void)returnFixedGeometry;
-//-(void)returnRotatingGeometryNonUpdating;
-//-(void)returnRotatingGeometry;
-
+-(NSArray<Pos3d_int*>*)returnFixedGeometry;
+-(NSArray<Pos3d_int*>*)returnRotatingGeometryNonUpdating;
+-(NSArray<Pos3d_int*>*)returnRotatingGeometry;
 
 @end
 

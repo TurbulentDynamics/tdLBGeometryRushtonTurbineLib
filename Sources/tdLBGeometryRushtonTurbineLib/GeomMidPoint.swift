@@ -16,8 +16,8 @@ import tdLBOutputGeometry
 
 
 
-public struct RushtonTurbineMidPoint: Geometry {
-    
+public struct RushtonTurbineMidPoint {
+
 
     public var gridX, gridY, gridZ: Int
     public let startingStep:Int

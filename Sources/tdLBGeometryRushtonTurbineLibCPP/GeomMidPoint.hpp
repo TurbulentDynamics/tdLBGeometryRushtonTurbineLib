@@ -427,7 +427,7 @@ public:
     void addWall(RushtonTurbine turbine){
 
         std::vector<Pos3d<T>> wall = drawCylinderWallIK(tankRadius, turbine.tankDiameter, 0, iCenter, kCenter);
-        
+
         for (const auto& p: wall){
             geomFixed.push_back(p);
         }

@@ -17,7 +17,9 @@ let package = Package(
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
-        .package(url: "https://github.com/turbulentdynamics/tdLBApi.git", from: "0.0.3")
+        .package(url: "https://github.com/turbulentdynamics/tdLBApi.git", from: "0.0.3"),
+        .package(url: "https://github.com/apple/swift-argument-parser", from: "0.3.2")
+
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
@@ -27,6 +29,7 @@ let package = Package(
             name: "rt",
             dependencies: [
                 .product(name: "tdLBApi", package: "tdLBApi"),
+                .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 "tdLBGeometryRushtonTurbineLib"
         ]),
         .target(

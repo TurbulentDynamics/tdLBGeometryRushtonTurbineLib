@@ -119,6 +119,9 @@ public:
     Shaft shaft;
 
 
+    RushtonTurbine(int gridX=300){
+        setEgglesSomersProportions(gridX);
+    }
     
     void loadGeometryConfigAsJSON(std::string filepath){
 
@@ -318,7 +321,7 @@ public:
     }
     
     
-    void setEgglesSomersProportions(int gridX, tGeomShape uav) {
+    void setEgglesSomersProportions(int gridX=300, tGeomShape uav=0.1) {
         
         resolution = 0.7f;
 

@@ -13,6 +13,6 @@
 
 @property void* extentsCPP; // Extents<int>*
 
--(instancetype)init:(int)x1 x2:(int)x2 y1:(int)y1 y2:(int)y2 z1:(int)z1 z2:(int)z2;
+-(instancetype)init:(int)x0 x1:(int)x1 y0:(int)y0 y1:(int)y1 z0:(int)z0 z1:(int)z1;
 
 @end

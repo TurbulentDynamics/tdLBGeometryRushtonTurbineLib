@@ -120,7 +120,7 @@ public:
 
 
     RushtonTurbine(int gridX=300){
-        setEgglesSomersProportions(gridX);
+        setReferenceProportions(gridX);
     }
     
     void loadGeometryConfigAsJSON(std::string filepath){
@@ -321,7 +321,7 @@ public:
     }
     
     
-    void setEgglesSomersProportions(int gridX=300, tGeomShape uav=0.1) {
+    void setGillissenProportions(int gridX=300, tGeomShape uav=0.1) {
         
         resolution = 0.7f;
 
@@ -361,7 +361,6 @@ public:
         blades.bottom = tankDiameter * 21.0f / 30.f;
 
 
-        // top height impeller blade
         blades.thickness = tankDiameter / 75.0f;
 
         impeller.blades = blades;
@@ -391,6 +390,84 @@ public:
 
     }
 
+    
+    void setReferenceProportions(int gridX=300, tGeomShape uav=0.1) {
+        
+        resolution = 0.0f;
+
+        //diameter tube / cylinder
+        tankDiameter = gridX - MDIAM_BORDER;
+        
+        
+        //Principal Parameters defined from
+        //Hartmann H, Derksen JJ, Montavon C, Pearson J, Hamill IS, Van den Akker HEA. Assessment of large eddy and rans stirred tank simulations by means of LDA. Chem Eng Sci. 2004;59:2419–2432.
+        int tankRadius = tankDiameter / 2.0;
+        int impellerPosition = gridX * (2.0 / 3.0);
+        int D = tankDiameter / 3.0;
+
+        
+        
+        shaft.radius = D * 0.08;
+
+
+        baffles.numBaffles = 4;
+
+        //First baffle is offset by 1/8 of revolution, or 1/2 of the delta between baffles.
+        baffles.firstBaffleOffset = (tGeomShape)(((2.0 * M_PI) / (tGeomShape)baffles.numBaffles) * 0.5);
+
+        baffles.innerRadius = tankRadius - (tankDiameter * 0.017) - (tankDiameter * 0.1);
+        baffles.outerRadius = tankRadius - (tankDiameter * 0.017);
+        baffles.thickness = tankDiameter / 75.0f;
+
+
+        numImpellers = 1;
+
+        Impeller impeller;
+        impeller.impellerPosition = impellerPosition;
+        impeller.numBlades = 6;
+        impeller.firstBladeOffset = 0.0f;
+        impeller.uav = uav;
+
+
+        
+        Blades blades;
+        blades.outerRadius = D / 2.0;
+        blades.innerRadius = blades.outerRadius - (D * 0.25);
+
+        // bottom height impeller blade
+        blades.top = impellerPosition -  (D * 0.1);
+        blades.bottom = impellerPosition + (D * 0.1);
+
+
+        blades.thickness = D * 0.04;
+
+        impeller.blades = blades;
+
+        
+        
+        // Eventual angular velocity impeller
+        impeller.bladeTipAngularVelW0 = impeller.uav / blades.outerRadius;
+
+
+        Disk disk;
+        disk.radius = D * 0.375;
+        disk.top = impellerPosition - (D * 0.02);
+        disk.bottom = impellerPosition + (D * 0.02);
+        impeller.disk = disk;
+        
+        
+        Disk hub;
+        hub.radius = D * 0.16;
+        hub.top = impellerPosition - (D * 0.1);
+        hub.bottom = impellerPosition + (D * 0.1);
+        impeller.hub = hub;
+
+        
+        impellers.push_back(impeller);
+
+
+    }
+    
 };
 
 

@@ -213,7 +213,7 @@ public:
         return geomFixed;
     }
 
-    std::vector<Pos3d<T>> returnRotatingGeometryNonUpdating() {
+    std::vector<Pos3d<T>> returnRotatingNonUpdatingGeometry() {
         return geomRotatingNonUpdating;
     }
     
@@ -234,7 +234,7 @@ public:
     }
 
 
-    void generateRotatingGeometryNonUpdating() {
+    void generateRotatingNonUpdatingGeometry() {
         
         addRotatingPartsNonUpdating(turbine);
     }
@@ -278,7 +278,7 @@ public:
         }
 
         std::vector<T> jShafts;
-        jShafts.push_back(0);
+        jShafts.push_back(-1);
 
         for (auto imp = 0; imp < turbine.impellers.size(); imp++){
 
@@ -302,7 +302,8 @@ public:
         
 
         for (int index=0; index<jShafts.size(); index+=2){
-            for (T j=jShafts[index]; j<jShafts[index + 1]; j++){
+            
+            for (T j=jShafts[index]+1; j<jShafts[index + 1]; j++){
 
                 if (extents.doesntContainJ(j)) continue;
 
@@ -347,7 +348,7 @@ public:
                 
                 std::vector<Pos2d<T>> filteredBox = filterPos2d(box);
 
-                for (int j=blades.bottom+1; j<blades.top-1; j++){
+                for (int j=blades.top+1; j<blades.bottom; j++){
                     
                     if (extents.doesntContainJ(j)) continue;
 
@@ -381,9 +382,9 @@ public:
 
     
     
-    void addTurbineShaft(RushtonTurbine turbine, int bottom, int height) {
+    void addTurbineShaft(RushtonTurbine turbine, int top, int bottom) {
 
-        std::vector<Pos3d<T>> shaft = drawCylinderWallIK(turbine.shaft.radius, height, bottom, iCenter, kCenter);
+        std::vector<Pos3d<T>> shaft = drawCylinderWallIK(turbine.shaft.radius, top, bottom, iCenter, kCenter);
         
         for (const auto& p: shaft){
             geomRotatingNonUpdating.push_back(p);
@@ -399,13 +400,13 @@ public:
         
         Disk disk = turbine.impellers[impeller].disk;
         
-        std::vector<Pos3d<T>> diskPoints  = drawThickHollowDisc(turbine.shaft.radius, disk.radius, disk.top-disk.bottom, disk.bottom, iCenter, kCenter);
+        std::vector<Pos3d<T>> diskPoints  = drawThickHollowDisc(turbine.shaft.radius, disk.radius, disk.top, disk.bottom, iCenter, kCenter);
         
         for (const auto& p: diskPoints){
             geomRotatingNonUpdating.push_back(p);
         }
         
-        std::vector<Pos3d<T>> wall = drawCylinderWallIK(disk.radius, disk.top-disk.bottom, disk.bottom, iCenter, kCenter);
+        std::vector<Pos3d<T>> wall = drawCylinderWallIK(disk.radius, disk.top + 1, disk.bottom - 1, iCenter, kCenter);
 
         for (const auto& p: wall){
             geomRotatingNonUpdating.push_back(p);
@@ -421,14 +422,14 @@ public:
         
         Disk hub = turbine.impellers[impeller].hub;
 
-        std::vector<Pos3d<T>> hubPoints  = drawThickHollowDisc(turbine.shaft.radius, hub.radius, hub.top - hub.bottom, hub.bottom, iCenter, kCenter);
+        std::vector<Pos3d<T>> hubPoints = drawThickHollowDisc(turbine.shaft.radius, hub.radius, hub.top, hub.bottom, iCenter, kCenter);
         
         for (const auto& p: hubPoints){
             
             geomRotatingNonUpdating.push_back(p);
         }
         
-        std::vector<Pos3d<T>> wall = drawCylinderWallIK(hub.radius, hub.top-hub.bottom, hub.bottom, iCenter, kCenter);
+        std::vector<Pos3d<T>> wall = drawCylinderWallIK(hub.radius, hub.top + 1, hub.bottom - 1, iCenter, kCenter);
 
         for (const auto& p: wall){
 
@@ -446,7 +447,7 @@ public:
     
     void addWall(RushtonTurbine turbine){
 
-        std::vector<Pos3d<T>> wall = drawCylinderWallIK(tankRadius, turbine.tankDiameter, 0, iCenter, kCenter);
+        std::vector<Pos3d<T>> wall = drawCylinderWallIK(tankRadius, 0, turbine.tankDiameter, iCenter, kCenter);
 
         for (const auto& p: wall){
             geomFixed.push_back(p);
@@ -576,8 +577,8 @@ public:
     std::vector<Pos2d<T>> getBoxOnRadius2D(double angle, T outerRadius, T innerRadius, T thickness, T iCenter, T kCenter){
         
         
-        Line2d<T> outerEdge = getPerpendicularEdgeToRadius2D(angle, outerRadius, thickness, iCenter, kCenter);
-        Line2d<T> innerEdge = getPerpendicularEdgeToRadius2D(angle, innerRadius, thickness, iCenter, kCenter);
+        Line2d<T> outerEdge = getPerpendicularEdgeToRadius2D(angle, outerRadius, thickness / 2, iCenter, kCenter);
+        Line2d<T> innerEdge = getPerpendicularEdgeToRadius2D(angle, innerRadius, thickness / 2, iCenter, kCenter);
 
         std::vector<Pos2d<T>> outerEdgePoints = getBresenhamLine2D(outerEdge.x0, outerEdge.y0, outerEdge.x1, outerEdge.y1);
         std::vector<Pos2d<T>> innerEdgePoints = getBresenhamLine2D(innerEdge.x0, innerEdge.y0, innerEdge.x1, innerEdge.y1);
@@ -612,19 +613,19 @@ public:
 
 
     
-    std::vector<Pos3d<T>> drawThickHollowDisc(T innerRadius, T outerRadius, T height, T bottom, T iCenter, T kCenter) {
+    std::vector<Pos3d<T>> drawThickHollowDisc(T innerRadius, T outerRadius, T top, T bottom, T iCenter, T kCenter) {
 
         std::vector<Pos3d<T>> thickHollowDisc;
 
-        std::vector<Pos3d<T>> wall = drawCylinderWallIK(outerRadius, height, bottom, iCenter, kCenter);
+        std::vector<Pos3d<T>> wall = drawCylinderWallIK(outerRadius, top + 1, bottom - 1, iCenter, kCenter);
 
         for (const auto& v: wall){
             thickHollowDisc.push_back(v);
         }
             
         
-        if (extents.containsJ(bottom+height)) {
-            std::vector<Pos3d<T>> top_cap = drawHollowDiscIK(bottom+height, innerRadius, outerRadius, iCenter, kCenter);
+        if (extents.containsJ(top)) {
+            std::vector<Pos3d<T>> top_cap = drawHollowDiscIK(top, innerRadius, outerRadius, iCenter, kCenter);
             for (const auto& v: top_cap){
                 thickHollowDisc.push_back(v);
             }
@@ -720,9 +721,8 @@ public:
         return disk3d;
     }
 
-
     
-    std::vector<Pos3d<T>> drawCylinderWallIK(T radius, T height, T bottom, T iCenter, T kCenter) {
+    std::vector<Pos3d<T>> drawCylinderWallIK(T radius, T top, T bottom, T iCenter, T kCenter) {
 
         std::vector<Pos3d<T>> cylinder;
 
@@ -730,7 +730,7 @@ public:
 
         
         
-        for (T j=bottom; j<bottom+height; j++){
+        for (T j=top; j<=bottom; j++){
 
             if (extents.doesntContainJ(j)) continue;
             

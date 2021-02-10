@@ -11,20 +11,28 @@ import tdLBOutputGeometry
 
 
 
-public func RushtonTurbineEggelsSomers(
+public func RushtonTurbineReference(
         gridX: Int,
         uav: Double = 0.1,
         impellerStartupStepsUntilNormalSpeed: Int = 0,
         startingStep: Int = 0,
         impellerStartAngle: Double = 0.0) -> RushtonTurbine {
 
-    let MDIAM_BORDER: Double = 2
+    
+    let MDIAM_BORDER: Int = 2
+    let tankDiameter: Double = Double(gridX - MDIAM_BORDER)
 
-    let tankDiameter: Double = Double(gridX) - MDIAM_BORDER
-    let tankHeight: Double = tankDiameter
+    //Principal Parameters defined from
+    //Hartmann H, Derksen JJ, Montavon C, Pearson J, Hamill IS, Van den Akker HEA. Assessment of large eddy and rans stirred tank simulations by means of LDA. Chem Eng Sci. 2004;59:2419–2432.
+    let tankRadius: Double = tankDiameter / 2
+    let impellerPosition: Int = Int(tankDiameter * (2.0 / 3.0))
+    let D: Double = tankDiameter / 3.0
+    
+    
+    let shaft = Shaft(radius: Int(D * 0.08))
 
-    let shaft = Shaft(radius: Int(tankDiameter * 2.0 / 75.0))
-
+    
+    
     // MARK: - Baffles
 
     let numBaffles: Int = 4
@@ -33,32 +41,32 @@ public func RushtonTurbineEggelsSomers(
 
     let baffles = Baffles(
         firstBaffleOffset: firstBaffleOffset,
-        innerRadius: Int(0.3830 * tankDiameter),
+        innerRadius: Int(tankRadius - (tankDiameter * 0.017) - (tankDiameter * 0.1)),
         thickness: Int(tankDiameter / 75.0),
         numBaffles: numBaffles,
-        outerRadius: Int(0.4830 * tankDiameter)
+        outerRadius: Int(tankRadius - (tankDiameter * 0.017))
     )
 
     // MARK: - Impeller
 
+    let impellerBlades = Blades(
+        innerRadius: Int((D / 2.0) - (D * 0.25)),
+        top: impellerPosition - Int(D * 0.1),
+        thickness: Int(D * 0.04),
+        outerRadius: Int(D / 2.0),
+        bottom: impellerPosition + Int(D * 0.1)
+    )
+    
     let impellerDisk = Disk(
-        top: Int(tankDiameter * 99.0 / 150.0),
-        bottom: Int(tankDiameter * 101.0 / 150.0),
-        radius: Int(tankDiameter / 8.0)
+        top: impellerPosition - Int(D * 0.02),
+        bottom: impellerPosition + Int(D * 0.02),
+        radius: Int(D * 0.375)
     )
 
     let impellerHub = Disk(
-        top: Int(tankDiameter * 19.0 / 30.0),
-        bottom: Int(tankDiameter * 21.0 / 30.0),
-        radius: Int(tankDiameter * 4.0 / 75.0)
-    )
-
-    let impellerBlades = Blades(
-        innerRadius: Int(tankDiameter / 12.0),
-        top: Int(tankDiameter * (19.0 / 30.0)),
-        thickness: Int(tankDiameter / 75.0),
-        outerRadius: Int(tankDiameter / 6.0),
-        bottom: Int(tankDiameter * (21.0 / 30.0))
+        top: impellerPosition - Int(D * 0.1),
+        bottom: impellerPosition + Int(D * 0.1),
+        radius: Int(D * 0.16)
     )
 
     // Eventual angular velocity impeller
@@ -68,7 +76,7 @@ public func RushtonTurbineEggelsSomers(
         blades: impellerBlades,
         uav: uav,
         bladeTipAngularVelW0: impeller0_blade_tip_angular_vel_w0,
-        impellerPosition: Int(tankHeight * (2.0 / 3.0)),
+        impellerPosition: impellerPosition,
         disk: impellerDisk,
         numBlades: 6,
         firstBladeOffset: 0,
@@ -77,7 +85,7 @@ public func RushtonTurbineEggelsSomers(
 
     let turbine = RushtonTurbine(
         tankDiameter: Int(tankDiameter),
-        tankHeight: Int(tankHeight),
+        tankHeight: Int(tankDiameter),
         impellerStartAngle: impellerStartAngle,
         shaft: shaft,
         impeller: ["0": impeller],
@@ -85,7 +93,7 @@ public func RushtonTurbineEggelsSomers(
         impellerStartupStepsUntilNormalSpeed: impellerStartupStepsUntilNormalSpeed,
         baffles: baffles,
         startingStep: startingStep,
-        name: "Eggels and Somers 1997",
+        name: "Reference",
         resolution: 0.7
     )
     return turbine

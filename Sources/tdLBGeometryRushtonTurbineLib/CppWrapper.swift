@@ -22,9 +22,9 @@ public struct RushtonTurbineMidPointCPP {
         tdLBGeometryRushtonTurbineLibObjC_inst?.generateFixedGeometry()
     }
     
-    public func generateRotatingGeometryNonUpdating() {
+    public func generateRotatingNonUpdatingGeometry() {
         
-        tdLBGeometryRushtonTurbineLibObjC_inst?.generateRotatingGeometryNonUpdating()
+        tdLBGeometryRushtonTurbineLibObjC_inst?.generateRotatingNonUpdatingGeometry()
     }
     
     public func generateRotatingGeometry(atTheta: Double) {
@@ -38,10 +38,16 @@ public struct RushtonTurbineMidPointCPP {
     }
 
 
+//    public func returnFixedGeometry() -> [Pos3d] {
     public func returnFixedGeometry() -> [Pos3d_int] {
 
         if let tdLBGeometryRushtonTurbineLibObjC_inst = tdLBGeometryRushtonTurbineLibObjC_inst {
-            return tdLBGeometryRushtonTurbineLibObjC_inst.returnFixedGeometry()
+            
+            let pts = tdLBGeometryRushtonTurbineLibObjC_inst.returnFixedGeometry()
+            
+//            return pts.map{Pos3d($0.i, $0.j, $0.k}
+            
+            return pts
         } else {
             return []
         }
@@ -50,7 +56,7 @@ public struct RushtonTurbineMidPointCPP {
     public func returnRotatingNonUpdatingGeometry() -> [Pos3d_int] {
 
         if let tdLBGeometryRushtonTurbineLibObjC_inst = tdLBGeometryRushtonTurbineLibObjC_inst {
-            return tdLBGeometryRushtonTurbineLibObjC_inst.returnRotatingGeometryNonUpdating()
+            return tdLBGeometryRushtonTurbineLibObjC_inst.returnRotatingNonUpdatingGeometry()
         } else {
             return []
         }
@@ -83,9 +89,9 @@ public struct ExtentsCPP {
 
     var extentsObjC_inst: ExtentsObjC?
     
-    public init(x1: Int, x2:Int, y1: Int, y2:Int, z1: Int, z2:Int) {
+    public init(x0: Int, x1:Int, y0: Int, y1:Int, z0: Int, z1:Int) {
         
-        self.extentsObjC_inst = ExtentsObjC(Int32(x1), x2: Int32(x2), y1: Int32(y1), y2: Int32(y2), z1: Int32(z1), z2: Int32(z2))
+        self.extentsObjC_inst = ExtentsObjC(Int32(x0), x1: Int32(x1), y0: Int32(y0), y1: Int32(y1), z0: Int32(z0), z1: Int32(z1))
     }
     
 }

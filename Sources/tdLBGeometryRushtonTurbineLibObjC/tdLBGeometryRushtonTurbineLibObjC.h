@@ -27,12 +27,12 @@ NS_ASSUME_NONNULL_BEGIN
 -(instancetype)init:(RushtonTurbineObjC*)turbineData ext:(ExtentsObjC*) ext;
 
 -(void)generateFixedGeometry;
--(void)generateRotatingGeometryNonUpdating;
+-(void)generateRotatingNonUpdatingGeometry;
 -(void)generateRotatingGeometry:(double)atTheta;
 -(void)updateRotatingGeometry:(double)atTheta;
 
 -(NSArray<Pos3d_int*>*)returnFixedGeometry;
--(NSArray<Pos3d_int*>*)returnRotatingGeometryNonUpdating;
+-(NSArray<Pos3d_int*>*)returnRotatingNonUpdatingGeometry;
 -(NSArray<Pos3d_int*>*)returnRotatingGeometry;
 
 @end

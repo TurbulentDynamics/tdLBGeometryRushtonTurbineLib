@@ -10,12 +10,12 @@
 
 @implementation ExtentsObjC
 
--(instancetype)init:(int)x1 x2:(int)x2 y1:(int)y1 y2:(int)y2 z1:(int)z1 z2:(int)z2  {
+-(instancetype)init:(int)x0 x1:(int)x1 y0:(int)y0 y1:(int)y1 z0:(int)z0 z1:(int)z1  {
     
     self = [super init];
     if (self) {
 
-        self.extentsCPP = new Extents<int>(x1, x2, y1, y2, z1, z2);
+        self.extentsCPP = new Extents<int>(x0, x1, y0, y1, z0, z1);
     }
     
     return self;

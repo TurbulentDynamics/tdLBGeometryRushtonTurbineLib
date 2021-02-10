@@ -25,7 +25,8 @@
 }
 
 -(NSString *)description {
-    return [NSString stringWithFormat:@"point i: %d j: %d k: %d", self-> i, self-> j, self-> k];
+    return [NSString stringWithFormat:@"%d %d %d", self-> i, self-> j, self-> k];
+//    return [NSString stringWithFormat:@"point i: %d j: %d k: %d", self-> i, self-> j, self-> k];
 }
 
 @end
@@ -52,10 +53,10 @@
     rushtonTurbineMidPointCPP-> generateFixedGeometry();
 }
 
--(void)generateRotatingGeometryNonUpdating {
+-(void)generateRotatingNonUpdatingGeometry {
     RushtonTurbineMidPointCPP<int>* rushtonTurbineMidPointCPP = (RushtonTurbineMidPointCPP<int>*) self.rushtonTurbineMidPointCPP;
 
-    rushtonTurbineMidPointCPP-> generateRotatingGeometryNonUpdating();
+    rushtonTurbineMidPointCPP-> generateRotatingNonUpdatingGeometry();
 }
 
 -(void)generateRotatingGeometry:(double)atTheta {
@@ -86,12 +87,12 @@
     return result;
 }
 
--(NSArray<Pos3d_int*>*)returnRotatingGeometryNonUpdating {
+-(NSArray<Pos3d_int*>*)returnRotatingNonUpdatingGeometry {
     RushtonTurbineMidPointCPP<int>* rushtonTurbineMidPointCPP = (RushtonTurbineMidPointCPP<int>*) self.rushtonTurbineMidPointCPP;
 
     NSMutableArray<Pos3d_int*>* result = @[].mutableCopy;
     
-    std::vector<Pos3d<int>> resultCPP = rushtonTurbineMidPointCPP-> returnRotatingGeometryNonUpdating();
+    std::vector<Pos3d<int>> resultCPP = rushtonTurbineMidPointCPP-> returnRotatingNonUpdatingGeometry();
     
     for (auto&& pointCPP : resultCPP)
     {

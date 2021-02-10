@@ -29,7 +29,7 @@ class dataTests: XCTestCase {
 
     func testSampleTurbineConfig() {
 
-        let turbineES = RushtonTurbineEggelsSomers(gridX: 300)
+        let turbineES = RushtonTurbineReference(gridX: 300)
         let outputES = exampleTurbineOutput(turbine: turbineES)
             
         XCTAssertEqual(turbineES.tankDiameter, 298)

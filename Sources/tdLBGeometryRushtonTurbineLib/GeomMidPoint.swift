@@ -59,7 +59,7 @@ public struct RushtonTurbineMidPoint {
         self.impellerStartupStepsUntilNormalSpeed = s
         self.impellerStartAngle = impellerStartAngle
 
-        self.turbine = RushtonTurbineEggelsSomers(gridX:gridX, uav: uav, impellerStartupStepsUntilNormalSpeed: s, startingStep: startingStep, impellerStartAngle: impellerStartAngle)
+        self.turbine = RushtonTurbineReference(gridX:gridX, uav: uav, impellerStartupStepsUntilNormalSpeed: s, startingStep: startingStep, impellerStartAngle: impellerStartAngle)
 
         self.output = exampleTurbineOutput(turbine: self.turbine)
 
@@ -207,7 +207,7 @@ extension RushtonTurbineMidPoint {
         //Sort the start and end position of the shafts
         let impellers = turbine.impellers.values
 
-        var tops = [0]
+        var tops = [-1]
         tops.append(contentsOf: impellers.map({$0.hub.top}))
         tops.sort(by: <)
         
@@ -220,7 +220,7 @@ extension RushtonTurbineMidPoint {
         
         for (top, bottom) in zip(tops, bottoms){
             
-            for j in top..<bottom {
+            for j in (top+1)..<bottom {
 
                 for s in shaftSection {
 
@@ -256,10 +256,10 @@ extension RushtonTurbineMidPoint {
 
                 
                 
-                let box = getBoxOnRadius2D(centerX: self.iCenter, centerY: self.kCenter, angle: bladeAngle, outerRadius: blades.outerRadius, halfThickness: blades.thickness, innerRadius: blades.innerRadius)
+                let box = getBoxOnRadius2D(centerX: self.iCenter, centerY: self.kCenter, angle: bladeAngle, outerRadius: blades.outerRadius, thickness: blades.thickness, innerRadius: blades.innerRadius)
         
                 
-                for j in blades.top+1..<blades.bottom-1 {
+                for j in blades.top+1..<blades.bottom {
 
                     for (i, k) in box {
                         geomRotating.append(Pos3d(i: i, j: j, k: k))
@@ -278,9 +278,9 @@ extension RushtonTurbineMidPoint {
     
     
     
-    mutating func addTurbineShaft(turbine: RushtonTurbine, bottom: Int, height: Int) {
+    mutating func addTurbineShaft(turbine: RushtonTurbine, top: Int, bottom: Int) {
             
-        geomRotatingNonUpdating.append(contentsOf: drawCylinderWallIK(radius: turbine.shaft.radius, height: height, bottom: bottom, iCenter: self.iCenter, kCenter: self.kCenter))
+        geomRotatingNonUpdating.append(contentsOf: drawCylinderWallIK(radius: turbine.shaft.radius, top: top, bottom: bottom, iCenter: self.iCenter, kCenter: self.kCenter))
 
     }
 
@@ -289,9 +289,9 @@ extension RushtonTurbineMidPoint {
         let disk = turbine.impellers[impeller]!.disk
         let diskRadius = disk.radius
 
-        geomRotatingNonUpdating.append(contentsOf: drawThickHollowDiscIK(innerRadius: turbine.shaft.radius, outerRadius: diskRadius, height:disk.height, bottom: disk.bottom, iCenter: self.iCenter, kCenter: self.kCenter))
+        geomRotatingNonUpdating.append(contentsOf: drawThickHollowDiscIK(innerRadius: turbine.shaft.radius, outerRadius: diskRadius, top:disk.top, bottom: disk.bottom, iCenter: self.iCenter, kCenter: self.kCenter))
 
-        geomRotatingNonUpdating.append(contentsOf: drawCylinderWallIK(radius: disk.radius, height: disk.height, bottom: disk.bottom, iCenter: self.iCenter, kCenter: self.kCenter))
+        geomRotatingNonUpdating.append(contentsOf: drawCylinderWallIK(radius: disk.radius, top: disk.top, bottom: disk.bottom, iCenter: self.iCenter, kCenter: self.kCenter))
 
     }
 
@@ -300,9 +300,9 @@ extension RushtonTurbineMidPoint {
         let hub = turbine.impellers[impeller]!.hub
         let hubRadius = hub.radius
 
-        geomRotatingNonUpdating.append(contentsOf: drawThickHollowDiscIK(innerRadius: turbine.shaft.radius, outerRadius: hubRadius, height:hub.height, bottom: hub.bottom, iCenter: self.iCenter, kCenter: self.kCenter))
+        geomRotatingNonUpdating.append(contentsOf: drawThickHollowDiscIK(innerRadius: turbine.shaft.radius, outerRadius: hubRadius, top:hub.top, bottom: hub.bottom, iCenter: self.iCenter, kCenter: self.kCenter))
 
-        geomRotatingNonUpdating.append(contentsOf: drawCylinderWallIK(radius: hubRadius, height: hub.height, bottom: hub.bottom, iCenter: self.iCenter, kCenter: self.kCenter))
+        geomRotatingNonUpdating.append(contentsOf: drawCylinderWallIK(radius: hubRadius, top: hub.top, bottom: hub.bottom, iCenter: self.iCenter, kCenter: self.kCenter))
 
     }
 
@@ -317,7 +317,7 @@ extension RushtonTurbineMidPoint {
     
     mutating func addWall(turbine: RushtonTurbine) {
 
-        geomFixed.append(contentsOf: drawCylinderWallIK(radius: self.tankRadius, height: turbine.tankHeight, bottom: 0, iCenter: self.iCenter, kCenter: self.kCenter))
+        geomFixed.append(contentsOf: drawCylinderWallIK(radius: self.tankRadius, top: 0, bottom: turbine.tankDiameter, iCenter: self.iCenter, kCenter: self.kCenter))
     }
 
     
@@ -334,7 +334,7 @@ extension RushtonTurbineMidPoint {
                 let baffleAngle: Radian = Radian(turbine.baffles.firstBaffleOffset) + deltaBaffleOffset * Radian(nBaffle)
 
 
-                for (i, k) in  getBoxOnRadius2D(centerX: self.iCenter, centerY: self.kCenter, angle: baffleAngle, outerRadius: turbine.baffles.outerRadius, halfThickness: turbine.baffles.thickness, innerRadius: turbine.baffles.innerRadius){
+                for (i, k) in  getBoxOnRadius2D(centerX: self.iCenter, centerY: self.kCenter, angle: baffleAngle, outerRadius: turbine.baffles.outerRadius, thickness: turbine.baffles.thickness, innerRadius: turbine.baffles.innerRadius){
 
                 
                     geomFixed.append(Pos3d(i: i, j: j, k: k))
@@ -391,12 +391,12 @@ extension RushtonTurbineMidPoint {
     
     
     
-    func getBoxOnRadius2D(centerX: Int, centerY: Int, angle: Radian, outerRadius: Int, halfThickness: Int, innerRadius: Int) -> [(Int, Int)] {
+    func getBoxOnRadius2D(centerX: Int, centerY: Int, angle: Radian, outerRadius: Int, thickness: Int, innerRadius: Int) -> [(Int, Int)] {
 
     
-        let outerEdge = getPerpendicularEdgeToRadius2d(centerX: centerX, centerY: centerY, angle: angle, radius:outerRadius, halfThickness:halfThickness)
+        let outerEdge = getPerpendicularEdgeToRadius2d(centerX: centerX, centerY: centerY, angle: angle, radius:outerRadius, halfThickness:thickness/2)
         
-        let innerEdge = getPerpendicularEdgeToRadius2d(centerX: centerX, centerY: centerY, angle: angle, radius:innerRadius, halfThickness:halfThickness)
+        let innerEdge = getPerpendicularEdgeToRadius2d(centerX: centerX, centerY: centerY, angle: angle, radius:innerRadius, halfThickness:thickness/2)
 
         
         
@@ -452,16 +452,16 @@ extension RushtonTurbineMidPoint {
     
     
     
-    func drawThickHollowDiscIK(innerRadius: Int, outerRadius: Int, height: Int, bottom: Int, iCenter: Int, kCenter: Int) -> [Pos3d] {
+    func drawThickHollowDiscIK(innerRadius: Int, outerRadius: Int, top: Int, bottom: Int, iCenter: Int, kCenter: Int) -> [Pos3d] {
 
         
         var thickHollowDisc = [Pos3d]()
         
         //Cylindar wall
-        thickHollowDisc.append(contentsOf: drawCylinderWallIK(radius: outerRadius, height: height, bottom: bottom, iCenter: iCenter, kCenter: kCenter))
+        thickHollowDisc.append(contentsOf: drawCylinderWallIK(radius: outerRadius, top: top+1, bottom: bottom-1, iCenter: iCenter, kCenter: kCenter))
         
         //Top Cap
-        thickHollowDisc.append(contentsOf: drawHollowDiscIK(atj: bottom+height, innerRadius: innerRadius, outerRadius: outerRadius, iCenter: iCenter, kCenter: kCenter))
+        thickHollowDisc.append(contentsOf: drawHollowDiscIK(atj: top, innerRadius: innerRadius, outerRadius: outerRadius, iCenter: iCenter, kCenter: kCenter))
 
         //bottom Cap
         thickHollowDisc.append(contentsOf: drawHollowDiscIK(atj: bottom, innerRadius: innerRadius, outerRadius: outerRadius, iCenter: iCenter, kCenter: kCenter))
@@ -528,13 +528,13 @@ extension RushtonTurbineMidPoint {
 
     
     
-    func drawCylinderWallIK(radius: Int, height: Int, bottom: Int, iCenter: Int, kCenter: Int) -> [Pos3d] {
+    func drawCylinderWallIK(radius: Int, top: Int, bottom: Int, iCenter: Int, kCenter: Int) -> [Pos3d] {
 
         var cylinder = [Pos3d]()
     
         let circumference = drawMidPointCircle(radius: radius, xCenter: iCenter, yCenter: kCenter)
     
-        for j in bottom..<bottom + height {
+        for j in top...bottom {
             for p in circumference {
                 cylinder.append(Pos3d(i:p.0, j:j, k:p.1))
             }

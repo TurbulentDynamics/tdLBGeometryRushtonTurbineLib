@@ -16,7 +16,7 @@ import tdLBGeometryRushtonTurbineLibObjC
 
 func getSwiftPoints(gridX: Int) -> [Pos3d]{
 
-    let tSwift = RushtonTurbineEggelsSomers(gridX: gridX)
+    let tSwift = RushtonTurbineReference(gridX: gridX)
     var g = RushtonTurbineMidPoint(turbine: tSwift)
 
 
@@ -37,19 +37,23 @@ func getCppPoints(gridX: Int) -> [Pos3d_int]{
 
     let t = RushtonTurbineCPP(gridX: gridX)
     
-//    let t = RushtonTurbineCPP()
-    let e = ExtentsCPP(x1: 0,x2: 300,y1: 0,y2: 300,z1: 0,z2: 300)
+    let e = ExtentsCPP(x0: 0, x1: gridX, y0: 0, y1: gridX, z0: 0, z1: gridX)
 
     let gCPP = RushtonTurbineMidPointCPP(rushtonTurbine: t, extents: e)
 
     gCPP.generateFixedGeometry()
     gCPP.generateRotatingGeometry(atTheta: 0)
-    gCPP.generateRotatingGeometryNonUpdating()
+    gCPP.generateRotatingNonUpdatingGeometry()
 
     var geomCPP = gCPP.returnFixedGeometry()
 
-    print(geomCPP.count)
-
+//    let u = geomCPP[0]
+    
+    //TOFIX
+//    let v = u.i
+    
+    
+//    let pos3dtype =  geomCPP.map{Pos3d(i: $0.x, j: $0.j, k: $0.k)}
 
     geomCPP.append(contentsOf: gCPP.returnRotatingGeometry())
     geomCPP.append(contentsOf: gCPP.returnRotatingNonUpdatingGeometry())
@@ -68,19 +72,19 @@ func getDocumentsDirectory() -> URL {
 
 func savePoints3d(path: URL, points pointsObjC: [Pos3d_int]){
     
-    for u in pointsObjC {
-        print(u)
-
-        let p = Pos3d_int()
-        print("\(p)")
+    var str = "ply\nformat ascii 1.0\nelement vertex \(pointsObjC.count)"
+    str += "\nproperty int x\nproperty int y\nproperty int z\nend_header\n"
+    
+    for p in pointsObjC {
+        str += "\(p)\n"
     }
-//    let points = pointsObjC.map()
     
-//    savePoints3d(fileName: fileName, points: points)
-    
-
-    print("PLY file saved to \(path.absoluteString)")
-
+    do {
+        try str.write(to: path, atomically: true, encoding: String.Encoding.utf8)
+        print("PLY file saved to \(path.absoluteString)")
+    } catch {
+        print("failed to write file – bad permissions, bad filename, missing permissions, or more likely it can't be converted to the encoding.")
+    }
 }
 
 
@@ -120,13 +124,12 @@ enum Algo: String, EnumerableFlag {
 
 struct geomRushtonTurbine: ParsableCommand {
 
-    @Argument(help: "Filename to save ply file.")
+    @Option(name: [.short, .long], help: "Filename to save ply file.")
     var filename: String = "Rushton-Turbine"
     
-    @Argument(help: "Tank Diameter")
+    @Option(name: [.customShort("x"), .long], help: "Tank Diameter")
     var gridX: Int = 300
 
-//    @Flag(name: .shartAndLong, help: "Select algo")
     @Flag(help: "Select algo")
     var algo: Algo = .cpp
 

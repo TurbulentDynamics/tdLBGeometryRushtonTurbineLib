@@ -10,12 +10,12 @@
 
 @implementation RushtonTurbineObjC
 
--(instancetype)init {
+-(instancetype)init:(int)gridX {
     
     self = [super init];
     if (self) {
 
-        self.rushtonTurbineCPP = new RushtonTurbine();
+        self.rushtonTurbineCPP = new RushtonTurbine(gridX);
     }
     
     return self;

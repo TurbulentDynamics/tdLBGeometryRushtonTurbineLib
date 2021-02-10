@@ -13,4 +13,6 @@
 
 @property void* rushtonTurbineCPP; // RushtonTurbine
 
+-(instancetype)init:(int)gridX;
+
 @end

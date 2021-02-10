@@ -72,9 +72,9 @@ public struct RushtonTurbineCPP {
 
     var rushtonTurbineObjC_inst: RushtonTurbineObjC?
     
-    public init() {
+    public init(gridX: Int) {
         
-        rushtonTurbineObjC_inst = RushtonTurbineObjC()
+        rushtonTurbineObjC_inst = RushtonTurbineObjC(Int32(gridX))
     }
     
 }
@@ -83,9 +83,9 @@ public struct ExtentsCPP {
 
     var extentsObjC_inst: ExtentsObjC?
     
-    public init() {
+    public init(x1: Int, x2:Int, y1: Int, y2:Int, z1: Int, z2:Int) {
         
-        extentsObjC_inst = ExtentsObjC()
+        self.extentsObjC_inst = ExtentsObjC(Int32(x1), x2: Int32(x2), y1: Int32(y1), y2: Int32(y2), z1: Int32(z1), z2: Int32(z2))
     }
     
 }

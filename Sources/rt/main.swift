@@ -35,13 +35,12 @@ func getSwiftPoints(gridX: Int) -> [Pos3d]{
 
 func getCppPoints(gridX: Int) -> [Pos3d_int]{
 
-    var t = RushtonTurbineCPP(gridX)
+    let t = RushtonTurbineCPP(gridX: gridX)
     
-    let e = ExtentsCPP()
 //    let t = RushtonTurbineCPP()
-//    let e = ExtentsCPP(0,300,0,300,0,300)
+    let e = ExtentsCPP(x1: 0,x2: 300,y1: 0,y2: 300,z1: 0,z2: 300)
 
-    var gCPP = RushtonTurbineMidPointCPP(rushtonTurbine: t, extents: e)
+    let gCPP = RushtonTurbineMidPointCPP(rushtonTurbine: t, extents: e)
 
     gCPP.generateFixedGeometry()
     gCPP.generateRotatingGeometry(atTheta: 0)

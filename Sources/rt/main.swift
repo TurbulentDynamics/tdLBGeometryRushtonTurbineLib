@@ -60,7 +60,8 @@ func printPoints3d(points: [Pos3d]){
     }
 }
 
-
+let p = Pos3d_int()
+print("\(p)")
 
 let tSwift = RushtonTurbineEggelsSomers(gridX: 300)
 var g = RushtonTurbineMidPoint(turbine: tSwift)
@@ -82,7 +83,8 @@ savePoints3d(fileName: "yoke.ply", points: geomSwift)
 
 
 let t = RushtonTurbineCPP()
-let e = ExtentsCPP(0,300,0,300,0,300)
+//let e = ExtentsCPP(0,300,0,300,0,300)
+let e = ExtentsCPP()
 
 var gCPP = RushtonTurbineMidPointCPP(rushtonTurbine: t, extents: e)
 

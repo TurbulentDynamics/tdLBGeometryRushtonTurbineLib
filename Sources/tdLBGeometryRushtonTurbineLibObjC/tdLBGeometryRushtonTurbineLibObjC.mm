@@ -24,6 +24,10 @@
     return self;
 }
 
+-(NSString *)description {
+    return [NSString stringWithFormat:@"point i: %d j: %d k: %d", self-> i, self-> j, self-> k];
+}
+
 @end
 
 @implementation tdLBGeometryRushtonTurbineLibObjC

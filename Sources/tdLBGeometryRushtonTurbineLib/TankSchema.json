@@ -20,7 +20,7 @@
             "title": "The Name",
             "default": "GeometryConfig"
         },
-        "gridx": {
+        "gridX": {
             "$id": "#/properties/tankDiameter",
             "type": "integer",
             "title": "Grid x",

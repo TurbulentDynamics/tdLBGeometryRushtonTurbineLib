@@ -10,9 +10,10 @@ import tdLBGeometry
 import tdLBOutputGeometry
 
 
-public func getEggelsSomersGeometry(
+
+public func RushtonTurbineEggelsSomers(
         gridX: Int,
-        uav: Double,
+        uav: Double = 0.1,
         impellerStartupStepsUntilNormalSpeed: Int = 0,
         startingStep: Int = 0,
         impellerStartAngle: Double = 0.0) -> RushtonTurbine {
@@ -80,7 +81,7 @@ public func getEggelsSomersGeometry(
         impellerStartAngle: impellerStartAngle,
         shaft: shaft,
         impeller: ["0": impeller],
-        gridx: gridX,
+        gridX: gridX,
         impellerStartupStepsUntilNormalSpeed: impellerStartupStepsUntilNormalSpeed,
         baffles: baffles,
         startingStep: startingStep,

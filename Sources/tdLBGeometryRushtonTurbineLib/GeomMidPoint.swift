@@ -37,25 +37,33 @@ public struct RushtonTurbineMidPoint {
     public var geomRotatingNonUpdating: [Pos3d]
     public var geomTranslating: [Pos3d]
 
-    private let iCenter: Int = 0
-    private let kCenter: Int = 0
-    private let tankRadius: Int = 0
+    private let iCenter: Int
+    private let kCenter: Int
+    private let tankRadius: Int
 
+    
+    
     public init(gridX: Int, gridY: Int, gridZ: Int, uav: Double, impellerStartupStepsUntilNormalSpeed s: Int = 0, startingStep: Int = 0, impellerStartAngle: Double = 0.0) {
 
         self.gridX = gridX
         self.gridY = gridY
         self.gridZ = gridZ
         
+
+        self.tankRadius = gridX / 2
+        self.iCenter = self.tankRadius
+        self.kCenter = self.tankRadius
+        
         self.uav = uav
         self.startingStep = startingStep
         self.impellerStartupStepsUntilNormalSpeed = s
         self.impellerStartAngle = impellerStartAngle
 
-        self.turbine = getEggelsSomersGeometry(gridX: gridX, uav: uav, impellerStartupStepsUntilNormalSpeed: s, startingStep: startingStep, impellerStartAngle: impellerStartAngle)
+        self.turbine = RushtonTurbineEggelsSomers(gridX:gridX, uav: uav, impellerStartupStepsUntilNormalSpeed: s, startingStep: startingStep, impellerStartAngle: impellerStartAngle)
 
         self.output = exampleTurbineOutput(turbine: self.turbine)
 
+        
         geomFixed = []
         geomRotating = []
         geomRotatingNonUpdating = []
@@ -72,9 +80,14 @@ public struct RushtonTurbineMidPoint {
         self.turbine = try RushtonTurbine(fileName)
         self.output = try OutputGeometry(json: outputJson)
 
-        self.gridX = self.turbine.gridx
-        self.gridY = self.turbine.gridx
-        self.gridZ = self.turbine.gridx
+        self.gridX = self.turbine.gridX
+        self.gridY = self.turbine.gridX
+        self.gridZ = self.turbine.gridX
+
+        self.tankRadius = gridX / 2
+        self.iCenter = self.tankRadius
+        self.kCenter = self.tankRadius
+
 
         self.uav = self.turbine.impellers["0"]!.uav
 
@@ -93,12 +106,17 @@ public struct RushtonTurbineMidPoint {
     public init(turbine: RushtonTurbine) {
 
         self.turbine = turbine
-        self.output = exampleTurbineOutput(turbine: self.turbine)
+        self.output = exampleTurbineOutput(turbine: turbine)
 
-        self.gridX = self.turbine.gridx
-        self.gridY = self.turbine.gridx
-        self.gridZ = self.turbine.gridx
+        self.gridX = self.turbine.gridX
+        self.gridY = self.turbine.gridX
+        self.gridZ = self.turbine.gridX
 
+        self.tankRadius = gridX / 2
+        self.iCenter = self.tankRadius
+        self.kCenter = self.tankRadius
+
+        
         //TOFIX
         self.uav = self.turbine.impellers["0"]!.uav
 
@@ -136,23 +154,23 @@ public struct RushtonTurbineMidPoint {
     
     public mutating func generateFixedGeometry(){
 
-        getWall(turbine: turbine)
-        getBaffles(turbine: turbine)
+        addWall(turbine: turbine)
+        addBaffles(turbine: turbine)
     }
 
     public mutating func generateRotatingNonUpdatingGeometry() {
 
-        getImpellersNonUpdating(turbine: turbine)
+        addRotatingPartsNonUpdating(turbine: turbine)
     }
 
     public mutating func generateRotatingGeometry(atθ: Radian) {
 
-        getImpellersRotating(turbine: turbine, atθ: atθ)
+        addImpellerBlades(turbine: turbine, atθ: atθ)
     }
 
     public mutating func updateRotatingGeometry(atθ: Radian) {
         self.geomRotating.removeAll()
-        getImpellersRotating(turbine: turbine, atθ: atθ)
+        addImpellerBlades(turbine: turbine, atθ: atθ)
     }
     
     public mutating func updateGeometry(forStep step: Int) {
@@ -177,41 +195,46 @@ public struct RushtonTurbineMidPoint {
 // MARK: - Rotating Geometry
 extension RushtonTurbineMidPoint {
 
-    mutating func getImpellersRotating(turbine: RushtonTurbine, atθ: Radian) {
-
     
+    mutating func addRotatingPartsNonUpdating(turbine: RushtonTurbine){
+
         for imp in 0..<turbine.impellers.count {
-
-            self.getImpellerBlades(turbine: turbine, atθ: atθ, impeller: String(imp))
+            self.addImpellerHub(turbine: turbine, impeller: String(imp))
+            self.addImpellerDisc(turbine: turbine, impeller: String(imp))
         }
-
-    }
-    mutating func getImpellersNonUpdating(turbine: RushtonTurbine) {
-
         
-        let shaft = drawMidPointCircle(radius: turbine.shaft.radius, xCenter: self.iCenter, yCenter: self.kCenter)
         
-    
-        for imp in 0..<turbine.impellers.count {
-            self.getImpellerHub(turbine: turbine, impeller: String(imp))
-            self.getImpellerDisc(turbine: turbine, impeller: String(imp))
-        }
+        //Sort the start and end position of the shafts
+        let impellers = turbine.impellers.values
 
-        //Shaft parts
+        var tops = [0]
+        tops.append(contentsOf: impellers.map({$0.hub.top}))
+        tops.sort(by: <)
+        
+        var bottoms = [turbine.tankHeight]
+        bottoms.append(contentsOf: impellers.map({$0.hub.bottom}))
+        bottoms.sort(by: <)
+        
 
-        //TODO last part of shaft to tank
-        for imp in 0..<turbine.impellers.count - 1 {
-            for j in turbine.impellers[String(imp)]!.impellerPosition..<turbine.impellers[String(imp+1)]!.impellerPosition {
-                
-                for p in shaft {
-                    geomRotating.append(Pos3d(i:p.0, j:j, k:p.1))
+        let shaftSection = drawMidPointCircle(radius: turbine.shaft.radius, xCenter: iCenter, yCenter: kCenter)
+        
+        for (top, bottom) in zip(tops, bottoms){
+            
+            for j in top..<bottom {
+
+                for s in shaftSection {
+
+                    self.geomRotatingNonUpdating.append(Pos3d(i: s.0, j: j, k: s.1))
                 }
             }
         }
-
+        
     }
+    
+    
+    
 
-    mutating func getImpellerBlades(turbine: RushtonTurbine, atθ θ: Radian = 0.0, impeller: String = "0") {
+    mutating func addImpellerBlades(turbine: RushtonTurbine, atθ θ: Radian = 0.0, impeller: String = "0") {
 
         
         let impeller = turbine.impellers[impeller]!
@@ -255,31 +278,31 @@ extension RushtonTurbineMidPoint {
     
     
     
-    mutating func getTurbineShaft(turbine: RushtonTurbine, bottom: Int, height: Int) {
+    mutating func addTurbineShaft(turbine: RushtonTurbine, bottom: Int, height: Int) {
             
-        geomRotating.append(contentsOf: drawCylinderWallIK(radius: turbine.shaft.radius, height: height, bottom: bottom, iCenter: self.iCenter, kCenter: self.kCenter))
+        geomRotatingNonUpdating.append(contentsOf: drawCylinderWallIK(radius: turbine.shaft.radius, height: height, bottom: bottom, iCenter: self.iCenter, kCenter: self.kCenter))
 
     }
 
-    mutating func getImpellerDisc(turbine: RushtonTurbine, impeller: String = "0") {
+    mutating func addImpellerDisc(turbine: RushtonTurbine, impeller: String = "0") {
 
         let disk = turbine.impellers[impeller]!.disk
         let diskRadius = disk.radius
 
-        geomRotating.append(contentsOf: drawThickHollowDiscIK(innerRadius: turbine.shaft.radius, outerRadius: diskRadius, height:disk.height, bottom: disk.bottom, iCenter: self.iCenter, kCenter: self.kCenter))
+        geomRotatingNonUpdating.append(contentsOf: drawThickHollowDiscIK(innerRadius: turbine.shaft.radius, outerRadius: diskRadius, height:disk.height, bottom: disk.bottom, iCenter: self.iCenter, kCenter: self.kCenter))
 
-        geomRotating.append(contentsOf: drawCylinderWallIK(radius: disk.radius, height: disk.height, bottom: disk.bottom, iCenter: self.iCenter, kCenter: self.kCenter))
+        geomRotatingNonUpdating.append(contentsOf: drawCylinderWallIK(radius: disk.radius, height: disk.height, bottom: disk.bottom, iCenter: self.iCenter, kCenter: self.kCenter))
 
     }
 
-    mutating func getImpellerHub(turbine: RushtonTurbine, impeller: String = "0") {
+    mutating func addImpellerHub(turbine: RushtonTurbine, impeller: String = "0") {
 
         let hub = turbine.impellers[impeller]!.hub
         let hubRadius = hub.radius
 
-        geomRotating.append(contentsOf: drawThickHollowDiscIK(innerRadius: turbine.shaft.radius, outerRadius: hubRadius, height:hub.height, bottom: hub.bottom, iCenter: self.iCenter, kCenter: self.kCenter))
+        geomRotatingNonUpdating.append(contentsOf: drawThickHollowDiscIK(innerRadius: turbine.shaft.radius, outerRadius: hubRadius, height:hub.height, bottom: hub.bottom, iCenter: self.iCenter, kCenter: self.kCenter))
 
-        geomRotating.append(contentsOf: drawCylinderWallIK(radius: hubRadius, height: hub.height, bottom: hub.bottom, iCenter: self.iCenter, kCenter: self.kCenter))
+        geomRotatingNonUpdating.append(contentsOf: drawCylinderWallIK(radius: hubRadius, height: hub.height, bottom: hub.bottom, iCenter: self.iCenter, kCenter: self.kCenter))
 
     }
 
@@ -292,13 +315,13 @@ extension RushtonTurbineMidPoint {
 extension RushtonTurbineMidPoint {
 
     
-    mutating func getWall(turbine: RushtonTurbine) {
+    mutating func addWall(turbine: RushtonTurbine) {
 
         geomFixed.append(contentsOf: drawCylinderWallIK(radius: self.tankRadius, height: turbine.tankHeight, bottom: 0, iCenter: self.iCenter, kCenter: self.kCenter))
     }
 
     
-    mutating func getBaffles(turbine: RushtonTurbine) {
+    mutating func addBaffles(turbine: RushtonTurbine) {
 
         let tankHeight = turbine.tankDiameter
 
@@ -328,8 +351,6 @@ extension RushtonTurbineMidPoint {
 // MARK: - primitives
 extension RushtonTurbineMidPoint {
     
-    
-
 
     func printPoints3d(points: [Pos3d]){
         
@@ -337,18 +358,6 @@ extension RushtonTurbineMidPoint {
             print("\(p.i) \(p.j) \(p.k)")
         }
     }
-
-    func savePoints3d(points: [Pos3d]){
-
-        print("ply\nformat ascii 1.0\nelement vertex \(points.count)")
-        print("\nproperty int x\nproperty int y\nproperty int z\nend_header\n")
-        
-        for p in points {
-            print("\(p.i) \(p.j) \(p.k)")
-        }
-    }
-
-    
 
     
     func getBoxLidOnRadius2D(atJ: Int, box: [(Int, Int)]) -> [Pos3d] {
@@ -557,8 +566,8 @@ extension RushtonTurbineMidPoint {
     func drawMidPointCircleDict(radius: Int, xCenter: Int, yCenter: Int) -> [Int: [Int]] {
 
         //TODO add throws
-        if radius > xCenter {print("ERROR")}
-        if radius > yCenter {print("ERROR")}
+        if radius > xCenter {print("ERROR: Radius is larger than xCenter")}
+        if radius > yCenter {print("ERROR: Radius is larger than yCenter")}
 
         let x0: Int = Int(xCenter)
         let y0: Int = Int(yCenter)

@@ -47,7 +47,7 @@ public struct RushtonTurbineMidPointCPP {
         }
     }
 
-    public func returnRotatingGeometryNonUpdating() -> [Pos3d_int] {
+    public func returnRotatingNonUpdatingGeometry() -> [Pos3d_int] {
 
         if let tdLBGeometryRushtonTurbineLibObjC_inst = tdLBGeometryRushtonTurbineLibObjC_inst {
             return tdLBGeometryRushtonTurbineLibObjC_inst.returnRotatingGeometryNonUpdating()

@@ -196,7 +196,7 @@ public:
 
             dim_json["function"] = "saveGeometryConfigAsJSON";
 
-            dim_json["gridx"] = tankDiameter + MDIAM_BORDER;
+            dim_json["gridX"] = tankDiameter + MDIAM_BORDER;
 
             dim_json["resolution"] = resolution;
             dim_json["tankDiameter"] = tankDiameter;
@@ -267,7 +267,7 @@ public:
 
         std::cout << "function" << " saveGeometryConfigAsJSON" << std::endl;
 
-        std::cout << "gridx " << tankDiameter + MDIAM_BORDER << std::endl;
+        std::cout << "gridX " << tankDiameter + MDIAM_BORDER << std::endl;
 
         std::cout << "resolution " << resolution << std::endl;
         std::cout << "tankDiameter " << tankDiameter << std::endl;
@@ -318,12 +318,12 @@ public:
     }
     
     
-    void setEgglesSomersProportions(int gridx, tGeomShape uav) {
+    void setEgglesSomersProportions(int gridX, tGeomShape uav) {
         
         resolution = 0.7f;
 
         //diameter tube / cylinder
-        tankDiameter = gridx - MDIAM_BORDER;
+        tankDiameter = gridX - MDIAM_BORDER;
 
         shaft.radius = (int)(tankDiameter * 2.0f / 75.0f);
 
@@ -341,7 +341,7 @@ public:
         numImpellers = 1;
 
         Impeller impeller;
-        impeller.impellerPosition = (int)(gridx * (2.0f / 3.0f));
+        impeller.impellerPosition = (int)(gridX * (2.0f / 3.0f));
         impeller.numBlades = 6;
         impeller.firstBladeOffset = 0.0f;
         impeller.uav = uav;

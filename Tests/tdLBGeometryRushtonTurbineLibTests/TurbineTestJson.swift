@@ -93,7 +93,7 @@ let TurbineTestData = """
             }
         }
     },
-    "gridx":300,
+    "gridX":300,
     "impeller_startup_steps_until_normal_speed":0,
     "baffles":{
         "firstBaffleOffset":0.78539818525314331,

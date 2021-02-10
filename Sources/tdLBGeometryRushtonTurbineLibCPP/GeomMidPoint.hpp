@@ -268,7 +268,7 @@ public:
 
         }
         //Height
-        jShafts.push_back(turbine.tankDiameter);
+        jShafts.push_back(tankHeight);
 
         //Sort points as impellers may not be in order
         std::sort(jShafts.begin(), jShafts.end());

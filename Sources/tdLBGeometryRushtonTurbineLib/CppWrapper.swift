@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import tdLB
 import tdLBGeometryRushtonTurbineLibObjC
 
 public struct RushtonTurbineMidPointCPP {
@@ -38,34 +39,36 @@ public struct RushtonTurbineMidPointCPP {
     }
 
 
-//    public func returnFixedGeometry() -> [Pos3d] {
-    public func returnFixedGeometry() -> [Pos3d_int] {
+    public func returnFixedGeometry() -> [Pos3d] {
 
         if let tdLBGeometryRushtonTurbineLibObjC_inst = tdLBGeometryRushtonTurbineLibObjC_inst {
             
             let pts = tdLBGeometryRushtonTurbineLibObjC_inst.returnFixedGeometry()
+            return pts.map{Pos3d(i: Int($0.i), j:Int($0.j), k:Int($0.k))}
             
-//            return pts.map{Pos3d($0.i, $0.j, $0.k}
-            
-            return pts
         } else {
             return []
         }
     }
 
-    public func returnRotatingNonUpdatingGeometry() -> [Pos3d_int] {
+    public func returnRotatingNonUpdatingGeometry() -> [Pos3d] {
 
         if let tdLBGeometryRushtonTurbineLibObjC_inst = tdLBGeometryRushtonTurbineLibObjC_inst {
-            return tdLBGeometryRushtonTurbineLibObjC_inst.returnRotatingNonUpdatingGeometry()
+            
+            let pts = tdLBGeometryRushtonTurbineLibObjC_inst.returnRotatingNonUpdatingGeometry()
+            return pts.map{Pos3d(i: Int($0.i), j:Int($0.j), k:Int($0.k))}
+
         } else {
             return []
         }
     }
 
-    public func returnRotatingGeometry() -> [Pos3d_int] {
+    public func returnRotatingGeometry() -> [Pos3d] {
 
         if let tdLBGeometryRushtonTurbineLibObjC_inst = tdLBGeometryRushtonTurbineLibObjC_inst {
-            return tdLBGeometryRushtonTurbineLibObjC_inst.returnRotatingGeometry()
+            let pts = tdLBGeometryRushtonTurbineLibObjC_inst.returnRotatingGeometry()
+            return pts.map{Pos3d(i: Int($0.i), j:Int($0.j), k:Int($0.k))}
+
         } else {
             return []
         }

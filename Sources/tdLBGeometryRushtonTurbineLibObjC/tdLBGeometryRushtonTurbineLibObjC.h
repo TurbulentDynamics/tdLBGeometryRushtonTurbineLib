@@ -12,11 +12,11 @@ NS_ASSUME_NONNULL_BEGIN
 @class RushtonTurbineObjC;
 @class ExtentsObjC;
 
-@interface Pos3d_int : NSObject {
-    int i;
-    int j;
-    int k;
-}
+@interface Pos3d_int : NSObject
+
+@property int i;
+@property int j;
+@property int k;
 
 @end
 

@@ -33,7 +33,7 @@ func getSwiftPoints(gridX: Int) -> [Pos3d]{
 
 
 
-func getCppPoints(gridX: Int) -> [Pos3d_int]{
+func getCppPoints(gridX: Int) -> [Pos3d]{
 
     let t = RushtonTurbineCPP(gridX: gridX)
     
@@ -46,18 +46,8 @@ func getCppPoints(gridX: Int) -> [Pos3d_int]{
     gCPP.generateRotatingNonUpdatingGeometry()
 
     var geomCPP = gCPP.returnFixedGeometry()
-
-//    let u = geomCPP[0]
-    
-    //TOFIX
-//    let v = u.i
-    
-    
-//    let pos3dtype =  geomCPP.map{Pos3d(i: $0.x, j: $0.j, k: $0.k)}
-
     geomCPP.append(contentsOf: gCPP.returnRotatingGeometry())
     geomCPP.append(contentsOf: gCPP.returnRotatingNonUpdatingGeometry())
-
 
     return geomCPP
     

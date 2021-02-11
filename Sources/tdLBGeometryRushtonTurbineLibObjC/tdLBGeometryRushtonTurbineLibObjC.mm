@@ -16,16 +16,16 @@
     
     self = [super init];
     if (self) {
-        self-> i = point-> i;
-        self-> j = point-> j;
-        self-> k = point-> k;
+        self.i = point-> i;
+        self.j = point-> j;
+        self.k = point-> k;
     }
     
     return self;
 }
 
 -(NSString *)description {
-    return [NSString stringWithFormat:@"point i: %d j: %d k: %d", self-> i, self-> j, self-> k];
+    return [NSString stringWithFormat:@"point i: %d j: %d k: %d", self.i, self.j, self.k];
 }
 
 @end

@@ -49,7 +49,10 @@ func getCppPoints(gridX: Int) -> [Pos3d_int]{
     var geomCPP = gCPP.returnFixedGeometry()
 
     print(geomCPP.count)
-
+    print(geomCPP[0])
+    print(geomCPP[0].i)
+    print(geomCPP[0].j)
+    print(geomCPP[0].k)
 
     geomCPP.append(contentsOf: gCPP.returnRotatingGeometry())
     geomCPP.append(contentsOf: gCPP.returnRotatingNonUpdatingGeometry())

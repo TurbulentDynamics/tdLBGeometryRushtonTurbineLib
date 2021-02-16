@@ -17,8 +17,8 @@
 
 #include "json.h"
 
-#define tStepRT uint64
-#define tGeomShapeRT double
+using tStepRT = uint64_t;
+using tGeomShapeRT = double;
 
 //TODO Fix this
 #define MDIAM_BORDER 2
@@ -136,9 +136,9 @@ public:
             tankDiameter = (int)dim_json["tankDiameter"].asInt();
 
 
-            startingStep = (unsigned long int)dim_json["starting_step"].asUInt64();
+            startingStep = (tStepRT)dim_json["starting_step"].asUInt64();
             impellerStartAngle = (double)dim_json["impeller_start_angle"].asDouble();
-            impellerStartupStepsUntilNormalSpeed = (unsigned long int)dim_json["impeller_startup_steps_until_normal_speed"].asUInt64();
+            impellerStartupStepsUntilNormalSpeed = (tStepRT)dim_json["impeller_startup_steps_until_normal_speed"].asUInt64();
 
 
 

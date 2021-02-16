@@ -1,0 +1,3 @@
+[submodule "tdLBCppApi"]
+	path = tdLBCppApi
+	url = git@github.com:TurbulentDynamics/tdLBCppApi

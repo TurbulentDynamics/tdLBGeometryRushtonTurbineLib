@@ -49,12 +49,12 @@ public:
     
     
     
-    tStep startingStep = 0;
-    tGeomShape impellerStartAngle = 0.0;
-    tStep impellerStartupStepsUntilNormalSpeed = 0;
+    tStepRT startingStep = 0;
+    tGeomShapeRT impellerStartAngle = 0.0;
+    tStepRT impellerStartupStepsUntilNormalSpeed = 0;
 
     
-//    tGeomShape calc_this_step_impeller_increment(tStep step);
+//    tGeomShapeRT calc_this_step_impeller_increment(tStepRT step);
 
 
     RushtonTurbineMidPointCPP(std::string jsonFile, Extents<T> ext){
@@ -90,8 +90,8 @@ public:
 
     
     
-    void setGeometryStartup(tStep startingStep, tGeomShape impellerStartAngle,
-                                            tStep impellerStartupStepsUntilNormalSpeed){
+    void setGeometryStartup(tStepRT startingStep, tGeomShapeRT impellerStartAngle,
+                                            tStepRT impellerStartupStepsUntilNormalSpeed){
 
         startingStep = startingStep;
         impellerStartAngle = impellerStartAngle;

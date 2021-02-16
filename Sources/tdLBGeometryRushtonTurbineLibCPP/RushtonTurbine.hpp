@@ -16,10 +16,9 @@
 
 
 #include "json.h"
-//#include <nlohmann/json.hpp>
 
-#define tStep int
-#define tGeomShape double
+#define tStepRT uint64
+#define tGeomShapeRT double
 
 //TODO Fix this
 #define MDIAM_BORDER 2
@@ -102,9 +101,9 @@ public:
 
 
 
-    tStep startingStep = 0;
+    tStepRT startingStep = 0;
     int impellerStartAngle = 0.0;
-    tStep impellerStartupStepsUntilNormalSpeed = 0;
+    tStepRT impellerStartupStepsUntilNormalSpeed = 0;
 
 
     // Model resolution
@@ -137,9 +136,9 @@ public:
             tankDiameter = (int)dim_json["tankDiameter"].asInt();
 
 
-            startingStep = (tStep)dim_json["starting_step"].asInt();
+            startingStep = (unsigned long int)dim_json["starting_step"].asUInt64();
             impellerStartAngle = (double)dim_json["impeller_start_angle"].asDouble();
-            impellerStartupStepsUntilNormalSpeed = (tStep)dim_json["impeller_startup_steps_until_normal_speed"].asInt();
+            impellerStartupStepsUntilNormalSpeed = (unsigned long int)dim_json["impeller_startup_steps_until_normal_speed"].asUInt64();
 
 
 
@@ -321,7 +320,7 @@ public:
     }
     
     
-    void setGillissenProportions(int gridX=300, tGeomShape uav=0.1) {
+    void setGillissenProportions(int gridX=300, tGeomShapeRT uav=0.1) {
         
         resolution = 0.7f;
 
@@ -334,7 +333,7 @@ public:
         baffles.numBaffles = 4;
 
         //First baffle is offset by 1/8 of revolution, or 1/2 of the delta between baffles.
-        baffles.firstBaffleOffset = (tGeomShape)(((2.0 * M_PI) / (tGeomShape)baffles.numBaffles) * 0.5);
+        baffles.firstBaffleOffset = (tGeomShapeRT)(((2.0 * M_PI) / (tGeomShapeRT)baffles.numBaffles) * 0.5);
 
         baffles.innerRadius = 0.3830f * tankDiameter;
         baffles.outerRadius = 0.4830f * tankDiameter;
@@ -391,7 +390,7 @@ public:
     }
 
     
-    void setReferenceProportions(int gridX=300, tGeomShape uav=0.1) {
+    void setReferenceProportions(int gridX=300, tGeomShapeRT uav=0.1) {
         
         resolution = 0.0f;
 
@@ -413,7 +412,7 @@ public:
         baffles.numBaffles = 4;
 
         //First baffle is offset by 1/8 of revolution, or 1/2 of the delta between baffles.
-        baffles.firstBaffleOffset = (tGeomShape)(((2.0 * M_PI) / (tGeomShape)baffles.numBaffles) * 0.5);
+        baffles.firstBaffleOffset = (tGeomShapeRT)(((2.0 * M_PI) / (tGeomShapeRT)baffles.numBaffles) * 0.5);
 
         baffles.innerRadius = tankRadius - (tankDiameter * 0.017) - (tankDiameter * 0.1);
         baffles.outerRadius = tankRadius - (tankDiameter * 0.017);

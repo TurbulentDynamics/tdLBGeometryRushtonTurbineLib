@@ -14,7 +14,7 @@
 #include <algorithm>
 #include <cmath>
 
-#include "../../tdLBCppApi/include/GlobalStructures.hpp"
+#include "GlobalStructures.hpp"
 #include "RushtonTurbine.hpp"
 
 

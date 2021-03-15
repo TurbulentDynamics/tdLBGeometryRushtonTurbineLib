@@ -25,6 +25,13 @@ struct Pos3d{
     T i;
     T j;
     T k;
+    
+    Pos3d(int i, int j, int k){
+        i = T(i);
+        j = T(j);
+        k = T(k);
+    }
+    
 };
 
 
@@ -37,7 +44,7 @@ struct Line2d{
 };
 
 
-
+//T is some kind of integer
 template <typename T>
 struct Extents{
     T x0;
@@ -67,41 +74,50 @@ struct Extents{
         this-> z1 = z1;
     }
     
-    bool containsI(T i){
+    
+    
+    T inline localI(T i){
+        return i - x0;
+    }
+    
+    
+    
+    
+    bool inline containsI(T i){
         if (i >= x0 && i <= x1) return true;
         else return false;
     }
-    bool containsJ(T j){
+    bool inline containsJ(T j){
         if (j > y0 && j < y1) return true;
         else return false;
     }
-    bool containsK(T k){
+    bool inline containsK(T k){
         if (k > z0 && k < z1) return true;
         else return false;
     }
-    bool containsIK(T i, T k){
+    bool inline containsIK(T i, T k){
         if (i > x0 && i < x1 && k > z0 && k < z1) return true;
         else return false;
     }
 
     
-    bool doesntContainI(T i){
+    bool inline doesntContainI(T i){
         if (i < x0 || i > x1) return true;
         else return false;
     }
-    bool doesntContainJ(T j){
+    bool inline doesntContainJ(T j){
         if (j < y0 || j > y1) return true;
         else return false;
     }
-    bool doesntContainK(T k){
+    bool inline doesntContainK(T k){
         if (k < z0 || k > z1) return true;
         else return false;
     }
-    bool doesntContainIK(T i, T k){
+    bool inline doesntContainIK(T i, T k){
         if (i < x0 || i > x1 || k < z0 || k > z1) return true;
         else return false;
     }
-    bool doesntContainIJK(T i, T j, T k){
+    bool inline doesntContainIJK(T i, T j, T k){
         if (i < x0 || i > x1 || j < y0 || j > y1 || k < z0 || k > z1) return true;
         else return false;
     }

@@ -19,7 +19,6 @@
 
 
 
-
 template <typename T>
 class RushtonTurbineMidPointCPP {
     

@@ -119,7 +119,7 @@ public:
 
 
     RushtonTurbine(int gridX=300){
-        setReferenceProportions(gridX);
+        setHartmanDerksenProportions(gridX);
     }
     
     void loadGeometryConfigAsJSON(std::string filepath){
@@ -390,7 +390,7 @@ public:
     }
 
     
-    void setReferenceProportions(int gridX=300, tGeomShapeRT uav=0.1) {
+    void setHartmanDerksenProportions(int gridX=300, tGeomShapeRT uav=0.1) {
         
         resolution = 0.0f;
 

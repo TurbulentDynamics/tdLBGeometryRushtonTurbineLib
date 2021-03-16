@@ -119,7 +119,7 @@ public:
 
 
     RushtonTurbine(int gridX=300){
-        setReferenceProportions(gridX);
+        setHartmannDerksenProportions(gridX);
     }
     
     void loadGeometryConfigAsJSON(std::string filepath){
@@ -390,9 +390,9 @@ public:
     }
 
     
-    void setReferenceProportions(int gridX=300, tGeomShapeRT uav=0.1) {
+    void setHartmannDerksenProportions(int gridX=300, tGeomShapeRT uav=0.1) {
         
-        resolution = 0.0f;
+        resolution = 0.7f;
 
         //diameter tube / cylinder
         tankDiameter = gridX - MDIAM_BORDER;

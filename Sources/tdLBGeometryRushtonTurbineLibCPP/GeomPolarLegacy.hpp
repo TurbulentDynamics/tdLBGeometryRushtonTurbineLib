@@ -69,13 +69,6 @@ struct PosPolar
 //        j = (T)j;
 //        updateCoordinateFraction(kFP, &k, &k_cart_fraction);
 //    }
-//
-//    PosPolar(double iFP, unsigned long int j, double kFP)
-//    {
-//        updateCoordinateFraction(iFP, &i, &i_cart_fraction);
-//        j = (T)j;
-//        updateCoordinateFraction(kFP, &k, &k_cart_fraction);
-//    }
     
     void localise(Extents<T> e){
         
@@ -142,47 +135,15 @@ public:
     tStepRT impellerStartupStepsUntilNormalSpeed = 0;
     
     
+
+    
     RushtonTurbinePolarCPP(RushtonTurbine t, Extents<T> e):turbine(t), extents(e){
-        
+
         iCenter = turbine.tankDiameter / 2;
         kCenter = turbine.tankDiameter / 2;
+
+        
     }
-    
-    
-    
-    //    tPrecision RushtonTurbinePolarCPP(RushtonTurbine turbine, Extents e, tPrecision angle, tStepRtPrecision step)
-    //    {
-    //
-    //        Init(grid, node, turbine);
-    //
-    //        tPrecision thisStepImpellerIncrementWA = calc_this_step_impeller_increment(step);
-    //
-    //
-    //#pragma omp parallel for
-    //        for (int i = 0; i < geom_rotating_surface_and_internal_blades.size(); i++)
-    //        {
-    //
-    //            PosPolar<T> &g = geom_rotating_surface_and_internal_blades[i];
-    //
-    //            g.tPolar += angle;
-    //
-    //
-    //
-    //            g.iFP = iCenter + g.rPolar * cos(g.tPolar);
-    //            g.kFP = kCenter + g.rPolar * sin(g.tPolar);
-    //
-    //            g.u_delta_fp = -thisStepImpellerIncrementWA * g.rPolar * sin(g.tPolar);
-    //            g.w_delta_fp =  thisStepImpellerIncrementWA * g.rPolar * cos(g.tPolar);
-    //
-    //            UpdateCoordinateFraction(g.iFP, &g.i_cart, &g.i_cart_fraction);
-    //            UpdateCoordinateFraction(g.kFP, &g.k_cart, &g.k_cart_fraction);
-    //
-    //
-    //        }
-    //        return angle;
-    //
-    //    }
-    
     
     
     void clear_vectors(){
@@ -259,8 +220,8 @@ public:
     
     void addTankWall(bool get_solid = 0) {
         
-        T nCircPoints = 4 * T(roundf(M_PI * turbine.tankDiameter / (4 * turbine.resolution)));
-        double dTheta = 2.0f * M_PI / T(nCircPoints);
+        unsigned long int nCircPoints = 4 * (unsigned long int)(roundf(M_PI * turbine.tankDiameter / (4 * turbine.resolution)));
+        double dTheta = 2.0f * M_PI / double(nCircPoints);
         double r = 0.5f * turbine.tankDiameter;
         
         for(int j = (int)extents.y0; j <= (int)extents.y1; ++j)
@@ -276,7 +237,7 @@ public:
                                
                 //TODO, should the fractions be updated before center is added?????
                 
-                double iFP = iCenter + r  * cos(theta);
+                double iFP = iCenter + r * cos(theta);
                 double kFP = kCenter + r * sin(theta);
                 
                 
@@ -299,7 +260,7 @@ public:
     
     void addBaffles(bool get_solid = 0) {
         
-        T nPointsBaffleThickness = T(roundf(turbine.baffles.thickness / turbine.resolution));
+        int nPointsBaffleThickness = int(roundf(turbine.baffles.thickness / turbine.resolution));
         if (nPointsBaffleThickness == 0)
             nPointsBaffleThickness = 1;
         
@@ -307,13 +268,13 @@ public:
                 
         double innerRadius = (double)turbine.baffles.innerRadius;
         double outerRadius = (double)turbine.baffles.outerRadius;
-        T nPointsR = T(roundf((outerRadius - innerRadius) / turbine.resolution));
+        int nPointsR = int(roundf((outerRadius - innerRadius) / turbine.resolution));
         
         double deltaR = (outerRadius - innerRadius) / static_cast<double>(nPointsR);
         
         double deltaBaffleOffset = 2.0/(double)turbine.baffles.numBaffles * M_PI;
         
-        for (T nBaffle = 1; nBaffle <= (T)turbine.baffles.numBaffles; ++nBaffle)
+        for (int nBaffle = 1; nBaffle <= turbine.baffles.numBaffles; ++nBaffle)
         {
             for (int j = (int)extents.y0; j <= (int)extents.y1; ++j)
             {
@@ -321,7 +282,7 @@ public:
                 {
                     double r = innerRadius + deltaR * (double)idxR;
                     
-                    for (T idxTheta = 0; idxTheta <= nPointsBaffleThickness; ++idxTheta)
+                    for (int idxTheta = 0; idxTheta <= nPointsBaffleThickness; ++idxTheta)
                     {
                         double theta = turbine.baffles.firstBaffleOffset +
                         deltaBaffleOffset * (double)nBaffle +
@@ -378,7 +339,7 @@ public:
         if (nPointsThickness == 0)
             nPointsThickness = 1;
         
-        double resolutionBladeThickness = turbine.impellers[0].blades.thickness / T(nPointsThickness);
+        double resolutionBladeThickness = turbine.impellers[0].blades.thickness / (double)nPointsThickness;
         double deltaR = (outerRadius - innerRadius) / nPointsR;
         
         
@@ -452,7 +413,7 @@ public:
         double diskRadius = turbine.impellers[0].disk.radius;
         
         int nPointsR = int(round((diskRadius - hubRadius) / turbine.resolution));
-        double deltaR = (diskRadius - hubRadius) / T(nPointsR);
+        double deltaR = (diskRadius - hubRadius) / (double)(nPointsR);
         
         int lowerLimitY = std::max((int)extents.y0, top);
         int upperLimitY = std::min((int)extents.y1, bottom);
@@ -525,7 +486,7 @@ public:
         double hubRadius = turbine.impellers[0].hub.radius;
         
         int nPointsR = int(roundf((hubRadius - turbine.shaft.radius) / turbine.resolution));
-        double resolutionR = (hubRadius - turbine.shaft.radius) / T(nPointsR);
+        double resolutionR = (hubRadius - turbine.shaft.radius) / double(nPointsR);
         
         int lowerLimitY = std::max((int)extents.y0, top);
         int upperLimitY = std::min((int)extents.y1, bottom);

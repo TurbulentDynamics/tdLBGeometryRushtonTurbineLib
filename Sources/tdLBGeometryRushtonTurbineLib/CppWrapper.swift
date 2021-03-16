@@ -109,3 +109,14 @@ public struct RushtonTurbinePolarCPP {
     }
     
 }
+
+public struct PosPolarCPP {
+
+    var PosPolarObjC_inst: PosPolarObjC?
+
+    public init(iFP: Double, j: Int, kFP: Double) {
+        
+        self.PosPolarObjC_inst = PosPolarObjC(iFP, j: Int32(j), kFP: kFP);
+    }
+    
+}

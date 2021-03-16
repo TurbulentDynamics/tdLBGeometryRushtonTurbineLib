@@ -11,5 +11,6 @@
 #import "../tdLBGeometryRushtonTurbineLibObjC.h"
 #import "../ExtentsObjC.h"
 #import "../RushtonTurbineObjC.h"
+#import "../RushtonTurbinePolarObjC.h"
 
 #endif /* Header_h */

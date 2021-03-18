@@ -1,5 +1,5 @@
 //
-//  MyClass.m
+//  tdLBGeometryRushtonTurbineLibObjC.m
 //  
 //
 //  Created by Vedran Ozir on 18.01.2021..

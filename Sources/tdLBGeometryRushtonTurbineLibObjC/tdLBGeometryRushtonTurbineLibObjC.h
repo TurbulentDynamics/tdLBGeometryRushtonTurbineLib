@@ -1,25 +1,18 @@
 //
-//  MyClass.h
+//  tdLBGeometryRushtonTurbineLibObjC.h
 //  
 //
 //  Created by Vedran Ozir on 18.01.2021..
 //
 
 #import <Foundation/Foundation.h>
+#import "Pos3d_int.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @class RushtonTurbineObjC;
 @class ExtentsObjC;
 @class RushtonTurbinePolarObjC;
-
-@interface Pos3d_int : NSObject
-
-@property int i;
-@property int j;
-@property int k;
-
-@end
 
 @interface tdLBGeometryRushtonTurbineLibObjC : NSObject
 

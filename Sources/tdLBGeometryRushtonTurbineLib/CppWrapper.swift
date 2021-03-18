@@ -108,6 +108,62 @@ public struct RushtonTurbinePolarCPP {
         self.RushtonTurbinePolarObjC_inst = RushtonTurbinePolarObjC(t, ext: e);
     }
     
+    public func generateFixedGeometry() {
+        
+        RushtonTurbinePolarObjC_inst?.generateFixedGeometry()
+    }
+    
+    public func generateRotatingNonUpdatingGeometry() {
+        
+        RushtonTurbinePolarObjC_inst?.generateRotatingNonUpdatingGeometry()
+    }
+    
+    public func generateRotatingGeometry(atTheta: Double) {
+    
+        RushtonTurbinePolarObjC_inst?.generateRotatingGeometry(atTheta)
+    }
+    
+    public func updateRotatingGeometry(atTheta: Double) {
+    
+        RushtonTurbinePolarObjC_inst?.updateRotatingGeometry(atTheta)
+    }
+
+
+    public func returnFixedGeometry() -> [Pos3d] {
+
+        if let RushtonTurbinePolarObjC_inst = RushtonTurbinePolarObjC_inst {
+            
+            let pts = RushtonTurbinePolarObjC_inst.returnFixedGeometry()
+            return pts.map{Pos3d(i: Int($0.i), j:Int($0.j), k:Int($0.k))}
+            
+        } else {
+            return []
+        }
+    }
+
+    public func returnRotatingNonUpdatingGeometry() -> [Pos3d] {
+
+        if let RushtonTurbinePolarObjC_inst = RushtonTurbinePolarObjC_inst {
+            
+            let pts = RushtonTurbinePolarObjC_inst.returnRotatingNonUpdatingGeometry()
+            return pts.map{Pos3d(i: Int($0.i), j:Int($0.j), k:Int($0.k))}
+
+        } else {
+            return []
+        }
+    }
+
+    public func returnRotatingGeometry() -> [Pos3d] {
+
+        if let RushtonTurbinePolarObjC_inst = RushtonTurbinePolarObjC_inst {
+            let pts = RushtonTurbinePolarObjC_inst.returnRotatingGeometry()
+            return pts.map{Pos3d(i: Int($0.i), j:Int($0.j), k:Int($0.k))}
+
+        } else {
+            return []
+        }
+    }
+    
 }
 
 public struct PosPolarCPP {

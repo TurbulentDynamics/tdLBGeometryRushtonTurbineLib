@@ -195,7 +195,7 @@ public:
     void updateRotatingGeometry(double atTheta){
         
         geomRotating.clear();
-        addImpellerBlades(turbine, atTheta);
+        addImpellerBlades(atTheta);
     }
     
     

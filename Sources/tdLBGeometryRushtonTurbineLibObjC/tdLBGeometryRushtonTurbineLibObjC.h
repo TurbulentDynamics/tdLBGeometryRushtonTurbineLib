@@ -11,6 +11,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class RushtonTurbineObjC;
 @class ExtentsObjC;
+@class RushtonTurbinePolarObjC;
 
 @interface Pos3d_int : NSObject
 

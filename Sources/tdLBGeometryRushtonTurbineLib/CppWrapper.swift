@@ -98,3 +98,25 @@ public struct ExtentsCPP {
     }
     
 }
+
+public struct RushtonTurbinePolarCPP {
+
+    var RushtonTurbinePolarObjC_inst: RushtonTurbinePolarObjC?
+    
+    public init(t: RushtonTurbineObjC, e: ExtentsObjC) {
+        
+        self.RushtonTurbinePolarObjC_inst = RushtonTurbinePolarObjC(t, ext: e);
+    }
+    
+}
+
+public struct PosPolarCPP {
+
+    var PosPolarObjC_inst: PosPolarObjC?
+
+    public init(iFP: Double, j: Int, kFP: Double) {
+        
+        self.PosPolarObjC_inst = PosPolarObjC(iFP, j: Int32(j), kFP: kFP);
+    }
+    
+}

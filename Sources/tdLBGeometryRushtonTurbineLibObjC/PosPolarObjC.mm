@@ -6,7 +6,7 @@
 //
 
 #import "PosPolarObjC.h"
-#import "../tdLBGeometryRushtonTurbineLibCPP/GeomPolarLegacy.hpp"
+#import "../tdLBGeometryRushtonTurbineLibCPP/GeomPolar.hpp"
 
 @implementation PosPolarObjC
 

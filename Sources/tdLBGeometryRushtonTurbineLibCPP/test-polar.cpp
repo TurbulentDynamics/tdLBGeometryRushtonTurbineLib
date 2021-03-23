@@ -9,7 +9,7 @@
 #include <fstream>
 #include <vector>
 
-#include "GeomPolarLegacy.hpp"
+#include "GeomPolar.hpp"
 #include "GlobalStructures.hpp"
 #include "RushtonTurbine.hpp"
 
@@ -44,7 +44,7 @@ int main(){
     
     
     std::ofstream file;
-    file.open("test-legacy-polar.ply");
+    file.open("test--polar.ply");
 
     file << "ply\nformat ascii 1.0\nelement vertex " << geomCPP.size();
     file << "\nproperty int x\nproperty int y\nproperty int z\nend_header\n";

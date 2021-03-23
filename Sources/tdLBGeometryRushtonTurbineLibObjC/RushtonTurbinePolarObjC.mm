@@ -8,7 +8,7 @@
 #import "ExtentsObjC.h"
 #import "RushtonTurbineObjC.h"
 #import "RushtonTurbinePolarObjC.h"
-#import "../tdLBGeometryRushtonTurbineLibCPP/GeomPolarLegacy.hpp"
+#import "../tdLBGeometryRushtonTurbineLibCPP/GeomPolar.hpp"
 
 @implementation PosPolar_int
 

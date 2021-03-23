@@ -1,5 +1,5 @@
 //
-//  GeomPolarLegacy.h
+//  GeomPolar.h
 //  tdLBGeometryRushtonTurbineLib
 //
 //  Created by Niall Ó Broin on 13/02/2019.
@@ -21,30 +21,30 @@
 #include "RushtonTurbine.hpp"
 
 
-//tPrecision is some kind of Floating Point
-template <typename T, typename tPrecision>
+//TQ is some kind of Floating Point
+template <typename T, typename TQ>
 struct PosPolar
 {
     
-    //    tPrecision resolution = 0.0;
-    //    tPrecision rPolar = 0.0;
-    //    tPrecision tPolar = 0.0;
-    
-//    double iFP = 0.0;
-//    double jFP = 0.0;
-//    double kFP = 0.0;
+//    TQ resolution = 0.0;
+//    TQ rPolar = 0.0;
+//    TQ tPolar = 0.0;
+//
+//    TQ iFP = 0.0;
+//    TQ jFP = 0.0;
+//    TQ kFP = 0.0;
     
     T i = 0;
     T j = 0;
     T k = 0;
     
-    tPrecision i_cart_fraction = 0.0;
-    tPrecision j_cart_fraction = 0.0;
-    tPrecision k_cart_fraction = 0.0;
+    TQ iCartFraction = 0.0;
+    TQ jCartFraction = 0.0;
+    TQ kCartFraction = 0.0;
     
-    tPrecision u_delta_fp = 0.0;
-    tPrecision v_delta_fp = 0.0;
-    tPrecision w_delta_fp = 0.0;
+    TQ uDelta = 0.0;
+    TQ vDelta = 0.0;
+    TQ wDelta = 0.0;
     
     
     bool is_solid = 0; //Either 0 surface, or 1 solid (the cells between the surface)
@@ -58,16 +58,16 @@ struct PosPolar
     
     PosPolar(double iFP, int j, double kFP):j(j)
     {
-        updateCoordinateFraction(iFP, &i, &i_cart_fraction);
-        updateCoordinateFraction(kFP, &k, &k_cart_fraction);
+        updateCoordinateFraction(iFP, &i, &iCartFraction);
+        updateCoordinateFraction(kFP, &k, &kCartFraction);
     }
     
     
 //    PosPolar(double iFP, long int j, double kFP)
 //    {
-//        updateCoordinateFraction(iFP, &i, &i_cart_fraction);
+//        updateCoordinateFraction(iFP, &i, &iCartFraction);
 //        j = (T)j;
-//        updateCoordinateFraction(kFP, &k, &k_cart_fraction);
+//        updateCoordinateFraction(kFP, &k, &kCartFraction);
 //    }
     
     void localise(Extents<T> e){
@@ -79,7 +79,7 @@ struct PosPolar
     
     
     
-    void inline updateCoordinateFraction(double coordinate, T *integerPart, tPrecision *fractionPart)
+    void inline updateCoordinateFraction(double coordinate, T *integerPart, TQ *fractionPart)
     {
         //CART ALWAYS goes to +ve position.
         //TOFIX
@@ -89,7 +89,7 @@ struct PosPolar
         //coord -3.25 returns -3, -0.75
         //coord -3.75 returns -3, -1.25
         *integerPart = T(round(coordinate + 0.5));
-        *fractionPart = (tPrecision)(coordinate - (T)(*integerPart) - 0.5);
+        *fractionPart = (TQ)(coordinate - (T)(*integerPart) - 0.5);
     }
     
     
@@ -104,7 +104,7 @@ struct PosPolar
 
 
 
-template <typename T, typename tPrecision>
+template <typename T, typename TQ>
 class RushtonTurbinePolarCPP{
     
 public:
@@ -115,13 +115,13 @@ public:
     
     
     
-    std::vector<PosPolar<T, tPrecision>> geomFixed;
+    std::vector<PosPolar<T, TQ>> geomFixed;
     
     //These are circular rotating points that would replace one another if "rotating."
-    std::vector<PosPolar<T, tPrecision>> geomRotatingNonUpdating;
+    std::vector<PosPolar<T, TQ>> geomRotatingNonUpdating;
     
     //Points that move and need to be removed as they move.
-    std::vector<PosPolar<T, tPrecision>> geomRotating;
+    std::vector<PosPolar<T, TQ>> geomRotating;
     
     
     
@@ -154,15 +154,15 @@ public:
     }
     
     
-    std::vector<PosPolar<T, tPrecision>> returnFixedGeometry() {
+    std::vector<PosPolar<T, TQ>> returnFixedGeometry() {
         return geomFixed;
     }
     
-    std::vector<PosPolar<T, tPrecision>> returnRotatingNonUpdatingGeometry() {
+    std::vector<PosPolar<T, TQ>> returnRotatingNonUpdatingGeometry() {
         return geomRotatingNonUpdating;
     }
     
-    std::vector<PosPolar<T, tPrecision>> returnRotatingGeometry(double atTheta){
+    std::vector<PosPolar<T, TQ>> returnRotatingGeometry(double atTheta){
         return geomRotating;
     }
     
@@ -241,7 +241,7 @@ public:
                 double kFP = kCenter + r * sin(theta);
                 
                 
-                PosPolar<T, tPrecision> g = PosPolar<T, tPrecision>(iFP, j, kFP);
+                PosPolar<T, TQ> g = PosPolar<T, TQ>(iFP, j, kFP);
                 
                 if (extents.containsIK(g.i, g.k)){
                     
@@ -298,7 +298,7 @@ public:
                         
                         bool is_solid = isSurface ? 0 : 1;
                         
-                        PosPolar<T, tPrecision> g = PosPolar<T, tPrecision>(iFP, j, kFP);
+                        PosPolar<T, TQ> g = PosPolar<T, TQ>(iFP, j, kFP);
 
                         
                         if (extents.containsIK(g.i, g.k)){
@@ -377,11 +377,11 @@ public:
                         double iFP = iCenter + r * cos(theta);
                         double kFP = kCenter + r * sin(theta);
                         
-                        PosPolar<T, tPrecision> g = PosPolar<T, tPrecision>(iFP, j, kFP);
+                        PosPolar<T, TQ> g = PosPolar<T, TQ>(iFP, j, kFP);
 
-                        g.u_delta_fp = -wa * rPolar * sin(tPolar);
-                        g.v_delta_fp = 0.0;
-                        g.w_delta_fp = wa * rPolar * cos(tPolar);
+                        g.uDelta = -wa * rPolar * sin(tPolar);
+                        g.vDelta = 0.0;
+                        g.wDelta = wa * rPolar * cos(tPolar);
                         
                         bool is_solid = isSurface ? 0 : 1;
                         
@@ -449,12 +449,12 @@ public:
                     double iFP = iCenter + r * cos(tPolar);
                     double kFP = kCenter + r * sin(tPolar);
                     
-                    PosPolar<T, tPrecision> g = PosPolar<T, tPrecision>(iFP, j, kFP);
+                    PosPolar<T, TQ> g = PosPolar<T, TQ>(iFP, j, kFP);
 
                     
-                    g.u_delta_fp = -turbine.wa * rPolar * sin(tPolar);
-                    g.v_delta_fp = 0;
-                    g.w_delta_fp = turbine.wa * rPolar * cos(tPolar);
+                    g.uDelta = -turbine.wa * rPolar * sin(tPolar);
+                    g.vDelta = 0;
+                    g.wDelta = turbine.wa * rPolar * cos(tPolar);
                     
                     bool is_solid = isSurface ? 0 : 1;
                     
@@ -526,11 +526,11 @@ public:
                     double iFP = iCenter + r * cos(tPolar);
                     double kFP = kCenter + r * sin(tPolar);
                     
-                    PosPolar<T, tPrecision> g = PosPolar<T, tPrecision>(iFP, j, kFP);
+                    PosPolar<T, TQ> g = PosPolar<T, TQ>(iFP, j, kFP);
 
-                    g.u_delta_fp = -turbine.wa * rPolar * sin(tPolar);
-                    g.v_delta_fp = 0;
-                    g.w_delta_fp = turbine.wa * rPolar * cos(tPolar);
+                    g.uDelta = -turbine.wa * rPolar * sin(tPolar);
+                    g.vDelta = 0;
+                    g.wDelta = turbine.wa * rPolar * cos(tPolar);
                     
                     bool is_solid = isSurface ? 0 : 1;
                     
@@ -597,12 +597,12 @@ public:
                     double iFP = iCenter + r * cos(theta);
                     double kFP = kCenter + r * sin(theta);
                     
-                    PosPolar<T, tPrecision> g = PosPolar<T, tPrecision>(iFP, j, kFP);
+                    PosPolar<T, TQ> g = PosPolar<T, TQ>(iFP, j, kFP);
 
                     
-                    g.u_delta_fp = -turbine.wa * rPolar * sin(tPolar);
-                    g.v_delta_fp = 0.0f;
-                    g.w_delta_fp =  turbine.wa * rPolar * cos(tPolar);
+                    g.uDelta = -turbine.wa * rPolar * sin(tPolar);
+                    g.vDelta = 0.0f;
+                    g.wDelta =  turbine.wa * rPolar * cos(tPolar);
                     
                     bool is_solid = isSurface ? 0 : 1;
                     
@@ -634,7 +634,7 @@ public:
     
     
     
-    tPrecision calcThisStepImpellerIncrement(tStepRT step)
+    TQ calcThisStepImpellerIncrement(tStepRT step)
     {
         
         double thisStepImpellerIncrementWA = turbine.impellers[0].bladeTipAngularVelW0;
@@ -652,11 +652,11 @@ public:
     
     
     
-    tPrecision updateRotatingGeometry(tStepRT step, tPrecision impellerTheta)
+    TQ updateRotatingGeometry(tStepRT step, TQ impellerTheta)
     {
         
         
-        tPrecision thisStepImpellerIncrementWA = calcThisStepImpellerIncrement(step);
+        TQ thisStepImpellerIncrementWA = calcThisStepImpellerIncrement(step);
         
         impellerTheta += thisStepImpellerIncrementWA;
         
@@ -670,7 +670,7 @@ public:
         for (int i = 0; i < geomRotating.size(); i++)
         {
             
-            PosPolar<T, tPrecision> &g = geomRotating[i];
+            PosPolar<T, TQ> &g = geomRotating[i];
             
             g.tPolar += thisStepImpellerIncrementWA;
             
@@ -679,11 +679,11 @@ public:
             g.iFP = iCenter + g.rPolar * cos(g.tPolar);
             g.kFP = kCenter + g.rPolar * sin(g.tPolar);
             
-            g.u_delta_fp = -thisStepImpellerIncrementWA * g.rPolar * sin(g.tPolar);
-            g.w_delta_fp =  thisStepImpellerIncrementWA * g.rPolar * cos(g.tPolar);
+            g.uDelta = -thisStepImpellerIncrementWA * g.rPolar * sin(g.tPolar);
+            g.wDelta =  thisStepImpellerIncrementWA * g.rPolar * cos(g.tPolar);
             
-            UpdateCoordinateFraction(g.iFP, &g.i_cart, &g.i_cart_fraction);
-            UpdateCoordinateFraction(g.kFP, &g.k_cart, &g.k_cart_fraction);
+            UpdateCoordinateFraction(g.iFP, &g.i_cart, &g.iCartFraction);
+            UpdateCoordinateFraction(g.kFP, &g.k_cart, &g.kCartFraction);
             
             
         }

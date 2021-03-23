@@ -162,7 +162,7 @@ public:
         return geomRotatingNonUpdating;
     }
     
-    std::vector<PosPolar<T, TQ>> returnRotatingGeometry(double atTheta){
+    std::vector<PosPolar<T, TQ>> returnRotatingGeometry(){
         return geomRotating;
     }
     

@@ -103,9 +103,14 @@ public struct RushtonTurbinePolarCPP {
 
     var RushtonTurbinePolarObjC_inst: RushtonTurbinePolarObjC?
     
-    public init(t: RushtonTurbineObjC, e: ExtentsObjC) {
+    public init(t: RushtonTurbineCPP, e: ExtentsCPP) {
         
-        self.RushtonTurbinePolarObjC_inst = RushtonTurbinePolarObjC(t, ext: e);
+        if
+            let rushtonTurbineObjC_inst = t.rushtonTurbineObjC_inst,
+            let extentsObjC_inst = e.extentsObjC_inst {
+
+            self.RushtonTurbinePolarObjC_inst = RushtonTurbinePolarObjC(rushtonTurbineObjC_inst, ext: extentsObjC_inst);
+        }
     }
     
     public func generateFixedGeometry() {

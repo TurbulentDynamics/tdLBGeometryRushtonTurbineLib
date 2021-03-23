@@ -80,7 +80,7 @@ func getPolarCppPoints(gridX: Int) -> [Pos3d]{
     
     let e = ExtentsCPP(x0: 0, x1: gridX, y0: 0, y1: gridX, z0: 0, z1: gridX)
 
-    let gCPP = RushtonTurbinePolarCPP(rushtonTurbine: t, extents: e)
+    let gCPP = RushtonTurbinePolarCPP(t: t, e: e)
 
     gCPP.generateFixedGeometry()
     gCPP.generateRotatingGeometry(atTheta: 0)

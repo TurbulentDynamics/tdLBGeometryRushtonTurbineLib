@@ -122,60 +122,60 @@ public:
         setHartmannDerksenProportions(gridX);
     }
     
-    void loadGeometryConfigAsJSON(std::string filepath){
+    void loadGeometryConfigAsJSON(std::string filePath){
 
 
         try {
-            std::ifstream in(filepath.c_str());
-            Json::Value dim_json;
-            in >> dim_json;
+            std::ifstream in(filePath.c_str());
+            Json::Value jsonParams;
+            in >> jsonParams;
             in.close();
 
 
-            resolution = (double)dim_json["resolution"].asDouble();
-            tankDiameter = (int)dim_json["tankDiameter"].asInt();
+            resolution = (double)jsonParams["resolution"].asDouble();
+            tankDiameter = (int)jsonParams["tankDiameter"].asInt();
 
 
-            startingStep = (tStepRT)dim_json["starting_step"].asUInt64();
-            impellerStartAngle = (double)dim_json["impeller_start_angle"].asDouble();
-            impellerStartupStepsUntilNormalSpeed = (tStepRT)dim_json["impeller_startup_steps_until_normal_speed"].asUInt64();
+            startingStep = (tStepRT)jsonParams["starting_step"].asUInt64();
+            impellerStartAngle = (double)jsonParams["impeller_start_angle"].asDouble();
+            impellerStartupStepsUntilNormalSpeed = (tStepRT)jsonParams["impeller_startup_steps_until_normal_speed"].asUInt64();
 
 
 
-            baffles.numBaffles = dim_json["baffles"]["numBaffles"].asInt();
-            baffles.firstBaffleOffset = dim_json["baffles"]["firstBaffleOffset"].asDouble();
-            baffles.innerRadius = dim_json["baffles"]["innerRadius"].asInt();
-            baffles.outerRadius = dim_json["baffles"]["outerRadius"].asInt();
-            baffles.thickness = dim_json["baffles"]["thickness"].asInt();
+            baffles.numBaffles = jsonParams["baffles"]["numBaffles"].asInt();
+            baffles.firstBaffleOffset = jsonParams["baffles"]["firstBaffleOffset"].asDouble();
+            baffles.innerRadius = jsonParams["baffles"]["innerRadius"].asInt();
+            baffles.outerRadius = jsonParams["baffles"]["outerRadius"].asInt();
+            baffles.thickness = jsonParams["baffles"]["thickness"].asInt();
 
 
-            numImpellers = (int)dim_json["numImpellers"].asInt();
+            numImpellers = (int)jsonParams["numImpellers"].asInt();
 
                 
             for (auto imp=0; imp<impellers.size(); imp++){
                 
                 auto impStr = "impeller" + std::to_string(imp);
                 
-                impellers[imp].firstBladeOffset = dim_json[impStr]["firstBladeOffset"].asDouble();
-                impellers[imp].uav = dim_json[impStr]["uav"].asDouble();
-                impellers[imp].bladeTipAngularVelW0 = dim_json[impStr]["blade_tip_angular_vel_w0"].asDouble();
-                impellers[imp].impellerPosition = dim_json[impStr]["impeller_position"].asInt();
+                impellers[imp].firstBladeOffset = jsonParams[impStr]["firstBladeOffset"].asDouble();
+                impellers[imp].uav = jsonParams[impStr]["uav"].asDouble();
+                impellers[imp].bladeTipAngularVelW0 = jsonParams[impStr]["blade_tip_angular_vel_w0"].asDouble();
+                impellers[imp].impellerPosition = jsonParams[impStr]["impeller_position"].asInt();
 
 
 
-                impellers[imp].blades.innerRadius = dim_json[impStr]["blades"]["innerRadius"].asInt();
-                impellers[imp].blades.outerRadius = dim_json[impStr]["blades"]["outerRadius"].asInt();
-                impellers[imp].blades.bottom = dim_json[impStr]["blades"]["bottom"].asInt();
-                impellers[imp].blades.top = dim_json[impStr]["blades"]["top"].asInt();
-                impellers[imp].blades.thickness = dim_json[impStr]["blades"]["bladeThickness"].asInt();
+                impellers[imp].blades.innerRadius = jsonParams[impStr]["blades"]["innerRadius"].asInt();
+                impellers[imp].blades.outerRadius = jsonParams[impStr]["blades"]["outerRadius"].asInt();
+                impellers[imp].blades.bottom = jsonParams[impStr]["blades"]["bottom"].asInt();
+                impellers[imp].blades.top = jsonParams[impStr]["blades"]["top"].asInt();
+                impellers[imp].blades.thickness = jsonParams[impStr]["blades"]["bladeThickness"].asInt();
 
-                impellers[imp].disk.radius = dim_json[impStr]["disk"]["radius"].asInt();
-                impellers[imp].disk.bottom = dim_json[impStr]["disk"]["bottom"].asInt();
-                impellers[imp].disk.top = dim_json[impStr]["disk"]["top"].asInt();
+                impellers[imp].disk.radius = jsonParams[impStr]["disk"]["radius"].asInt();
+                impellers[imp].disk.bottom = jsonParams[impStr]["disk"]["bottom"].asInt();
+                impellers[imp].disk.top = jsonParams[impStr]["disk"]["top"].asInt();
 
-                impellers[imp].hub.radius = dim_json[impStr]["hub"]["radius"].asInt();
-                impellers[imp].hub.bottom = dim_json[impStr]["hub"]["bottom"].asInt();
-                impellers[imp].hub.top = dim_json[impStr]["hub"]["top"].asInt();
+                impellers[imp].hub.radius = jsonParams[impStr]["hub"]["radius"].asInt();
+                impellers[imp].hub.bottom = jsonParams[impStr]["hub"]["bottom"].asInt();
+                impellers[imp].hub.top = jsonParams[impStr]["hub"]["top"].asInt();
             }
 
         }
@@ -187,68 +187,68 @@ public:
     }
     
 
-    int saveGeometryConfigAsJSON(std::string filepath){
+    int saveGeometryConfigAsJSON(std::string filePath){
 
         try {
 
-            Json::Value dim_json;
+            Json::Value jsonParams;
 
 
-//            dim_json["name"] = "GeometryConfig";
+//            jsonParams["name"] = "GeometryConfig";
 
-            dim_json["function"] = "saveGeometryConfigAsJSON";
+            jsonParams["function"] = "saveGeometryConfigAsJSON";
 
-            dim_json["gridX"] = tankDiameter + MDIAM_BORDER;
+            jsonParams["gridX"] = tankDiameter + MDIAM_BORDER;
 
-            dim_json["resolution"] = resolution;
-            dim_json["tankDiameter"] = tankDiameter;
-
-
-            dim_json["startingStep"] = startingStep;
-            dim_json["impellerStartAngle"] = impellerStartAngle;
-            dim_json["impellerStartupStepsUntilNormalSpeed"] = impellerStartupStepsUntilNormalSpeed;
+            jsonParams["resolution"] = resolution;
+            jsonParams["tankDiameter"] = tankDiameter;
 
 
-
-            dim_json["baffles"]["numBaffles"] = baffles.numBaffles;
-            dim_json["baffles"]["firstBaffleOffset"] = baffles.firstBaffleOffset;
-            dim_json["baffles"]["innerRadius"] = baffles.innerRadius;
-            dim_json["baffles"]["outerRadius"] = baffles.outerRadius;
-            dim_json["baffles"]["thickness"] = baffles.thickness;
+            jsonParams["startingStep"] = startingStep;
+            jsonParams["impellerStartAngle"] = impellerStartAngle;
+            jsonParams["impellerStartupStepsUntilNormalSpeed"] = impellerStartupStepsUntilNormalSpeed;
 
 
 
+            jsonParams["baffles"]["numBaffles"] = baffles.numBaffles;
+            jsonParams["baffles"]["firstBaffleOffset"] = baffles.firstBaffleOffset;
+            jsonParams["baffles"]["innerRadius"] = baffles.innerRadius;
+            jsonParams["baffles"]["outerRadius"] = baffles.outerRadius;
+            jsonParams["baffles"]["thickness"] = baffles.thickness;
 
-            dim_json["numImpellers"] = (int)numImpellers;
+
+
+
+            jsonParams["numImpellers"] = (int)numImpellers;
 
             for (auto imp=0; imp<impellers.size(); imp++){
 
                 auto impStr = "impeller" + std::to_string(imp);
 
-                dim_json[impStr]["firstBladeOffset"] = impellers[imp].firstBladeOffset;
-                dim_json[impStr]["uav"] = impellers[imp].uav;
-                dim_json[impStr]["blade_tip_angular_vel_w0"] = impellers[imp].bladeTipAngularVelW0;
-                dim_json[impStr]["impeller_position"] = impellers[imp].impellerPosition;
+                jsonParams[impStr]["firstBladeOffset"] = impellers[imp].firstBladeOffset;
+                jsonParams[impStr]["uav"] = impellers[imp].uav;
+                jsonParams[impStr]["blade_tip_angular_vel_w0"] = impellers[imp].bladeTipAngularVelW0;
+                jsonParams[impStr]["impeller_position"] = impellers[imp].impellerPosition;
 
-                dim_json[impStr]["blades"]["innerRadius"] = impellers[imp].blades.innerRadius;
-                dim_json[impStr]["blades"]["outerRadius"] = impellers[imp].blades.outerRadius;
-                dim_json[impStr]["blades"]["bottom"] = impellers[imp].blades.bottom;
-                dim_json[impStr]["blades"]["top"] = impellers[imp].blades.top;
-                dim_json[impStr]["blades"]["bladeThickness"] = impellers[imp].blades.thickness;
+                jsonParams[impStr]["blades"]["innerRadius"] = impellers[imp].blades.innerRadius;
+                jsonParams[impStr]["blades"]["outerRadius"] = impellers[imp].blades.outerRadius;
+                jsonParams[impStr]["blades"]["bottom"] = impellers[imp].blades.bottom;
+                jsonParams[impStr]["blades"]["top"] = impellers[imp].blades.top;
+                jsonParams[impStr]["blades"]["bladeThickness"] = impellers[imp].blades.thickness;
 
-                dim_json[impStr]["disk"]["radius"] = impellers[imp].disk.radius;
-                dim_json[impStr]["disk"]["bottom"] = impellers[imp].disk.bottom;
-                dim_json[impStr]["disk"]["top"] = impellers[imp].disk.top;
+                jsonParams[impStr]["disk"]["radius"] = impellers[imp].disk.radius;
+                jsonParams[impStr]["disk"]["bottom"] = impellers[imp].disk.bottom;
+                jsonParams[impStr]["disk"]["top"] = impellers[imp].disk.top;
 
-                dim_json[impStr]["hub"]["radius"] = impellers[imp].hub.radius;
-                dim_json[impStr]["hub"]["bottom"] = impellers[imp].hub.bottom;
-                dim_json[impStr]["hub"]["top"] = impellers[imp].hub.top;
+                jsonParams[impStr]["hub"]["radius"] = impellers[imp].hub.radius;
+                jsonParams[impStr]["hub"]["bottom"] = impellers[imp].hub.bottom;
+                jsonParams[impStr]["hub"]["top"] = impellers[imp].hub.top;
 
             }
 
 
-            std::ofstream out(filepath.c_str(), std::ofstream::out);
-            out << dim_json;
+            std::ofstream out(filePath.c_str(), std::ofstream::out);
+            out << jsonParams;
             out.close();
 
             return 0;

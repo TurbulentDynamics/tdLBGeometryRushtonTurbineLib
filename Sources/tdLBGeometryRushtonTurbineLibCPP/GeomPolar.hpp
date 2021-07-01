@@ -321,7 +321,7 @@ public:
     
     
     
-    void addImpellerBlades(tStepRT step, bool get_solid = 0) {
+    void addImpellerBlades(double atTheta, bool get_solid = 0) {
         
         
         double innerRadius = turbine.impellers[0].blades.innerRadius;
@@ -347,7 +347,7 @@ public:
         
         
         
-        double wa = calcThisStepImpellerIncrement(step);
+//        double wa = calcThisStepImpellerIncrement(step);
         
         
         for (int nBlade = 1; nBlade <= turbine.impellers[0].numBlades; ++nBlade)
@@ -379,9 +379,9 @@ public:
                         
                         PosPolar<T, TQ> g = PosPolar<T, TQ>(iFP, j, kFP);
 
-                        g.uDelta = -wa * rPolar * sin(tPolar);
+                        g.uDelta = -atTheta * rPolar * sin(tPolar);
                         g.vDelta = 0.0;
-                        g.wDelta = wa * rPolar * cos(tPolar);
+                        g.wDelta = atTheta * rPolar * cos(tPolar);
                         
                         bool is_solid = isSurface ? 0 : 1;
                         
@@ -652,46 +652,46 @@ public:
     
     
     
-    TQ updateRotatingGeometry(tStepRT step, TQ impellerTheta)
-    {
-        
-        
-        TQ thisStepImpellerIncrementWA = calcThisStepImpellerIncrement(step);
-        
-        impellerTheta += thisStepImpellerIncrementWA;
-        
-        
-        
-        
-        
-        //Only updates the rotating elements
-        
-#pragma omp parallel for
-        for (int i = 0; i < geomRotating.size(); i++)
-        {
-            
-            PosPolar<T, TQ> &g = geomRotating[i];
-            
-            g.tPolar += thisStepImpellerIncrementWA;
-            
-            
-            
-            g.iFP = iCenter + g.rPolar * cos(g.tPolar);
-            g.kFP = kCenter + g.rPolar * sin(g.tPolar);
-            
-            g.uDelta = -thisStepImpellerIncrementWA * g.rPolar * sin(g.tPolar);
-            g.wDelta =  thisStepImpellerIncrementWA * g.rPolar * cos(g.tPolar);
-            
-            UpdateCoordinateFraction(g.iFP, &g.i_cart, &g.iCartFraction);
-            UpdateCoordinateFraction(g.kFP, &g.k_cart, &g.kCartFraction);
-            
-            
-        }
-        
-        
-        
-        return impellerTheta;
-    }
+//    TQ updateRotatingGeometry(tStepRT step, TQ impellerTheta)
+//    {
+//
+//
+//        TQ thisStepImpellerIncrementWA = calcThisStepImpellerIncrement(step);
+//
+//        impellerTheta += thisStepImpellerIncrementWA;
+//
+//
+//
+//
+//
+//        //Only updates the rotating elements
+//
+//#pragma omp parallel for
+//        for (int i = 0; i < geomRotating.size(); i++)
+//        {
+//
+//            PosPolar<T, TQ> &g = geomRotating[i];
+//
+//            g.tPolar += thisStepImpellerIncrementWA;
+//
+//
+//
+//            g.iFP = iCenter + g.rPolar * cos(g.tPolar);
+//            g.kFP = kCenter + g.rPolar * sin(g.tPolar);
+//
+//            g.uDelta = -thisStepImpellerIncrementWA * g.rPolar * sin(g.tPolar);
+//            g.wDelta =  thisStepImpellerIncrementWA * g.rPolar * cos(g.tPolar);
+//
+//            UpdateCoordinateFraction(g.iFP, &g.i_cart, &g.iCartFraction);
+//            UpdateCoordinateFraction(g.kFP, &g.k_cart, &g.kCartFraction);
+//
+//
+//        }
+//
+//
+//
+//        return impellerTheta;
+//    }
     
     
     

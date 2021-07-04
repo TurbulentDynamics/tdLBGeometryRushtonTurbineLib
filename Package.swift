@@ -1,4 +1,4 @@
-// swift-tools-version:5.2
+// swift-tools-version:5.4
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "tdLBGeometryRushtonTurbineLib",
     platforms: [
-        .macOS(.v10_15),
+        .macOS(.v11),
         .iOS(.v13)
     ],
     products: [
@@ -17,25 +17,25 @@ let package = Package(
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
-        .package(url: "https://github.com/turbulentdynamics/tdLBApi.git", from: "0.0.4"),
-        .package(url: "https://github.com/apple/swift-argument-parser", from: "0.3.2")
+        .package(url: "https://github.com/turbulentdynamics/tdLBSwiftApi.git", from: "0.0.5"),
+        .package(url: "https://github.com/apple/swift-argument-parser", from: "0.4.1")
 
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
         // Targets can depend on other targets in this package, and on products in packages which this package depends on.
 
-        .target(
+        .executableTarget(
             name: "rt",
             dependencies: [
-                .product(name: "tdLBApi", package: "tdLBApi"),
+                .product(name: "tdLBSwiftApi", package: "tdLBSwiftApi"),
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 "tdLBGeometryRushtonTurbineLib"
         ]),
         .target(
             name: "tdLBGeometryRushtonTurbineLib",
             dependencies: [
-                .product(name: "tdLBApi", package: "tdLBApi"),
+                .product(name: "tdLBSwiftApi", package: "tdLBSwiftApi"),
                 "tdLBGeometryRushtonTurbineLibObjC"
         ]),
         .target(

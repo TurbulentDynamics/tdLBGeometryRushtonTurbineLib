@@ -108,7 +108,7 @@
 
     NSMutableArray<PosPolar_int*>* result = @[].mutableCopy;
     
-    std::vector<PosPolar<int, int>> resultCPP = rushtonTurbinePolarCPP-> returnRotatingGeometry(0.0);
+    std::vector<PosPolar<int, int>> resultCPP = rushtonTurbinePolarCPP-> returnRotatingGeometry();
     
     for (auto&& pointCPP : resultCPP)
     {

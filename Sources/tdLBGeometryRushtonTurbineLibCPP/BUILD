@@ -8,8 +8,7 @@ cc_library(
     name = "tdLBGeometryRushtonTurbineLib",
     hdrs = ["GeomMidPoint.hpp", "GeomPolar.hpp", "GlobalStructures.hpp", "RushtonTurbine.hpp"],
     deps = [":rtjson"],
-    visibility = ["//tdlbcpp/src:__pkg__",
-                  "//tdlbcpp/tests:__pkg__"],
+    visibility = ["//visibility:public"],
 )
 
 cc_binary(

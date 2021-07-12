@@ -131,14 +131,15 @@ public:
             in >> jsonParams;
             in.close();
 
+            wa = (double)jsonParams["wa"].asDouble();
 
             resolution = (double)jsonParams["resolution"].asDouble();
             tankDiameter = (int)jsonParams["tankDiameter"].asInt();
 
 
-            startingStep = (tStepRT)jsonParams["starting_step"].asUInt64();
-            impellerStartAngle = (double)jsonParams["impeller_start_angle"].asDouble();
-            impellerStartupStepsUntilNormalSpeed = (tStepRT)jsonParams["impeller_startup_steps_until_normal_speed"].asUInt64();
+            startingStep = (tStepRT)jsonParams["startingStep"].asUInt64();
+            impellerStartAngle = (double)jsonParams["impellerStartAngle"].asDouble();
+            impellerStartupStepsUntilNormalSpeed = (tStepRT)jsonParams["impellerStartupStepsUntilNormalSpeed"].asUInt64();
 
 
 
@@ -151,16 +152,22 @@ public:
 
             numImpellers = (int)jsonParams["numImpellers"].asInt();
 
+            impellers.clear();
                 
-            for (auto imp=0; imp<impellers.size(); imp++){
+            for (auto imp=0; imp<numImpellers; imp++){
                 
                 auto impStr = "impeller" + std::to_string(imp);
+                if (!jsonParams.isMember(impStr)) {
+                    // if impeller#i doesn't exists, this means we have numImpellers wrong value;
+                    break;
+                }
+                impellers.push_back(Impeller());
                 
                 impellers[imp].firstBladeOffset = jsonParams[impStr]["firstBladeOffset"].asDouble();
                 impellers[imp].uav = jsonParams[impStr]["uav"].asDouble();
                 impellers[imp].bladeTipAngularVelW0 = jsonParams[impStr]["blade_tip_angular_vel_w0"].asDouble();
                 impellers[imp].impellerPosition = jsonParams[impStr]["impeller_position"].asInt();
-
+                impellers[imp].numBlades = jsonParams[impStr]["numBlades"].asInt();
 
 
                 impellers[imp].blades.innerRadius = jsonParams[impStr]["blades"]["innerRadius"].asInt();
@@ -177,6 +184,12 @@ public:
                 impellers[imp].hub.bottom = jsonParams[impStr]["hub"]["bottom"].asInt();
                 impellers[imp].hub.top = jsonParams[impStr]["hub"]["top"].asInt();
             }
+            
+            numImpellers = impellers.size();
+
+            shaft.radius = jsonParams["shaft"]["radius"].asInt();
+            shaft.bottom = jsonParams["shaft"]["bottom"].asInt();
+            shaft.top = jsonParams["shaft"]["top"].asInt();
 
         }
         catch(std::exception& e)
@@ -195,6 +208,8 @@ public:
 
 
 //            jsonParams["name"] = "GeometryConfig";
+
+            jsonParams["wa"] = wa;
 
             jsonParams["function"] = "saveGeometryConfigAsJSON";
 
@@ -229,6 +244,7 @@ public:
                 jsonParams[impStr]["uav"] = impellers[imp].uav;
                 jsonParams[impStr]["blade_tip_angular_vel_w0"] = impellers[imp].bladeTipAngularVelW0;
                 jsonParams[impStr]["impeller_position"] = impellers[imp].impellerPosition;
+                jsonParams[impStr]["numBlades"] = impellers[imp].numBlades;
 
                 jsonParams[impStr]["blades"]["innerRadius"] = impellers[imp].blades.innerRadius;
                 jsonParams[impStr]["blades"]["outerRadius"] = impellers[imp].blades.outerRadius;
@@ -245,6 +261,10 @@ public:
                 jsonParams[impStr]["hub"]["top"] = impellers[imp].hub.top;
 
             }
+
+            jsonParams["shaft"]["radius"] = shaft.radius;
+            jsonParams["shaft"]["bottom"] = shaft.bottom;
+            jsonParams["shaft"]["top"] = shaft.top;
 
 
             std::ofstream out(filePath.c_str(), std::ofstream::out);
@@ -383,7 +403,7 @@ public:
         hub.bottom = tankDiameter * 21.0f / 30.0f;
         impeller.hub = hub;
 
-        
+        impellers.clear();
         impellers.push_back(impeller);
 
 
@@ -461,7 +481,7 @@ public:
         hub.bottom = impellerPosition + (D * 0.1);
         impeller.hub = hub;
 
-        
+        impellers.clear();
         impellers.push_back(impeller);
 
 

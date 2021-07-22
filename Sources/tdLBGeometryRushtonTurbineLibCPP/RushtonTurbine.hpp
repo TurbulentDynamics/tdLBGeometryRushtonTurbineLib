@@ -114,6 +114,7 @@ public:
 
     int numImpellers;
     std::vector<Impeller> impellers;
+    using size_type=std::vector<Impeller>::size_type;
     
     Shaft shaft;
 
@@ -154,7 +155,7 @@ public:
 
             impellers.clear();
                 
-            for (auto imp=0; imp<numImpellers; imp++){
+            for (int imp=0; imp<numImpellers; imp++){
                 
                 auto impStr = "impeller" + std::to_string(imp);
                 if (!jsonParams.isMember(impStr)) {
@@ -236,7 +237,7 @@ public:
 
             jsonParams["numImpellers"] = (int)numImpellers;
 
-            for (auto imp=0; imp<impellers.size(); imp++){
+            for (size_type imp=0; imp<impellers.size(); imp++){
 
                 auto impStr = "impeller" + std::to_string(imp);
 
@@ -312,7 +313,7 @@ public:
 
         std::cout << "numImpellers " << numImpellers << std::endl;
 
-        for (auto imp=0; imp<impellers.size(); imp++){
+        for (size_type imp=0; imp<impellers.size(); imp++){
             
 
             std::cout << "impeller.0.firstBladeOffset " << impellers[imp].firstBladeOffset << std::endl;

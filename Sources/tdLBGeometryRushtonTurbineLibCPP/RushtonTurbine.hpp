@@ -108,7 +108,8 @@ public:
 
     // Model resolution
     double resolution = 0.0;
-    int tankDiameter = 0.0;
+    int tankDiameter = 0;
+    int tankHeight = 0;
 
     Baffles baffles;
 
@@ -136,6 +137,7 @@ public:
 
             resolution = (double)jsonParams["resolution"].asDouble();
             tankDiameter = (int)jsonParams["tankDiameter"].asInt();
+            tankHeight = (int)jsonParams["tankHeight"].asInt();
 
 
             startingStep = (tStepRT)jsonParams["startingStep"].asUInt64();
@@ -218,6 +220,7 @@ public:
 
             jsonParams["resolution"] = resolution;
             jsonParams["tankDiameter"] = tankDiameter;
+            jsonParams["tankHeight"] = tankHeight;
 
 
             jsonParams["startingStep"] = startingStep;
@@ -294,6 +297,7 @@ public:
 
         std::cout << "resolution " << resolution << std::endl;
         std::cout << "tankDiameter " << tankDiameter << std::endl;
+        std::cout << "tankHeight " << tankHeight << std::endl;
 
 
         std::cout << "startingStep " << startingStep << std::endl;
@@ -347,6 +351,7 @@ public:
 
         //diameter tube / cylinder
         tankDiameter = gridX - MDIAM_BORDER;
+        tankHeight = gridX;
 
         shaft.radius = (int)(tankDiameter * 2.0f / 75.0f);
 
@@ -417,7 +422,8 @@ public:
 
         //diameter tube / cylinder
         tankDiameter = gridX - MDIAM_BORDER;
-        
+        tankHeight = gridX;
+
         
         //Principal Parameters defined from
         //Hartmann H, Derksen JJ, Montavon C, Pearson J, Hamill IS, Van den Akker HEA. Assessment of large eddy and rans stirred tank simulations by means of LDA. Chem Eng Sci. 2004;59:2419–2432.

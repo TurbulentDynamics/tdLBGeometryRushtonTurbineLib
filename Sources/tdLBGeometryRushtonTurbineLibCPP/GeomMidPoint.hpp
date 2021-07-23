@@ -65,9 +65,9 @@ public:
         turbine = turbineData;
         
         tankRadius = turbine.tankDiameter / 2;
-        tankHeight = turbine.tankDiameter;
-        iCenter = tankRadius;
-        kCenter = tankRadius;
+        tankHeight = turbine.tankHeight;
+        iCenter = tankRadius + MDIAM_BORDER / 2;
+        kCenter = tankRadius + MDIAM_BORDER / 2;
         
         extents = ext;
         
@@ -79,9 +79,9 @@ public:
    
         turbine = turbineData;
         tankRadius = turbine.tankDiameter / 2;
-        tankHeight = turbine.tankDiameter;
-        iCenter = tankRadius;
-        kCenter = tankRadius;
+        tankHeight = turbine.tankHeight;
+        iCenter = tankRadius + MDIAM_BORDER / 2;
+        kCenter = tankRadius + MDIAM_BORDER / 2;
    
         extents = ext;
         
@@ -133,7 +133,7 @@ public:
     
     void generateFixedGeometry() {
         
-        addWall(turbine);
+        addTankWall(turbine);
         addBaffles(turbine);
     }
 
@@ -349,9 +349,9 @@ public:
 
 
     
-    void addWall(RushtonTurbine turbine){
+    void addTankWall(RushtonTurbine turbine){
 
-        std::vector<Pos3d<T>> wall = drawCylinderWallIK(tankRadius, 0, turbine.tankDiameter, iCenter, kCenter);
+        std::vector<Pos3d<T>> wall = drawCylinderWallIK(tankRadius, 0, turbine.tankHeight, iCenter, kCenter);
 
         for (const auto& p: wall){
             geomFixed.push_back(p);

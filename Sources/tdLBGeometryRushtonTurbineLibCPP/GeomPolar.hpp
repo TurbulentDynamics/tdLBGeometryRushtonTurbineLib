@@ -139,10 +139,9 @@ public:
     
     RushtonTurbinePolarCPP(RushtonTurbine t, Extents<T> e):turbine(t), extents(e){
 
-        iCenter = turbine.tankDiameter / 2;
-        kCenter = turbine.tankDiameter / 2;
+        iCenter = turbine.tankDiameter / 2 + MDIAM_BORDER / 2;
+        kCenter = turbine.tankDiameter / 2 + MDIAM_BORDER / 2;
 
-        
     }
     
     

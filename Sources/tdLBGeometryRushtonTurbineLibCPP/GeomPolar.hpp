@@ -47,7 +47,7 @@ struct PosPolar
     TQ wDelta = 0.0;
     
     
-    bool is_solid = 0; //Either 0 surface, or 1 solid (the cells between the surface)
+    bool isInternal = 0; //Either 0 surface, or 1 solid (the cells between the surface)
     
     
     PosPolar()
@@ -170,38 +170,38 @@ public:
     
     
     
-    void generateFixedGeometry() {
+    void generateFixedGeometry(bool getInternal = 0) {
         
-        addTankWall();
-        addBaffles();
+        addTankWall(getInternal);
+        addBaffles(getInternal);
     }
     
     
-    void generateRotatingNonUpdatingGeometry() {
+    void generateRotatingNonUpdatingGeometry(bool getInternal = 0) {
         
-        addImpellerShaft();
-        addImpellerHub();
-        addImpellerDisc();
+        addImpellerShaft(getInternal);
+        addImpellerHub(getInternal);
+        addImpellerDisc(getInternal);
         
     }
     
     
-    void generateRotatingGeometry(TQ atTheta){
+    void generateRotatingGeometry(TQ atTheta, bool getInternal = 0){
         
-        addImpellerBlades(atTheta);
+        addImpellerBlades(atTheta, getInternal);
     }
     
-    void updateRotatingGeometry(TQ atTheta){
+    void updateRotatingGeometry(TQ atTheta, bool getInternal = 0){
         
         geomRotating.clear();
-        addImpellerBlades(atTheta);
+        addImpellerBlades(atTheta, getInternal);
     }
     
     
-    void generateTranslatingGeometry(T step){
+    void generateTranslatingGeometry(T step, bool getInternal = 0){
     }
     
-    void updateTranslatingGeometry(T step){
+    void updateTranslatingGeometry(T step, bool getInternal = 0){
     }
     
     
@@ -217,7 +217,7 @@ public:
     
     
     
-    void addTankWall(bool get_solid = 0) {
+    void addTankWall(bool getInternal = 0) {
         
         T nCircPoints = 4 * (T)(roundf(M_PI * turbine.tankDiameter / (4 * turbine.resolution)));
         TQ dTheta = 2.0f * M_PI / TQ(nCircPoints);
@@ -257,7 +257,7 @@ public:
     
     
     
-    void addBaffles(bool get_solid = 0) {
+    void addBaffles(bool getInternal = 0) {
         
         T nPointsBaffleThickness = T(roundf(turbine.baffles.thickness / turbine.resolution));
         if (nPointsBaffleThickness == 0)
@@ -295,7 +295,7 @@ public:
                         TQ iFP = iCenter + r * cos(theta);
                         TQ kFP = kCenter + r * sin(theta);
                         
-                        bool is_solid = isSurface ? 0 : 1;
+                        bool isInternal = isSurface ? 0 : 1;
                         
                         PosPolar<T, TQ> g = PosPolar<T, TQ>(iFP, j, kFP);
 
@@ -304,8 +304,8 @@ public:
                             
                             g.localise(extents);
                             
-                            if (get_solid && is_solid) geomFixed.push_back(g);
-                            if (get_solid == 0 && is_solid == 0) geomFixed.push_back(g);
+                            if (getInternal && isInternal) geomFixed.push_back(g);
+                            if (getInternal == 0 && isInternal == 0) geomFixed.push_back(g);
                             
                             
                         }
@@ -320,7 +320,7 @@ public:
     
     
     
-    void addImpellerBlades(TQ atTheta, bool get_solid = 0) {
+    void addImpellerBlades(TQ atTheta, bool getInternal = 0) {
         
         
         TQ innerRadius = turbine.impellers[0].blades.innerRadius;
@@ -382,7 +382,7 @@ public:
                         g.vDelta = 0.0;
                         g.wDelta = atTheta * rPolar * cos(tPolar);
                         
-                        bool is_solid = isSurface ? 0 : 1;
+                        bool isInternal = isSurface ? 0 : 1;
                         
                         //TOFIX TODO BLADES ALL BLADES ARE PASSED ON
 //                        if (extents.containsIK(g.i, g.k)){
@@ -391,8 +391,8 @@ public:
                             g.localise(extents);
                             
                             //BOTH THE SOLID AND SURFACE ELEMENTS ARE ROTATING
-                            if (get_solid && is_solid) geomRotating.push_back(g);
-                            if (get_solid == 0 && is_solid == 0) geomRotating.push_back(g);
+                            if (getInternal && isInternal) geomRotating.push_back(g);
+                            if (getInternal == 0 && isInternal == 0) geomRotating.push_back(g);
 //                        }
   
                     }
@@ -404,7 +404,7 @@ public:
     
     
     
-    void addImpellerDisc(bool get_solid = 0){
+    void addImpellerDisc(bool getInternal = 0){
         
         T bottom = T(roundf(turbine.impellers[0].disk.bottom));
         T top = T(roundf(turbine.impellers[0].disk.top));
@@ -455,15 +455,15 @@ public:
                     g.vDelta = 0;
                     g.wDelta = turbine.wa * rPolar * cos(tPolar);
                     
-                    bool is_solid = isSurface ? 0 : 1;
+                    bool isInternal = isSurface ? 0 : 1;
                     
                     
                     if (extents.containsIK(g.i, g.k)){
                         
                         g.localise(extents);
                         
-                        if (get_solid && is_solid) geomRotating.push_back(g);
-                        if (get_solid == 0 && is_solid == 0) geomRotating.push_back(g);
+                        if (getInternal && isInternal) geomRotating.push_back(g);
+                        if (getInternal == 0 && isInternal == 0) geomRotating.push_back(g);
                         
                     }
                 }
@@ -475,7 +475,7 @@ public:
     
     
     
-    void addImpellerHub(bool get_solid = 0){
+    void addImpellerHub(bool getInternal = 0){
         
         T diskBottom = T(roundf(turbine.impellers[0].disk.bottom));
         T diskTop = T(roundf(turbine.impellers[0].disk.top));
@@ -531,7 +531,7 @@ public:
                     g.vDelta = 0;
                     g.wDelta = turbine.wa * rPolar * cos(tPolar);
                     
-                    bool is_solid = isSurface ? 0 : 1;
+                    bool isInternal = isSurface ? 0 : 1;
                     
                                         
                     if (extents.containsIK(g.i, g.k)){
@@ -539,8 +539,8 @@ public:
                         g.localise(extents);
                         
                         
-                        if (get_solid && is_solid) geomRotating.push_back(g);
-                        if (get_solid == 0 && is_solid == 0) geomRotating.push_back(g);
+                        if (getInternal && isInternal) geomRotating.push_back(g);
+                        if (getInternal == 0 && isInternal == 0) geomRotating.push_back(g);
                         
                     }
                 }
@@ -549,7 +549,7 @@ public:
     }
     
     
-    void addImpellerShaft(bool get_solid = 0){
+    void addImpellerShaft(bool getInternal = 0){
         
         T hubBottom = T(roundf(turbine.impellers[0].hub.bottom));
         T hubTop = T(roundf(turbine.impellers[0].hub.top));
@@ -603,7 +603,7 @@ public:
                     g.vDelta = 0.0f;
                     g.wDelta =  turbine.wa * rPolar * cos(tPolar);
                     
-                    bool is_solid = isSurface ? 0 : 1;
+                    bool isInternal = isSurface ? 0 : 1;
                     
                     
                                     
@@ -612,8 +612,8 @@ public:
                         
                         g.localise(extents);
                         
-                        if (get_solid && is_solid) geomRotating.push_back(g);
-                        if (get_solid == 0 && is_solid == 0) geomRotating.push_back(g);
+                        if (getInternal && isInternal) geomRotating.push_back(g);
+                        if (getInternal == 0 && isInternal == 0) geomRotating.push_back(g);
                         
                     }
                     

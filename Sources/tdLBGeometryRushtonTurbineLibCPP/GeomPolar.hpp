@@ -47,7 +47,7 @@ struct PosPolar
     TQ wDelta = 0.0;
     
     
-    bool is_solid = 0; //Either 0 surface, or 1 solid (the cells between the surface)
+    bool isInternal = 0; //Either 0 surface, or 1 solid (the cells between the surface)
     
     
     PosPolar()
@@ -56,7 +56,7 @@ struct PosPolar
     }
     
     
-    PosPolar(double iFP, int j, double kFP):j(j)
+    PosPolar(TQ iFP, T j, TQ kFP):j(j)
     {
         updateCoordinateFraction(iFP, &i, &iCartFraction);
         updateCoordinateFraction(kFP, &k, &kCartFraction);
@@ -79,7 +79,7 @@ struct PosPolar
     
     
     
-    void inline updateCoordinateFraction(double coordinate, T *integerPart, TQ *fractionPart)
+    void inline updateCoordinateFraction(TQ coordinate, T *integerPart, TQ *fractionPart)
     {
         //CART ALWAYS goes to +ve position.
         //TOFIX
@@ -126,8 +126,8 @@ public:
     
     
     
-    double iCenter;
-    double kCenter;
+    TQ iCenter;
+    TQ kCenter;
     
     
     tStepRT startingStep = 0;
@@ -170,38 +170,38 @@ public:
     
     
     
-    void generateFixedGeometry() {
+    void generateFixedGeometry(bool getInternal = 0) {
         
-        addTankWall();
-        addBaffles();
+        addTankWall(getInternal);
+        addBaffles(getInternal);
     }
     
     
-    void generateRotatingNonUpdatingGeometry() {
+    void generateRotatingNonUpdatingGeometry(bool getInternal = 0) {
         
-        addImpellerShaft();
-        addImpellerHub();
-        addImpellerDisc();
+        addImpellerShaft(getInternal);
+        addImpellerHub(getInternal);
+        addImpellerDisc(getInternal);
         
     }
     
     
-    void generateRotatingGeometry(double atTheta){
+    void generateRotatingGeometry(TQ atTheta, bool getInternal = 0){
         
-        addImpellerBlades(atTheta);
+        addImpellerBlades(atTheta, getInternal);
     }
     
-    void updateRotatingGeometry(double atTheta){
+    void updateRotatingGeometry(TQ atTheta, bool getInternal = 0){
         
         geomRotating.clear();
-        addImpellerBlades(atTheta);
+        addImpellerBlades(atTheta, getInternal);
     }
     
     
-    void generateTranslatingGeometry(int step){
+    void generateTranslatingGeometry(T step, bool getInternal = 0){
     }
     
-    void updateTranslatingGeometry(int step){
+    void updateTranslatingGeometry(T step, bool getInternal = 0){
     }
     
     
@@ -217,27 +217,27 @@ public:
     
     
     
-    void addTankWall(bool get_solid = 0) {
+    void addTankWall(bool getInternal = 0) {
         
-        unsigned long int nCircPoints = 4 * (unsigned long int)(roundf(M_PI * turbine.tankDiameter / (4 * turbine.resolution)));
-        double dTheta = 2.0f * M_PI / double(nCircPoints);
-        double r = 0.5f * turbine.tankDiameter;
+        T nCircPoints = 4 * (T)(roundf(M_PI * turbine.tankDiameter / (4 * turbine.resolution)));
+        TQ dTheta = 2.0f * M_PI / TQ(nCircPoints);
+        TQ r = 0.5f * turbine.tankDiameter;
         
-        for(int j = (int)extents.y0; j <= (int)extents.y1; ++j)
+        for(T j = (T)extents.y0; j <= (T)extents.y1; ++j)
         {
             
-            for (unsigned long int n = 0; n < nCircPoints; ++n)
+            for (T n = 0; n < nCircPoints; ++n)
             {
                 
-                double theta = double(n) * dTheta;
+                TQ theta = TQ(n) * dTheta;
                 if ((j & 1) == 1)
                     theta += 0.5f * dTheta;
                 
                                
                 //TODO, should the fractions be updated before center is added?????
                 
-                double iFP = iCenter + r * cos(theta);
-                double kFP = kCenter + r * sin(theta);
+                TQ iFP = iCenter + r * cos(theta);
+                TQ kFP = kCenter + r * sin(theta);
                 
                 
                 PosPolar<T, TQ> g = PosPolar<T, TQ>(iFP, j, kFP);
@@ -257,34 +257,34 @@ public:
     
     
     
-    void addBaffles(bool get_solid = 0) {
+    void addBaffles(bool getInternal = 0) {
         
-        int nPointsBaffleThickness = int(roundf(turbine.baffles.thickness / turbine.resolution));
+        T nPointsBaffleThickness = T(roundf(turbine.baffles.thickness / turbine.resolution));
         if (nPointsBaffleThickness == 0)
             nPointsBaffleThickness = 1;
         
-        double resolutionBaffleThickness = (double)(turbine.baffles.thickness) / (double)(nPointsBaffleThickness);
+        TQ resolutionBaffleThickness = (TQ)(turbine.baffles.thickness) / (TQ)(nPointsBaffleThickness);
                 
-        double innerRadius = (double)turbine.baffles.innerRadius;
-        double outerRadius = (double)turbine.baffles.outerRadius;
-        int nPointsR = int(roundf((outerRadius - innerRadius) / turbine.resolution));
+        TQ innerRadius = (TQ)turbine.baffles.innerRadius;
+        TQ outerRadius = (TQ)turbine.baffles.outerRadius;
+        T nPointsR = T(roundf((outerRadius - innerRadius) / turbine.resolution));
         
-        double deltaR = (outerRadius - innerRadius) / static_cast<double>(nPointsR);
+        TQ deltaR = (outerRadius - innerRadius) / static_cast<TQ>(nPointsR);
         
-        double deltaBaffleOffset = 2.0/(double)turbine.baffles.numBaffles * M_PI;
+        TQ deltaBaffleOffset = 2.0/(TQ)turbine.baffles.numBaffles * M_PI;
         
-        for (int nBaffle = 1; nBaffle <= turbine.baffles.numBaffles; ++nBaffle)
+        for (T nBaffle = 1; nBaffle <= turbine.baffles.numBaffles; ++nBaffle)
         {
-            for (int j = (int)extents.y0; j <= (int)extents.y1; ++j)
+            for (T j = (T)extents.y0; j <= (T)extents.y1; ++j)
             {
                 for (T idxR = 0; idxR <= nPointsR; ++idxR)
                 {
-                    double r = innerRadius + deltaR * (double)idxR;
+                    TQ r = innerRadius + deltaR * (TQ)idxR;
                     
-                    for (int idxTheta = 0; idxTheta <= nPointsBaffleThickness; ++idxTheta)
+                    for (T idxTheta = 0; idxTheta <= nPointsBaffleThickness; ++idxTheta)
                     {
-                        double theta = turbine.baffles.firstBaffleOffset +
-                        deltaBaffleOffset * (double)nBaffle +
+                        TQ theta = turbine.baffles.firstBaffleOffset +
+                        deltaBaffleOffset * (TQ)nBaffle +
                         (idxTheta - nPointsBaffleThickness / 2.0f) * resolutionBaffleThickness / r;
                         
                         bool isSurface = idxTheta == 0 || idxTheta == nPointsBaffleThickness ||
@@ -292,10 +292,10 @@ public:
                         
                         
                         
-                        double iFP = iCenter + r * cos(theta);
-                        double kFP = kCenter + r * sin(theta);
+                        TQ iFP = iCenter + r * cos(theta);
+                        TQ kFP = kCenter + r * sin(theta);
                         
-                        bool is_solid = isSurface ? 0 : 1;
+                        bool isInternal = isSurface ? 0 : 1;
                         
                         PosPolar<T, TQ> g = PosPolar<T, TQ>(iFP, j, kFP);
 
@@ -304,8 +304,8 @@ public:
                             
                             g.localise(extents);
                             
-                            if (get_solid && is_solid) geomFixed.push_back(g);
-                            if (get_solid == 0 && is_solid == 0) geomFixed.push_back(g);
+                            if (getInternal && isInternal) geomFixed.push_back(g);
+                            if (getInternal == 0 && isInternal == 0) geomFixed.push_back(g);
                             
                             
                         }
@@ -320,45 +320,45 @@ public:
     
     
     
-    void addImpellerBlades(double atTheta, bool get_solid = 0) {
+    void addImpellerBlades(TQ atTheta, bool getInternal = 0) {
         
         
-        double innerRadius = turbine.impellers[0].blades.innerRadius;
-        double outerRadius = turbine.impellers[0].blades.outerRadius;
-        int diskBottom = int(roundf(turbine.impellers[0].disk.bottom));
-        int diskTop = int(roundf(turbine.impellers[0].disk.top));
-        int impellerBottom = int(roundf(turbine.impellers[0].blades.bottom));
-        int impellerTop = int(roundf(turbine.impellers[0].blades.top));
+        TQ innerRadius = turbine.impellers[0].blades.innerRadius;
+        TQ outerRadius = turbine.impellers[0].blades.outerRadius;
+        T diskBottom = T(roundf(turbine.impellers[0].disk.bottom));
+        T diskTop = T(roundf(turbine.impellers[0].disk.top));
+        T impellerBottom = T(roundf(turbine.impellers[0].blades.bottom));
+        T impellerTop = T(roundf(turbine.impellers[0].blades.top));
         
-        int lowerLimitY = std::max((int)extents.y0, impellerTop);
-        int upperLimitY = std::min((int)extents.y1, impellerBottom);
+        T lowerLimitY = std::max((T)extents.y0, impellerTop);
+        T upperLimitY = std::min((T)extents.y1, impellerBottom);
         
-        int nPointsR = int(roundf((outerRadius - innerRadius) / turbine.resolution));
-        double nPointsThickness = int(roundf(turbine.impellers[0].blades.thickness / turbine.resolution));
+        T nPointsR = T(roundf((outerRadius - innerRadius) / turbine.resolution));
+        TQ nPointsThickness = T(roundf(turbine.impellers[0].blades.thickness / turbine.resolution));
         if (nPointsThickness == 0)
             nPointsThickness = 1;
         
-        double resolutionBladeThickness = turbine.impellers[0].blades.thickness / (double)nPointsThickness;
-        double deltaR = (outerRadius - innerRadius) / nPointsR;
+        TQ resolutionBladeThickness = turbine.impellers[0].blades.thickness / (TQ)nPointsThickness;
+        TQ deltaR = (outerRadius - innerRadius) / nPointsR;
         
         
-        double deltaTheta = 2.0/(double)turbine.impellers[0].numBlades * M_PI;
+        TQ deltaTheta = 2.0/(TQ)turbine.impellers[0].numBlades * M_PI;
         
         
         
 //        double wa = calcThisStepImpellerIncrement(step);
         
         
-        for (int nBlade = 1; nBlade <= turbine.impellers[0].numBlades; ++nBlade)
+        for (T nBlade = 1; nBlade <= turbine.impellers[0].numBlades; ++nBlade)
         {
-            for (int j = lowerLimitY; j <= upperLimitY; ++j)
+            for (T j = lowerLimitY; j <= upperLimitY; ++j)
             {
-                for (int idxR = 0; idxR <= nPointsR; ++idxR)
+                for (T idxR = 0; idxR <= nPointsR; ++idxR)
                 {
-                    double r = innerRadius  + deltaR * idxR;
-                    for (int idxThickness = 0; idxThickness <= nPointsThickness; ++idxThickness)
+                    TQ r = innerRadius  + deltaR * idxR;
+                    for (T idxThickness = 0; idxThickness <= nPointsThickness; ++idxThickness)
                     {
-                        double theta = deltaTheta * nBlade +
+                        TQ theta = deltaTheta * nBlade +
                         turbine.impellers[0].firstBladeOffset +
                         (idxThickness - nPointsThickness / 2.0f) * resolutionBladeThickness / r;
                         
@@ -370,11 +370,11 @@ public:
                         idxR == 0 || idxR == nPointsR ||
                         j == impellerBottom || j == impellerTop;
                         
-                        double rPolar = r;
-                        double tPolar = theta;
+                        TQ rPolar = r;
+                        TQ tPolar = theta;
                         
-                        double iFP = iCenter + r * cos(theta);
-                        double kFP = kCenter + r * sin(theta);
+                        TQ iFP = iCenter + r * cos(theta);
+                        TQ kFP = kCenter + r * sin(theta);
                         
                         PosPolar<T, TQ> g = PosPolar<T, TQ>(iFP, j, kFP);
 
@@ -382,7 +382,7 @@ public:
                         g.vDelta = 0.0;
                         g.wDelta = atTheta * rPolar * cos(tPolar);
                         
-                        bool is_solid = isSurface ? 0 : 1;
+                        bool isInternal = isSurface ? 0 : 1;
                         
                         //TOFIX TODO BLADES ALL BLADES ARE PASSED ON
 //                        if (extents.containsIK(g.i, g.k)){
@@ -391,8 +391,8 @@ public:
                             g.localise(extents);
                             
                             //BOTH THE SOLID AND SURFACE ELEMENTS ARE ROTATING
-                            if (get_solid && is_solid) geomRotating.push_back(g);
-                            if (get_solid == 0 && is_solid == 0) geomRotating.push_back(g);
+                            if (getInternal && isInternal) geomRotating.push_back(g);
+                            if (getInternal == 0 && isInternal == 0) geomRotating.push_back(g);
 //                        }
   
                     }
@@ -404,26 +404,26 @@ public:
     
     
     
-    void addImpellerDisc(bool get_solid = 0){
+    void addImpellerDisc(bool getInternal = 0){
         
-        int bottom = int(roundf(turbine.impellers[0].disk.bottom));
-        int top = int(roundf(turbine.impellers[0].disk.top));
-        double hubRadius = turbine.impellers[0].hub.radius;
-        double diskRadius = turbine.impellers[0].disk.radius;
+        T bottom = T(roundf(turbine.impellers[0].disk.bottom));
+        T top = T(roundf(turbine.impellers[0].disk.top));
+        TQ hubRadius = turbine.impellers[0].hub.radius;
+        TQ diskRadius = turbine.impellers[0].disk.radius;
         
-        int nPointsR = int(round((diskRadius - hubRadius) / turbine.resolution));
-        double deltaR = (diskRadius - hubRadius) / (double)(nPointsR);
+        T nPointsR = T(round((diskRadius - hubRadius) / turbine.resolution));
+        TQ deltaR = (diskRadius - hubRadius) / (TQ)(nPointsR);
         
-        int lowerLimitY = std::max((int)extents.y0, top);
-        int upperLimitY = std::min((int)extents.y1, bottom);
+        T lowerLimitY = std::max((T)extents.y0, top);
+        T upperLimitY = std::min((T)extents.y1, bottom);
         
-        for (int j = lowerLimitY; j <= upperLimitY; ++j)
+        for (T j = lowerLimitY; j <= upperLimitY; ++j)
         {
-            for (int idxR = 1; idxR <= nPointsR; ++idxR)
+            for (T idxR = 1; idxR <= nPointsR; ++idxR)
             {
-                double r = hubRadius + idxR * deltaR;
-                double dTheta;
-                int nPointsTheta = int(roundf(2 * M_PI * r / turbine.resolution));
+                TQ r = hubRadius + idxR * deltaR;
+                TQ dTheta;
+                T nPointsTheta = T(roundf(2 * M_PI * r / turbine.resolution));
                 if(nPointsTheta == 0)
                 {
                     dTheta = 0;
@@ -432,21 +432,21 @@ public:
                 else
                     dTheta = 2 * M_PI / nPointsTheta;
                 
-                double theta0 = turbine.impellers[0].firstBladeOffset;
+                TQ theta0 = turbine.impellers[0].firstBladeOffset;
                 if ((idxR & 1) == 0)
                     theta0 += 0.5f * dTheta;
                 if ((j & 1) == 0)
                     theta0 += 0.5f * dTheta;
                 
-                for (int idxTheta = 0; idxTheta <= nPointsTheta - 1; ++idxTheta)
+                for (T idxTheta = 0; idxTheta <= nPointsTheta - 1; ++idxTheta)
                 {
                     bool isSurface = j == bottom || j == top || idxR == nPointsR;
                     
-                    double rPolar = r;
-                    double tPolar = theta0 + idxTheta * dTheta;
+                    TQ rPolar = r;
+                    TQ tPolar = theta0 + idxTheta * dTheta;
                     
-                    double iFP = iCenter + r * cos(tPolar);
-                    double kFP = kCenter + r * sin(tPolar);
+                    TQ iFP = iCenter + r * cos(tPolar);
+                    TQ kFP = kCenter + r * sin(tPolar);
                     
                     PosPolar<T, TQ> g = PosPolar<T, TQ>(iFP, j, kFP);
 
@@ -455,15 +455,15 @@ public:
                     g.vDelta = 0;
                     g.wDelta = turbine.wa * rPolar * cos(tPolar);
                     
-                    bool is_solid = isSurface ? 0 : 1;
+                    bool isInternal = isSurface ? 0 : 1;
                     
                     
                     if (extents.containsIK(g.i, g.k)){
                         
                         g.localise(extents);
                         
-                        if (get_solid && is_solid) geomRotating.push_back(g);
-                        if (get_solid == 0 && is_solid == 0) geomRotating.push_back(g);
+                        if (getInternal && isInternal) geomRotating.push_back(g);
+                        if (getInternal == 0 && isInternal == 0) geomRotating.push_back(g);
                         
                     }
                 }
@@ -475,30 +475,30 @@ public:
     
     
     
-    void addImpellerHub(bool get_solid = 0){
+    void addImpellerHub(bool getInternal = 0){
         
-        int diskBottom = int(roundf(turbine.impellers[0].disk.bottom));
-        int diskTop = int(roundf(turbine.impellers[0].disk.top));
+        T diskBottom = T(roundf(turbine.impellers[0].disk.bottom));
+        T diskTop = T(roundf(turbine.impellers[0].disk.top));
         
-        int bottom = int(roundf(turbine.impellers[0].hub.bottom));
-        int top = int(roundf(turbine.impellers[0].hub.top));
-        double hubRadius = turbine.impellers[0].hub.radius;
+        T bottom = T(roundf(turbine.impellers[0].hub.bottom));
+        T top = T(roundf(turbine.impellers[0].hub.top));
+        TQ hubRadius = turbine.impellers[0].hub.radius;
         
-        int nPointsR = int(roundf((hubRadius - turbine.shaft.radius) / turbine.resolution));
-        double resolutionR = (hubRadius - turbine.shaft.radius) / double(nPointsR);
+        T nPointsR = T(roundf((hubRadius - turbine.shaft.radius) / turbine.resolution));
+        TQ resolutionR = (hubRadius - turbine.shaft.radius) / TQ(nPointsR);
         
-        int lowerLimitY = std::max((int)extents.y0, top);
-        int upperLimitY = std::min((int)extents.y1, bottom);
+        T lowerLimitY = std::max((T)extents.y0, top);
+        T upperLimitY = std::min((T)extents.y1, bottom);
         
-        for (int j = lowerLimitY; j <= upperLimitY; ++j)
+        for (T j = lowerLimitY; j <= upperLimitY; ++j)
         {
             bool isWithinDisc = j >= diskBottom && j <= diskTop;
             
-            for (int idxR = 1; idxR <= nPointsR; ++idxR)
+            for (T idxR = 1; idxR <= nPointsR; ++idxR)
             {
-                double r = turbine.shaft.radius + idxR * resolutionR;
-                int nPointsTheta = int(roundf(2 * M_PI * r / turbine.resolution));
-                double dTheta;
+                TQ r = turbine.shaft.radius + idxR * resolutionR;
+                T nPointsTheta = T(roundf(2 * M_PI * r / turbine.resolution));
+                TQ dTheta;
                 if(nPointsTheta == 0)
                 {
                     dTheta = 0;
@@ -507,23 +507,23 @@ public:
                 else
                     dTheta = 2 * M_PI / nPointsTheta;
                 
-                double theta0 = turbine.impellers[0].firstBladeOffset;
+                TQ theta0 = turbine.impellers[0].firstBladeOffset;
                 if ((idxR & 1) == 0)
                     theta0 += 0.5f * dTheta;
                 if ((j & 1) == 0)
                     theta0 += 0.5f * dTheta;
                 
-                for (int idxTheta = 0; idxTheta <= nPointsTheta - 1; ++idxTheta)
+                for (T idxTheta = 0; idxTheta <= nPointsTheta - 1; ++idxTheta)
                 {
                     bool isSurface = (j == bottom || j == top || idxR == nPointsR) && !isWithinDisc;
                     
                     
-                    double rPolar = r;
-                    double tPolar = theta0 + idxTheta * dTheta;
+                    TQ rPolar = r;
+                    TQ tPolar = theta0 + idxTheta * dTheta;
                     //                    g.resolution = turbine.resolution * turbine.resolution;
                     
-                    double iFP = iCenter + r * cos(tPolar);
-                    double kFP = kCenter + r * sin(tPolar);
+                    TQ iFP = iCenter + r * cos(tPolar);
+                    TQ kFP = kCenter + r * sin(tPolar);
                     
                     PosPolar<T, TQ> g = PosPolar<T, TQ>(iFP, j, kFP);
 
@@ -531,7 +531,7 @@ public:
                     g.vDelta = 0;
                     g.wDelta = turbine.wa * rPolar * cos(tPolar);
                     
-                    bool is_solid = isSurface ? 0 : 1;
+                    bool isInternal = isSurface ? 0 : 1;
                     
                                         
                     if (extents.containsIK(g.i, g.k)){
@@ -539,8 +539,8 @@ public:
                         g.localise(extents);
                         
                         
-                        if (get_solid && is_solid) geomRotating.push_back(g);
-                        if (get_solid == 0 && is_solid == 0) geomRotating.push_back(g);
+                        if (getInternal && isInternal) geomRotating.push_back(g);
+                        if (getInternal == 0 && isInternal == 0) geomRotating.push_back(g);
                         
                     }
                 }
@@ -549,23 +549,23 @@ public:
     }
     
     
-    void addImpellerShaft(bool get_solid = 0){
+    void addImpellerShaft(bool getInternal = 0){
         
-        int hubBottom = int(roundf(turbine.impellers[0].hub.bottom));
-        int hubTop = int(roundf(turbine.impellers[0].hub.top));
+        T hubBottom = T(roundf(turbine.impellers[0].hub.bottom));
+        T hubTop = T(roundf(turbine.impellers[0].hub.top));
         
-        for (int j = (int)extents.y0; j <= (int)extents.y1; ++j)
+        for (T j = (T)extents.y0; j <= (T)extents.y1; ++j)
         {
             bool isWithinHub = j >= hubBottom && j <= hubTop;
             
             
-            double rEnd = turbine.shaft.radius; // isWithinHub ? modelConfig.hub.radius : modelConfig.shaft.radius;
-            int nPointsR = roundf(rEnd / turbine.resolution);
+            TQ rEnd = turbine.shaft.radius; // isWithinHub ? modelConfig.hub.radius : modelConfig.shaft.radius;
+            T nPointsR = roundf(rEnd / turbine.resolution);
             
-            for(int idxR = 0; idxR <= nPointsR; ++idxR)
+            for(T idxR = 0; idxR <= nPointsR; ++idxR)
             {
-                double r, dTheta;
-                int nPointsTheta;
+                TQ r, dTheta;
+                T nPointsTheta;
                 if(idxR == 0)
                 {
                     r = 0;
@@ -575,26 +575,26 @@ public:
                 else
                 {
                     r = idxR * turbine.resolution;
-                    nPointsTheta = 4 * int(roundf(M_PI * 2.0f * r / (4.0f * turbine.resolution)));
+                    nPointsTheta = 4 * T(roundf(M_PI * 2.0f * r / (4.0f * turbine.resolution)));
                     if(nPointsTheta == 0)
                         nPointsTheta = 1;
                     dTheta = 2 * M_PI / nPointsTheta;
                 }
                 
-                for (int idxTheta = 0; idxTheta < nPointsTheta; ++idxTheta)
+                for (T idxTheta = 0; idxTheta < nPointsTheta; ++idxTheta)
                 {
-                    double theta = idxTheta * dTheta;
+                    TQ theta = idxTheta * dTheta;
                     if ((j & 1) == 0)
                         theta += 0.5f * dTheta;
                     
                     bool isSurface = idxR == nPointsR && !isWithinHub;
 
-                    double rPolar = r;
-                    double tPolar = theta;
+                    TQ rPolar = r;
+                    TQ tPolar = theta;
                     //                        g.resolution = turbine.resolution;
 
-                    double iFP = iCenter + r * cos(theta);
-                    double kFP = kCenter + r * sin(theta);
+                    TQ iFP = iCenter + r * cos(theta);
+                    TQ kFP = kCenter + r * sin(theta);
                     
                     PosPolar<T, TQ> g = PosPolar<T, TQ>(iFP, j, kFP);
 
@@ -603,7 +603,7 @@ public:
                     g.vDelta = 0.0f;
                     g.wDelta =  turbine.wa * rPolar * cos(tPolar);
                     
-                    bool is_solid = isSurface ? 0 : 1;
+                    bool isInternal = isSurface ? 0 : 1;
                     
                     
                                     
@@ -612,8 +612,8 @@ public:
                         
                         g.localise(extents);
                         
-                        if (get_solid && is_solid) geomRotating.push_back(g);
-                        if (get_solid == 0 && is_solid == 0) geomRotating.push_back(g);
+                        if (getInternal && isInternal) geomRotating.push_back(g);
+                        if (getInternal == 0 && isInternal == 0) geomRotating.push_back(g);
                         
                     }
                     
@@ -636,7 +636,7 @@ public:
     TQ calcThisStepImpellerIncrement(tStepRT step)
     {
         
-        double thisStepImpellerIncrementWA = turbine.impellers[0].bladeTipAngularVelW0;
+        TQ thisStepImpellerIncrementWA = turbine.impellers[0].bladeTipAngularVelW0;
         
         
         //slowly start the impeller

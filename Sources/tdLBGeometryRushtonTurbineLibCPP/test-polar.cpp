@@ -34,7 +34,7 @@ int main(){
     gCPP.generateRotatingNonUpdatingGeometry();
 
     std::vector<PosPolar<tNi, float>> geomCPP = gCPP.returnFixedGeometry();
-    std::vector<PosPolar<tNi, float>> geomCPP0 = gCPP.returnRotatingGeometry(0);
+    std::vector<PosPolar<tNi, float>> geomCPP0 = gCPP.returnRotatingGeometry();
     std::vector<PosPolar<tNi, float>> geomCPP1 = gCPP.returnRotatingNonUpdatingGeometry();
 
     

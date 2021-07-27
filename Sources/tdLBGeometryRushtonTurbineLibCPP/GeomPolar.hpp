@@ -113,8 +113,6 @@ public:
     
     Extents<T> extents;
     
-    
-    
     std::vector<PosPolar<T, TQ>> geomFixed;
     
     //These are circular rotating points that would replace one another if "rotating."
@@ -164,37 +162,117 @@ public:
     std::vector<PosPolar<T, TQ>> returnRotatingGeometry(){
         return geomRotating;
     }
+
+
+    std::vector<Pos3d<int>> getRotatingExcludePoints(TQ atTheta){
+
+        bool getInternal = true;
+        std::vector<Pos3d<int>> exclude;
+
+        std::vector<PosPolar<T, TQ>> blades = getImpellerBlades(atTheta, getInternal);
+        for (auto &p: blades){
+            Pos3d<int> e = Pos3d<int>(p.i, p.j, p.k);
+            exclude.push_back(e);
+        }
+
+        return exclude;
+    }
+
     
-    
-    
-    
-    
+    std::vector<Pos3d<int>> getFixedExcludePoints(){
+
+        bool getInternal = true;
+
+        std::vector<Pos3d<int>> exclude;
+
+        std::vector<PosPolar<T, TQ>> wall = getTankWall();
+        for (auto &p: wall){
+
+            //Exclude everything outside the tank wall
+            if (p.k < turbine.tankDiameter/2){
+                for (auto k=0; k<=p.k; k++){
+                    Pos3d<int> e = Pos3d<int>(p.i, p.j, k);
+                    exclude.push_back(e);
+                }
+            }
+
+            if (p.k > turbine.tankDiameter/2){
+                for (auto k=p.k; k<turbine.tankDiameter; k++){
+                    Pos3d<int> e = Pos3d<int>(p.i, p.j, k);
+                    exclude.push_back(e);
+                }
+            }
+        }
+
+        std::vector<PosPolar<T, TQ>> baffles = getBaffles(getInternal);
+        for (auto &p: baffles){
+            Pos3d<int> e = Pos3d<int>(p.i, p.j, p.k);
+            exclude.push_back(e);
+        }
+        return exclude;
+    }
+
+    std::vector<Pos3d<int>> getRotatingNonUpdatingExcludePoints(){
+
+        bool getInternal = true;
+
+        std::vector<Pos3d<int>> exclude;
+
+        std::vector<PosPolar<T, TQ>> disc = getImpellerDisc(getInternal);
+        for (auto &p: disc){
+            Pos3d<int> e = Pos3d<int>(p.i, p.j, p.k);
+            exclude.push_back(e);
+        }
+
+        std::vector<PosPolar<T, TQ>> hub = getImpellerHub(getInternal);
+        for (auto &p: hub){
+            Pos3d<int> e = Pos3d<int>(p.i, p.j, p.k);
+            exclude.push_back(e);
+        }
+
+        std::vector<PosPolar<T, TQ>> shaft = getImpellerShaft(getInternal);
+        for (auto &p: shaft){
+            Pos3d<int> e = Pos3d<int>(p.i, p.j, p.k);
+            exclude.push_back(e);
+        }
+
+        return exclude;
+    }
     
     void generateFixedGeometry(bool getInternal = 0) {
-        
-        addTankWall(getInternal);
-        addBaffles(getInternal);
+
+        std::vector<PosPolar<T, TQ>> wall = getTankWall();
+        std::vector<PosPolar<T, TQ>> baffles = getBaffles(getInternal);
+        geomFixed.insert( geomFixed.end(), wall.begin(), wall.end() );
+        geomFixed.insert( geomFixed.end(), baffles.begin(), baffles.end() );
     }
     
     
     void generateRotatingNonUpdatingGeometry(bool getInternal = 0) {
-        
-        addImpellerShaft(getInternal);
-        addImpellerHub(getInternal);
-        addImpellerDisc(getInternal);
-        
+
+        std::vector<PosPolar<T, TQ>> disc = getImpellerDisc(getInternal);
+        std::vector<PosPolar<T, TQ>> hub = getImpellerHub(getInternal);
+        std::vector<PosPolar<T, TQ>> shaft = getImpellerShaft(getInternal);
+
+        geomRotatingNonUpdating.insert( geomRotatingNonUpdating.end(), disc.begin(), disc.end() );
+        geomRotatingNonUpdating.insert( geomRotatingNonUpdating.end(), hub.begin(), hub.end() );
+        geomRotatingNonUpdating.insert( geomRotatingNonUpdating.end(), shaft.begin(), shaft.end() );
     }
     
     
     void generateRotatingGeometry(TQ atTheta, bool getInternal = 0){
-        
-        addImpellerBlades(atTheta, getInternal);
+
+        std::vector<PosPolar<T, TQ>> blades = getImpellerBlades(atTheta, getInternal);
+        geomRotating.insert( geomRotating.end(), blades.begin(), blades.end() );
+
     }
     
     void updateRotatingGeometry(TQ atTheta, bool getInternal = 0){
         
         geomRotating.clear();
-        addImpellerBlades(atTheta, getInternal);
+
+        std::vector<PosPolar<T, TQ>> blades = getImpellerBlades(atTheta, getInternal);
+        geomRotating.insert( geomRotating.end(), blades.begin(), blades.end() );
     }
     
     
@@ -217,12 +295,14 @@ public:
     
     
     
-    void addTankWall(bool getInternal = 0) {
+    std::vector<PosPolar<T, TQ>> getTankWall() {
         
         T nCircPoints = 4 * (T)(roundf(M_PI * turbine.tankDiameter / (4 * turbine.resolution)));
         TQ dTheta = 2.0f * M_PI / TQ(nCircPoints);
         TQ r = 0.5f * turbine.tankDiameter;
-        
+
+        std::vector<PosPolar<T, TQ>> wall;
+
         for(T j = (T)extents.y0; j <= (T)extents.y1; ++j)
         {
             
@@ -248,16 +328,17 @@ public:
                     
                     //                    std::cout <<g.iFP<<" "<<g.i << std::endl;
                     
-                    geomFixed.push_back(g);
+                    wall.push_back(g);
                     
                 }
             }
         }
+        return wall;
     }
     
     
     
-    void addBaffles(bool getInternal = 0) {
+    std::vector<PosPolar<T, TQ>> getBaffles(bool getInternal = 0) {
         
         T nPointsBaffleThickness = T(roundf(turbine.baffles.thickness / turbine.resolution));
         if (nPointsBaffleThickness == 0)
@@ -272,7 +353,9 @@ public:
         TQ deltaR = (outerRadius - innerRadius) / static_cast<TQ>(nPointsR);
         
         TQ deltaBaffleOffset = 2.0/(TQ)turbine.baffles.numBaffles * M_PI;
-        
+
+        std::vector<PosPolar<T, TQ>> baffles;
+
         for (T nBaffle = 1; nBaffle <= turbine.baffles.numBaffles; ++nBaffle)
         {
             for (T j = (T)extents.y0; j <= (T)extents.y1; ++j)
@@ -304,8 +387,8 @@ public:
                             
                             g.localise(extents);
                             
-                            if (getInternal && isInternal) geomFixed.push_back(g);
-                            if (getInternal == 0 && isInternal == 0) geomFixed.push_back(g);
+                            if (getInternal && isInternal) baffles.push_back(g);
+                            if (getInternal == 0 && isInternal == 0) baffles.push_back(g);
                             
                             
                         }
@@ -313,14 +396,14 @@ public:
                 }
             }
         }
-        
+        return baffles;
     }
     
     
     
     
     
-    void addImpellerBlades(TQ atTheta, bool getInternal = 0) {
+    std::vector<PosPolar<T, TQ>> getImpellerBlades(TQ atTheta, bool getInternal = 0) {
         
         
         TQ innerRadius = turbine.impellers[0].blades.innerRadius;
@@ -348,7 +431,7 @@ public:
         
 //        double wa = calcThisStepImpellerIncrement(step);
         
-        
+        std::vector<PosPolar<T, TQ>> blades;
         for (T nBlade = 1; nBlade <= turbine.impellers[0].numBlades; ++nBlade)
         {
             for (T j = lowerLimitY; j <= upperLimitY; ++j)
@@ -391,20 +474,20 @@ public:
                             g.localise(extents);
                             
                             //BOTH THE SOLID AND SURFACE ELEMENTS ARE ROTATING
-                            if (getInternal && isInternal) geomRotating.push_back(g);
-                            if (getInternal == 0 && isInternal == 0) geomRotating.push_back(g);
+                            if (getInternal && isInternal) blades.push_back(g);
+                            if (getInternal == 0 && isInternal == 0) blades.push_back(g);
 //                        }
   
                     }
                 }
             }
         }
-        
+        return blades;
     }
     
     
     
-    void addImpellerDisc(bool getInternal = 0){
+    std::vector<PosPolar<T, TQ>> getImpellerDisc(bool getInternal = 0){
         
         T bottom = T(roundf(turbine.impellers[0].disk.bottom));
         T top = T(roundf(turbine.impellers[0].disk.top));
@@ -416,7 +499,8 @@ public:
         
         T lowerLimitY = std::max((T)extents.y0, top);
         T upperLimitY = std::min((T)extents.y1, bottom);
-        
+
+        std::vector<PosPolar<T, TQ>> disc;
         for (T j = lowerLimitY; j <= upperLimitY; ++j)
         {
             for (T idxR = 1; idxR <= nPointsR; ++idxR)
@@ -462,20 +546,17 @@ public:
                         
                         g.localise(extents);
                         
-                        if (getInternal && isInternal) geomRotating.push_back(g);
-                        if (getInternal == 0 && isInternal == 0) geomRotating.push_back(g);
+                        if (getInternal && isInternal) disc.push_back(g);
+                        if (getInternal == 0 && isInternal == 0) disc.push_back(g);
                         
                     }
                 }
             }
         }
-        
+        return disc;
     }
-    
-    
-    
-    
-    void addImpellerHub(bool getInternal = 0){
+
+    std::vector<PosPolar<T, TQ>> getImpellerHub(bool getInternal = 0){
         
         T diskBottom = T(roundf(turbine.impellers[0].disk.bottom));
         T diskTop = T(roundf(turbine.impellers[0].disk.top));
@@ -489,7 +570,8 @@ public:
         
         T lowerLimitY = std::max((T)extents.y0, top);
         T upperLimitY = std::min((T)extents.y1, bottom);
-        
+
+        std::vector<PosPolar<T, TQ>> hub;
         for (T j = lowerLimitY; j <= upperLimitY; ++j)
         {
             bool isWithinDisc = j >= diskBottom && j <= diskTop;
@@ -539,21 +621,23 @@ public:
                         g.localise(extents);
                         
                         
-                        if (getInternal && isInternal) geomRotating.push_back(g);
-                        if (getInternal == 0 && isInternal == 0) geomRotating.push_back(g);
+                        if (getInternal && isInternal) hub.push_back(g);
+                        if (getInternal == 0 && isInternal == 0) hub.push_back(g);
                         
                     }
                 }
             }
         }
+        return hub;
     }
-    
-    
-    void addImpellerShaft(bool getInternal = 0){
+
+    std::vector<PosPolar<T, TQ>> getImpellerShaft(bool getInternal = 0){
         
         T hubBottom = T(roundf(turbine.impellers[0].hub.bottom));
         T hubTop = T(roundf(turbine.impellers[0].hub.top));
-        
+
+
+        std::vector<PosPolar<T, TQ>> shaft;
         for (T j = (T)extents.y0; j <= (T)extents.y1; ++j)
         {
             bool isWithinHub = j >= hubBottom && j <= hubTop;
@@ -612,8 +696,8 @@ public:
                         
                         g.localise(extents);
                         
-                        if (getInternal && isInternal) geomRotating.push_back(g);
-                        if (getInternal == 0 && isInternal == 0) geomRotating.push_back(g);
+                        if (getInternal && isInternal) shaft.push_back(g);
+                        if (getInternal == 0 && isInternal == 0) shaft.push_back(g);
                         
                     }
                     
@@ -622,7 +706,7 @@ public:
                 }
             }
         }
-        
+        return shaft;
     }
     
     

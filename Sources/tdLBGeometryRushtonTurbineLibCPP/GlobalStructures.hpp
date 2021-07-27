@@ -22,6 +22,7 @@ struct Pos2d{
 
 template <typename T>
 struct Pos3d{
+    Pos3d(T i, T j, T k):i(i),j(j),k(k) {}    
     T i;
     T j;
     T k;

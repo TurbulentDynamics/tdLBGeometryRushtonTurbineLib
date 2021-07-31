@@ -46,11 +46,14 @@ public struct RushtonTurbinePolarSwift: Geometry {
     //    public var geomTranslating: [PosPolar<Int, Float>]
     //
     
-    public var tankRadius: Int {return turbine.tankDiameter / 2}
-    public var iCenter: Int {return gridX / 2}
-    public var kCenter: Int {return iCenter}
+    public var tankRadius: Int {return turbine.tankRadius - diameterBorder / 2}
+    public var tankDiameter: Int {return turbine.tankDiameter - diameterBorder}
+    public var iCenter: Int {return turbine.iCenter + diameterBorder / 2}
+    public var kCenter: Int {return turbine.kCenter + diameterBorder / 2}
     
-    
+    private let diameterBorder = 2
+
+
     public init(turbine: RushtonTurbine) {
         
         self.turbine = turbine
@@ -170,12 +173,12 @@ extension RushtonTurbinePolarSwift {
     
     mutating func generateTankWall() {
         
-        let tankHeight = self.turbine.tankDiameter
+        let tankHeight = self.tankDiameter
         let resolution = TQ(self.turbine.resolution)
         
-        let nCircPoints: Int = 4 * Int((TQ.pi * TQ(self.turbine.tankDiameter) / (4.0 * resolution)))
+        let nCircPoints: Int = 4 * Int((TQ.pi * TQ(self.tankDiameter) / (4.0 * resolution)))
         let dTheta: TQ = 2 * TQ.pi / TQ(nCircPoints)
-        let r: TQ = 0.5 * TQ(self.turbine.tankDiameter)
+        let r: TQ = 0.5 * TQ(self.tankDiameter)
         
         for j in 0..<tankHeight {
             for k in 0..<nCircPoints {
@@ -200,7 +203,7 @@ extension RushtonTurbinePolarSwift {
     
     mutating func generateBaffles() {
         
-        let tankHeight = self.turbine.tankDiameter
+        let tankHeight = self.tankDiameter
         
         let resolution = TQ(self.turbine.resolution)
         
@@ -390,8 +393,6 @@ extension RushtonTurbinePolarSwift {
                     dTheta = 2 * .pi / TQ(nPointsTheta)
                 }
                 
-                //TODO Change to zero. Check this
-                //                var theta0: TQ = TQ(impeller.firstBladeOffset)
                 var theta0: TQ = TQ(impeller.firstBladeOffset)
                 
                 

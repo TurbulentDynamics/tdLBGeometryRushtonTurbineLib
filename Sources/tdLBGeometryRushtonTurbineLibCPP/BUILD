@@ -12,8 +12,8 @@ cc_library(
 )
 
 cc_binary(
-    name = "test-polar",
-    srcs = ["test-polar.cpp"],
+    name = "main-test-polar",
+    srcs = ["main-test-polar.cpp"],
     deps = [":rtjson",
             ":tdLBGeometryRushtonTurbineLib"],
 )

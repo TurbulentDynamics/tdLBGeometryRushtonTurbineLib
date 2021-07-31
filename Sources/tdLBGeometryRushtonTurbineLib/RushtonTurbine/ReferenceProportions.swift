@@ -19,8 +19,7 @@ public func RushtonTurbineReference(
         impellerStartAngle: Double = 0.0) -> RushtonTurbine {
 
     
-    let MDIAM_BORDER: Int = 2
-    let tankDiameter: Double = Double(gridX - MDIAM_BORDER)
+    let tankDiameter: Double = Double(gridX)
 
     //Principal Parameters defined from
     //Hartmann H, Derksen JJ, Montavon C, Pearson J, Hamill IS, Van den Akker HEA. Assessment of large eddy and rans stirred tank simulations by means of LDA. Chem Eng Sci. 2004;59:2419–2432.

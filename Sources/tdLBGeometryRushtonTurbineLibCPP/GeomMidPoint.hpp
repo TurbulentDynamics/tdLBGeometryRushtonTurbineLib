@@ -22,7 +22,9 @@
 
 template <typename T>
 class RushtonTurbineMidPointCPP {
-    
+
+private:
+    T diameterBorder = 2;
     
 public:
     
@@ -45,13 +47,12 @@ public:
     int kCenter;
     int tankRadius;
     int tankHeight;
-    
-    
-    
+
     
     tStepRT startingStep = 0;
     tGeomShapeRT impellerStartAngle = 0.0;
     tStepRT impellerStartupStepsUntilNormalSpeed = 0;
+
 
     
 //    tGeomShapeRT calc_this_step_impeller_increment(tStepRT step);
@@ -63,11 +64,13 @@ public:
         turbineData.loadGeometryConfigAsJSON(jsonFile);
 
         turbine = turbineData;
-        
-        tankRadius = turbine.tankDiameter / 2;
+
+
+        /////////////////////////////////////////////////////0
+        tankRadius = (turbine.tankDiameter - diameterBorder) / 2;
         tankHeight = turbine.tankHeight;
-        iCenter = tankRadius + MDIAM_BORDER / 2;
-        kCenter = tankRadius + MDIAM_BORDER / 2;
+        iCenter = tankRadius + diameterBorder / 2;
+        kCenter = tankRadius + diameterBorder / 2;
         
         extents = ext;
         
@@ -78,10 +81,10 @@ public:
     RushtonTurbineMidPointCPP(RushtonTurbine turbineData, Extents<T> ext){
    
         turbine = turbineData;
-        tankRadius = turbine.tankDiameter / 2;
+        tankRadius = (turbine.tankDiameter - diameterBorder) / 2;
         tankHeight = turbine.tankHeight;
-        iCenter = tankRadius + MDIAM_BORDER / 2;
-        kCenter = tankRadius + MDIAM_BORDER / 2;
+        iCenter = tankRadius + diameterBorder / 2;
+        kCenter = tankRadius + diameterBorder / 2;
    
         extents = ext;
         
@@ -177,7 +180,7 @@ public:
         for (auto imp = 0; imp < turbine.impellers.size(); imp++){
         
             addImpellerHub(turbine, imp);
-            addImpellerDisc(turbine, imp);
+            addImpellerDisk(turbine, imp);
 
         }
 
@@ -300,11 +303,11 @@ public:
 
 
     
-    void addImpellerDisc(RushtonTurbine turbine, int impeller) {
+    void addImpellerDisk(RushtonTurbine turbine, int impeller) {
         
         Disk disk = turbine.impellers[impeller].disk;
         
-        std::vector<Pos3d<T>> diskPoints  = drawThickHollowDisc(turbine.shaft.radius, disk.radius, disk.top, disk.bottom, iCenter, kCenter);
+        std::vector<Pos3d<T>> diskPoints  = drawThickHollowDisk(turbine.shaft.radius, disk.radius, disk.top, disk.bottom, iCenter, kCenter);
         
         for (const auto& p: diskPoints){
             geomRotatingNonUpdating.push_back(p);
@@ -326,7 +329,7 @@ public:
         
         Disk hub = turbine.impellers[impeller].hub;
 
-        std::vector<Pos3d<T>> hubPoints = drawThickHollowDisc(turbine.shaft.radius, hub.radius, hub.top, hub.bottom, iCenter, kCenter);
+        std::vector<Pos3d<T>> hubPoints = drawThickHollowDisk(turbine.shaft.radius, hub.radius, hub.top, hub.bottom, iCenter, kCenter);
         
         for (const auto& p: hubPoints){
             
@@ -517,40 +520,40 @@ public:
 
 
     
-    std::vector<Pos3d<T>> drawThickHollowDisc(T innerRadius, T outerRadius, T top, T bottom, T iCenter, T kCenter) {
+    std::vector<Pos3d<T>> drawThickHollowDisk(T innerRadius, T outerRadius, T top, T bottom, T iCenter, T kCenter) {
 
-        std::vector<Pos3d<T>> thickHollowDisc;
+        std::vector<Pos3d<T>> thickHollowDisk;
 
         std::vector<Pos3d<T>> wall = drawCylinderWallIK(outerRadius, top + 1, bottom - 1, iCenter, kCenter);
 
         for (const auto& v: wall){
-            thickHollowDisc.push_back(v);
+            thickHollowDisk.push_back(v);
         }
             
         
         if (extents.containsJ(top)) {
-            std::vector<Pos3d<T>> top_cap = drawHollowDiscIK(top, innerRadius, outerRadius, iCenter, kCenter);
+            std::vector<Pos3d<T>> top_cap = drawHollowDiskIK(top, innerRadius, outerRadius, iCenter, kCenter);
             for (const auto& v: top_cap){
-                thickHollowDisc.push_back(v);
+                thickHollowDisk.push_back(v);
             }
         }
 
         
         
         if (extents.containsJ(bottom)) {
-            std::vector<Pos3d<T>> bottom_cap = drawHollowDiscIK(bottom, innerRadius, outerRadius, iCenter, kCenter);
+            std::vector<Pos3d<T>> bottom_cap = drawHollowDiskIK(bottom, innerRadius, outerRadius, iCenter, kCenter);
             
             for (const auto& v: bottom_cap){
-                thickHollowDisc.push_back(v);
+                thickHollowDisk.push_back(v);
             }
         }
 
-        return thickHollowDisc;
+        return thickHollowDisk;
     }
 
 
     
-    std::vector<Pos3d<T>> drawHollowDiscIK(T atj, T innerRadius, T outerRadius, T iCenter, T kCenter) {
+    std::vector<Pos3d<T>> drawHollowDiskIK(T atj, T innerRadius, T outerRadius, T iCenter, T kCenter) {
 
 
         std::vector<Pos3d<T>> disk3d;
@@ -604,7 +607,7 @@ public:
 
 
     
-    std::vector<Pos3d<T>> drawDiscIK(T atj, T radius, T iCenter, T kCenter) {
+    std::vector<Pos3d<T>> drawDiskIK(T atj, T radius, T iCenter, T kCenter) {
 
         std::vector<Pos3d<T>> disk3d;
         

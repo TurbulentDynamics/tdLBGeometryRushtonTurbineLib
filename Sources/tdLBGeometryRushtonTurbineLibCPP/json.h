@@ -10,8 +10,8 @@ The JsonCpp library's source code, including accompanying documentation,
 tests and demonstration applications, are licensed under the following
 conditions...
 
-Baptiste Lepilleur and The JsonCpp Authors explicitly disclaim copyright in all 
-jurisdictions which recognize such a disclaimer. In such jurisdictions, 
+Baptiste Lepilleur and The JsonCpp Authors explicitly disklaim copyright in all 
+jurisdictions which recognize such a disklaimer. In such jurisdictions, 
 this software is released into the Public Domain.
 
 In jurisdictions which do not recognize Public Domain property (e.g. Germany as of
@@ -687,7 +687,7 @@ private:
 
 /** \brief Represents a <a HREF="http://www.json.org">JSON</a> value.
  *
- * This class is a discriminated union wrapper that can represents a:
+ * This class is a diskriminated union wrapper that can represents a:
  * - signed integer [range: Value::minInt - Value::maxInt]
  * - unsigned integer (range: 0 - Value::maxUInt)
  * - double
@@ -1530,7 +1530,7 @@ public:
    *             successfully parsed.
    * \param collectComments \c true to collect comment and allow writing them
    * back during
-   *                        serialization, \c false to discard comments.
+   *                        serialization, \c false to diskard comments.
    *                        This parameter is ignored if
    * Features::allowComments_
    *                        is \c false.
@@ -1551,7 +1551,7 @@ public:
    *             successfully parsed.
    * \param collectComments \c true to collect comment and allow writing them
    back during
-   *                        serialization, \c false to discard comments.
+   *                        serialization, \c false to diskard comments.
    *                        This parameter is ignored if
    Features::allowComments_
    *                        is \c false.
@@ -1770,7 +1770,7 @@ public:
     Available settings (case-sensitive):
     - `"collectComments": false or true`
       - true to collect comment and allow writing them
-        back during serialization, false to discard comments.
+        back during serialization, false to diskard comments.
         This parameter is ignored if allowComments is false.
     - `"allowComments": false or true`
       - true if comments are allowed.

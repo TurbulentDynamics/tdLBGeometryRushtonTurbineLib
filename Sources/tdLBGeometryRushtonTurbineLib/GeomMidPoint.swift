@@ -41,7 +41,7 @@ public struct RushtonTurbineMidPoint {
     private let kCenter: Int
     private let tankRadius: Int
 
-    
+    private let diameterBorder = 2
     
     public init(gridX: Int, gridY: Int, gridZ: Int, uav: Double, impellerStartupStepsUntilNormalSpeed s: Int = 0, startingStep: Int = 0, impellerStartAngle: Double = 0.0) {
 
@@ -50,9 +50,9 @@ public struct RushtonTurbineMidPoint {
         self.gridZ = gridZ
         
 
-        self.tankRadius = gridX / 2
-        self.iCenter = self.tankRadius
-        self.kCenter = self.tankRadius
+        self.tankRadius = (gridX - diameterBorder) / 2
+        self.iCenter = self.tankRadius + diameterBorder / 2
+        self.kCenter = self.tankRadius + diameterBorder / 2
         
         self.uav = uav
         self.startingStep = startingStep
@@ -84,10 +84,9 @@ public struct RushtonTurbineMidPoint {
         self.gridY = self.turbine.gridX
         self.gridZ = self.turbine.gridX
 
-        self.tankRadius = gridX / 2
-        self.iCenter = self.tankRadius
-        self.kCenter = self.tankRadius
-
+        self.tankRadius = (gridX - diameterBorder) / 2
+        self.iCenter = self.tankRadius + diameterBorder / 2
+        self.kCenter = self.tankRadius + diameterBorder / 2
 
         self.uav = self.turbine.impellers["0"]!.uav
 
@@ -112,9 +111,9 @@ public struct RushtonTurbineMidPoint {
         self.gridY = self.turbine.gridX
         self.gridZ = self.turbine.gridX
 
-        self.tankRadius = gridX / 2
-        self.iCenter = self.tankRadius
-        self.kCenter = self.tankRadius
+        self.tankRadius = (gridX - diameterBorder) / 2
+        self.iCenter = self.tankRadius + diameterBorder / 2
+        self.kCenter = self.tankRadius + diameterBorder / 2
 
         
         //TOFIX
@@ -200,7 +199,7 @@ extension RushtonTurbineMidPoint {
 
         for imp in 0..<turbine.impellers.count {
             self.addImpellerHub(turbine: turbine, impeller: String(imp))
-            self.addImpellerDisc(turbine: turbine, impeller: String(imp))
+            self.addImpellerDisk(turbine: turbine, impeller: String(imp))
         }
         
         
@@ -284,12 +283,12 @@ extension RushtonTurbineMidPoint {
 
     }
 
-    mutating func addImpellerDisc(turbine: RushtonTurbine, impeller: String = "0") {
+    mutating func addImpellerDisk(turbine: RushtonTurbine, impeller: String = "0") {
 
         let disk = turbine.impellers[impeller]!.disk
         let diskRadius = disk.radius
 
-        geomRotatingNonUpdating.append(contentsOf: drawThickHollowDiscIK(innerRadius: turbine.shaft.radius, outerRadius: diskRadius, top:disk.top, bottom: disk.bottom, iCenter: self.iCenter, kCenter: self.kCenter))
+        geomRotatingNonUpdating.append(contentsOf: drawThickHollowDiskIK(innerRadius: turbine.shaft.radius, outerRadius: diskRadius, top:disk.top, bottom: disk.bottom, iCenter: self.iCenter, kCenter: self.kCenter))
 
         geomRotatingNonUpdating.append(contentsOf: drawCylinderWallIK(radius: disk.radius, top: disk.top, bottom: disk.bottom, iCenter: self.iCenter, kCenter: self.kCenter))
 
@@ -300,7 +299,7 @@ extension RushtonTurbineMidPoint {
         let hub = turbine.impellers[impeller]!.hub
         let hubRadius = hub.radius
 
-        geomRotatingNonUpdating.append(contentsOf: drawThickHollowDiscIK(innerRadius: turbine.shaft.radius, outerRadius: hubRadius, top:hub.top, bottom: hub.bottom, iCenter: self.iCenter, kCenter: self.kCenter))
+        geomRotatingNonUpdating.append(contentsOf: drawThickHollowDiskIK(innerRadius: turbine.shaft.radius, outerRadius: hubRadius, top:hub.top, bottom: hub.bottom, iCenter: self.iCenter, kCenter: self.kCenter))
 
         geomRotatingNonUpdating.append(contentsOf: drawCylinderWallIK(radius: hubRadius, top: hub.top, bottom: hub.bottom, iCenter: self.iCenter, kCenter: self.kCenter))
 
@@ -452,33 +451,33 @@ extension RushtonTurbineMidPoint {
     
     
     
-    func drawThickHollowDiscIK(innerRadius: Int, outerRadius: Int, top: Int, bottom: Int, iCenter: Int, kCenter: Int) -> [Pos3d] {
+    func drawThickHollowDiskIK(innerRadius: Int, outerRadius: Int, top: Int, bottom: Int, iCenter: Int, kCenter: Int) -> [Pos3d] {
 
         
-        var thickHollowDisc = [Pos3d]()
+        var thickHollowDisk = [Pos3d]()
         
         //Cylindar wall
-        thickHollowDisc.append(contentsOf: drawCylinderWallIK(radius: outerRadius, top: top+1, bottom: bottom-1, iCenter: iCenter, kCenter: kCenter))
+        thickHollowDisk.append(contentsOf: drawCylinderWallIK(radius: outerRadius, top: top+1, bottom: bottom-1, iCenter: iCenter, kCenter: kCenter))
         
         //Top Cap
-        thickHollowDisc.append(contentsOf: drawHollowDiscIK(atj: top, innerRadius: innerRadius, outerRadius: outerRadius, iCenter: iCenter, kCenter: kCenter))
+        thickHollowDisk.append(contentsOf: drawHollowDiskIK(atj: top, innerRadius: innerRadius, outerRadius: outerRadius, iCenter: iCenter, kCenter: kCenter))
 
         //bottom Cap
-        thickHollowDisc.append(contentsOf: drawHollowDiscIK(atj: bottom, innerRadius: innerRadius, outerRadius: outerRadius, iCenter: iCenter, kCenter: kCenter))
+        thickHollowDisk.append(contentsOf: drawHollowDiskIK(atj: bottom, innerRadius: innerRadius, outerRadius: outerRadius, iCenter: iCenter, kCenter: kCenter))
 
-        return thickHollowDisc
+        return thickHollowDisk
     }
     
     
     
-    func drawHollowDiscIK(atj: Int, innerRadius: Int, outerRadius: Int, iCenter: Int, kCenter: Int) -> [Pos3d] {
+    func drawHollowDiskIK(atj: Int, innerRadius: Int, outerRadius: Int, iCenter: Int, kCenter: Int) -> [Pos3d] {
 
         let outerPts = drawMidPointCircleDict(radius: outerRadius, xCenter: iCenter, yCenter: kCenter)
         let innerPts = drawMidPointCircleDict(radius: innerRadius, xCenter: iCenter, yCenter: kCenter)
 
         let innerI = innerPts.keys
 
-        var disc3d = [Pos3d]()
+        var disk3d = [Pos3d]()
 
         for (i, kList) in outerPts {
             let outerLeft = kList.min()!
@@ -489,41 +488,41 @@ extension RushtonTurbineMidPoint {
                 let innerRight = innerPts[i]!.max()!
 
                 for k in outerLeft..<innerLeft {
-                    disc3d.append(Pos3d(i:i, j:atj, k:k))
+                    disk3d.append(Pos3d(i:i, j:atj, k:k))
                 }
                 for k in innerRight + 1 ... outerRight {
-                    disc3d.append(Pos3d(i:i, j:atj, k:k))
+                    disk3d.append(Pos3d(i:i, j:atj, k:k))
                 }
                 //Now do the points ON the inner Circle
                 for k in innerPts[i]! {
-                    disc3d.append(Pos3d(i:i, j:atj, k:k))
+                    disk3d.append(Pos3d(i:i, j:atj, k:k))
                 }
             } else {
                 for k in outerLeft...outerRight {
-                    disc3d.append(Pos3d(i:i, j:atj, k:k))
+                    disk3d.append(Pos3d(i:i, j:atj, k:k))
                 }
 
             }
 
         }
-        return disc3d
+        return disk3d
     }
 
-    func drawDiscIK(atj: Int, radius: Int, iCenter: Int, kCenter: Int) -> [Pos3d] {
+    func drawDiskIK(atj: Int, radius: Int, iCenter: Int, kCenter: Int) -> [Pos3d] {
 
         let pts = drawMidPointCircleDict(radius: radius, xCenter: iCenter, yCenter: kCenter)
 
-        var disc3d = [Pos3d]()
+        var disk3d = [Pos3d]()
 
         for (i, kList) in pts {
             let min = kList.min()!
             let max = kList.max()!
 
             for k in min...max {
-                disc3d.append(Pos3d(i: i, j: atj, k: k))
+                disk3d.append(Pos3d(i: i, j: atj, k: k))
             }
         }
-        return disc3d
+        return disk3d
     }
 
     

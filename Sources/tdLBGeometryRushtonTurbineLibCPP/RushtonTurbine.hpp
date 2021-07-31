@@ -20,11 +20,6 @@
 using tStepRT = uint64_t;
 using tGeomShapeRT = double;
 
-//TODO Fix this
-#define MDIAM_BORDER 2
-
-
-
 
 struct Baffles
 {
@@ -216,7 +211,7 @@ public:
 
             jsonParams["function"] = "saveGeometryConfigAsJSON";
 
-            jsonParams["gridX"] = tankDiameter + MDIAM_BORDER;
+            jsonParams["gridX"] = tankDiameter;
 
             jsonParams["resolution"] = resolution;
             jsonParams["tankDiameter"] = tankDiameter;
@@ -293,7 +288,7 @@ public:
 
         std::cout << "function" << " saveGeometryConfigAsJSON" << std::endl;
 
-        std::cout << "gridX " << tankDiameter + MDIAM_BORDER << std::endl;
+        std::cout << "gridX " << tankDiameter << std::endl;
 
         std::cout << "resolution " << resolution << std::endl;
         std::cout << "tankDiameter " << tankDiameter << std::endl;
@@ -350,7 +345,7 @@ public:
         resolution = 0.7f;
 
         //diameter tube / cylinder
-        tankDiameter = gridX - MDIAM_BORDER;
+        tankDiameter = gridX;
         tankHeight = gridX;
 
         shaft.radius = (int)(tankDiameter * 2.0f / 75.0f);
@@ -421,7 +416,7 @@ public:
         resolution = 0.7f;
 
         //diameter tube / cylinder
-        tankDiameter = gridX - MDIAM_BORDER;
+        tankDiameter = gridX;
         tankHeight = gridX;
 
         

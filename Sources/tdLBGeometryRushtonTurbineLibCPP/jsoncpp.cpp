@@ -10,8 +10,8 @@ The JsonCpp library's source code, including accompanying documentation,
 tests and demonstration applications, are licensed under the following
 conditions...
 
-Baptiste Lepilleur and The JsonCpp Authors explicitly disclaim copyright in all 
-jurisdictions which recognize such a disclaimer. In such jurisdictions, 
+Baptiste Lepilleur and The JsonCpp Authors explicitly disklaim copyright in all 
+jurisdictions which recognize such a disklaimer. In such jurisdictions, 
 this software is released into the Public Domain.
 
 In jurisdictions which do not recognize Public Domain property (e.g. Germany as of
@@ -983,7 +983,7 @@ bool Reader::recoverFromError(TokenType skipUntilToken) {
   Token skip;
   for (;;) {
     if (!readToken(skip))
-      errors_.resize(errorCount); // discard errors caused by recovery
+      errors_.resize(errorCount); // diskard errors caused by recovery
     if (skip.type_ == skipUntilToken || skip.type_ == tokenEndOfStream)
       break;
   }
@@ -1993,7 +1993,7 @@ bool OurReader::recoverFromError(TokenType skipUntilToken) {
   Token skip;
   for (;;) {
     if (!readToken(skip))
-      errors_.resize(errorCount); // discard errors caused by recovery
+      errors_.resize(errorCount); // diskard errors caused by recovery
     if (skip.type_ == skipUntilToken || skip.type_ == tokenEndOfStream)
       break;
   }
@@ -3897,7 +3897,7 @@ void Value::Comments::set(CommentPlacement slot, String comment) {
 
 void Value::setComment(String comment, CommentPlacement placement) {
   if (!comment.empty() && (comment.back() == '\n')) {
-    // Always discard trailing newline, to aid indentation.
+    // Always diskard trailing newline, to aid indentation.
     comment.pop_back();
   }
   JSON_ASSERT(!comment.empty());

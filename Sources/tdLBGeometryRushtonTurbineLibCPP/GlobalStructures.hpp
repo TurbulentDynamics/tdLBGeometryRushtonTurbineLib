@@ -12,32 +12,6 @@
 
 
 
-template <typename T>
-struct Pos2d{
-    T p;
-    T q;
-};
-
-
-
-template <typename T>
-struct Pos3d{
-    Pos3d(T i, T j, T k):i(i),j(j),k(k) {}    
-    T i;
-    T j;
-    T k;
-};
-
-
-template <typename T>
-struct Line2d{
-    T x0;
-    T y0;
-    T x1;
-    T y1;
-};
-
-
 
 template <typename T>
 struct Extents{
@@ -50,7 +24,7 @@ struct Extents{
 
     Extents() {
     }
-    
+
     Extents(
             T x0,
             T x1,
@@ -67,7 +41,7 @@ struct Extents{
         this-> z0 = z0;
         this-> z1 = z1;
     }
-    
+
     bool containsI(T i){
         if (i >= x0 && i <= x1) return true;
         else return false;
@@ -85,7 +59,7 @@ struct Extents{
         else return false;
     }
 
-    
+
     bool doesntContainI(T i){
         if (i < x0 || i > x1) return true;
         else return false;
@@ -107,6 +81,52 @@ struct Extents{
         else return false;
     }
 };
+
+
+template <typename T>
+struct Pos2d{
+    T p;
+    T q;
+};
+
+
+
+template <typename T>
+struct Pos3d{
+    Pos3d(T i, T j, T k):i(i),j(j),k(k) {}    
+    T i;
+    T j;
+    T k;
+//
+////    Pos3d(int i, int j, int k){
+////        i = (T)i;
+////        k = (T)j;
+////        j = (T)k;
+////    }
+//    Pos3d(long int i, long int j, long int k){
+//        i = (T)i;
+//        k = (T)j;
+//        j = (T)k;
+//    }
+
+    void localise(Extents<T> e){
+
+        i -= e.x0;
+        j -= e.y0;
+        k -= e.z0;
+    }
+};
+
+
+template <typename T>
+struct Line2d{
+    T x0;
+    T y0;
+    T x1;
+    T y1;
+};
+
+
 
 
 #endif /* Header_h */

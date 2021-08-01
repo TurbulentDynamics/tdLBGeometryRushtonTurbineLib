@@ -15,6 +15,7 @@
 #include <fstream>
 #include <algorithm>
 #include <cmath>
+#include <climits>
 
 
 #include "GlobalStructures.hpp"

@@ -10,6 +10,21 @@
 
 #include <stdio.h>
 
+enum GeomPlacement {
+    surface,
+    internal,
+    surfaceAndInternal,
+    external
+};
+
+enum GeomMovement {
+    fixed,
+    rotating,
+    rotatingNonUpdating,
+    translating
+};
+
+
 
 
 

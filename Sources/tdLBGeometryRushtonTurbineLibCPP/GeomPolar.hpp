@@ -61,9 +61,10 @@ struct PosPolar
     }
 
 
-    PosPolar(TQ iFP, T j, TQ kFP):j(j)
+    PosPolar(TQ iFP, TQ jFP, TQ kFP)
     {
         updateCoordinateFraction(iFP, &i, &iCartFraction);
+        updateCoordinateFraction(jFP, &j, &jCartFraction);
         updateCoordinateFraction(kFP, &k, &kCartFraction);
     }
 
@@ -87,7 +88,7 @@ struct PosPolar
     void inline updateCoordinateFraction(TQ coordinate, T *integerPart, TQ *fractionPart)
     {
         //CART ALWAYS goes to +ve position.
-        //TOFIX
+        //TOFIX TODO
         //coord 3.25 returns 4, -1.25
         //coord 3.75 returns 4, -0.75
 
@@ -177,9 +178,58 @@ public:
 
 
 
-    std::vector<Pos3d<T>> getFixedExcludePoints(){
+    void generateFixedGeometry(GeomPlacement place) {
 
-        bool getInternal = true;
+        std::vector<PosPolar<T, TQ>> wall = getTankWall();
+        std::vector<PosPolar<T, TQ>> baffles = getBaffles(place);
+        geomFixed.insert( geomFixed.end(), wall.begin(), wall.end() );
+        geomFixed.insert( geomFixed.end(), baffles.begin(), baffles.end() );
+    }
+
+
+    void generateRotatingNonUpdatingGeometry(TQ increment, GeomPlacement place) {
+
+        std::vector<PosPolar<T, TQ>> disk = getImpellerDisk(increment, place);
+        std::vector<PosPolar<T, TQ>> hub = getImpellerHub(increment, place);
+        std::vector<PosPolar<T, TQ>> shaft = getImpellerShaft(increment, place);
+
+        geomRotatingNonUpdating.insert( geomRotatingNonUpdating.end(), disk.begin(), disk.end() );
+        geomRotatingNonUpdating.insert( geomRotatingNonUpdating.end(), hub.begin(), hub.end() );
+        geomRotatingNonUpdating.insert( geomRotatingNonUpdating.end(), shaft.begin(), shaft.end() );
+    }
+
+
+    void generateRotatingGeometry(TQ atTheta, TQ increment, GeomPlacement place){
+
+        std::vector<PosPolar<T, TQ>> blades = getImpellerBlades(atTheta, increment, place);
+        geomRotating.insert( geomRotating.end(), blades.begin(), blades.end() );
+    }
+
+    void updateRotatingGeometry(TQ atTheta, TQ increment, GeomPlacement place){
+
+        geomRotating.clear();
+
+        std::vector<PosPolar<T, TQ>> blades = getImpellerBlades(atTheta, increment, place);
+        geomRotating.insert( geomRotating.end(), blades.begin(), blades.end() );
+    }
+
+
+    void generateTranslatingGeometry(T step, GeomPlacement place){
+    }
+
+    void updateTranslatingGeometry(T step, GeomPlacement place){
+    }
+
+
+
+
+
+
+
+
+
+
+    std::vector<Pos3d<T>> getExternalPoints(){
 
         std::vector<Pos3d<tNi>> exclude;
 
@@ -249,112 +299,8 @@ public:
                 }
             }
         }
-
-
-
-
-        std::vector<PosPolar<T, TQ>> baffles = getBaffles(getInternal);
-        for (auto &p: baffles){
-            Pos3d<T> e = Pos3d<T>(p.i, p.j, p.k);
-            exclude.push_back(e);
-        }
         return exclude;
     }
-
-    std::vector<Pos3d<T>> getRotatingNonUpdatingExcludePoints(){
-
-        bool getInternal = true;
-
-        std::vector<Pos3d<T>> exclude;
-
-        std::vector<PosPolar<T, TQ>> disk = getImpellerDisk(getInternal);
-        for (auto &p: disk){
-                Pos3d<T> e = Pos3d<T>(p.i, p.j, p.k);
-            exclude.push_back(e);
-        }
-
-        std::vector<PosPolar<T, TQ>> hub = getImpellerHub(getInternal);
-        for (auto &p: hub){
-            Pos3d<T> e = Pos3d<T>(p.i, p.j, p.k);
-            exclude.push_back(e);
-        }
-
-        std::vector<PosPolar<T, TQ>> shaft = getImpellerShaft(getInternal);
-        for (auto &p: shaft){
-            Pos3d<T> e = Pos3d<T>(p.i, p.j, p.k);
-            exclude.push_back(e);
-        }
-
-        return exclude;
-    }
-
-    std::vector<Pos3d<T>> getRotatingExcludePoints(TQ atTheta){
-
-        bool getInternal = true;
-        std::vector<Pos3d<T>> exclude;
-
-        std::vector<PosPolar<T, TQ>> blades = getImpellerBlades(atTheta, getInternal);
-        for (auto &p: blades){
-            Pos3d<T> e = Pos3d<T>(p.i, p.j, p.k);
-            exclude.push_back(e);
-        }
-
-        return exclude;
-    }
-
-
-
-
-
-    void generateFixedGeometry(bool getInternal = 0) {
-
-        std::vector<PosPolar<T, TQ>> wall = getTankWall();
-        std::vector<PosPolar<T, TQ>> baffles = getBaffles(getInternal);
-        geomFixed.insert( geomFixed.end(), wall.begin(), wall.end() );
-        geomFixed.insert( geomFixed.end(), baffles.begin(), baffles.end() );
-    }
-
-
-    void generateRotatingNonUpdatingGeometry(bool getInternal = 0) {
-
-        std::vector<PosPolar<T, TQ>> disk = getImpellerDisk(getInternal);
-        std::vector<PosPolar<T, TQ>> hub = getImpellerHub(getInternal);
-        std::vector<PosPolar<T, TQ>> shaft = getImpellerShaft(getInternal);
-
-        geomRotatingNonUpdating.insert( geomRotatingNonUpdating.end(), disk.begin(), disk.end() );
-        geomRotatingNonUpdating.insert( geomRotatingNonUpdating.end(), hub.begin(), hub.end() );
-        geomRotatingNonUpdating.insert( geomRotatingNonUpdating.end(), shaft.begin(), shaft.end() );
-    }
-
-
-    void generateRotatingGeometry(TQ atTheta, bool getInternal = 0){
-
-        std::vector<PosPolar<T, TQ>> blades = getImpellerBlades(atTheta, getInternal);
-        geomRotating.insert( geomRotating.end(), blades.begin(), blades.end() );
-
-    }
-
-    void updateRotatingGeometry(TQ atTheta, bool getInternal = 0){
-
-        geomRotating.clear();
-
-        std::vector<PosPolar<T, TQ>> blades = getImpellerBlades(atTheta, getInternal);
-        geomRotating.insert( geomRotating.end(), blades.begin(), blades.end() );
-    }
-
-
-    void generateTranslatingGeometry(T step, bool getInternal = 0){
-    }
-
-    void updateTranslatingGeometry(T step, bool getInternal = 0){
-    }
-
-
-
-
-
-
-
 
 
 
@@ -375,28 +321,19 @@ public:
 
             for (T n = 0; n < nCircPoints; ++n)
             {
-
                 TQ theta = TQ(n) * dTheta;
                 if ((j & 1) == 1)
                     theta += 0.5f * dTheta;
 
-
-                //TODO, should the fractions be updated before center is added?????
-
                 TQ iFP = iCenter + r * cos(theta);
                 TQ kFP = kCenter + r * sin(theta);
 
-
-                PosPolar<T, TQ> g = PosPolar<T, TQ>(iFP, j, kFP);
+                PosPolar<T, TQ> g = PosPolar<T, TQ>(iFP, (TQ)j - 0.5, kFP);
 
                 if (extents.containsIK(g.i, g.k)){
 
                     g.localise(extents);
-
-                    //                    std::cout <<g.iFP<<" "<<g.i << std::endl;
-
                     wall.push_back(g);
-
                 }
             }
         }
@@ -405,7 +342,7 @@ public:
 
 
 
-    std::vector<PosPolar<T, TQ>> getBaffles(bool getInternal = 0) {
+    std::vector<PosPolar<T, TQ>> getBaffles(GeomPlacement place) {
 
         T nPointsBaffleThickness = T(roundf(turbine.baffles.thickness / turbine.resolution));
         if (nPointsBaffleThickness == 0)
@@ -447,15 +384,23 @@ public:
 
                         bool isInternal = isSurface ? 0 : 1;
 
-                        PosPolar<T, TQ> g = PosPolar<T, TQ>(iFP, j, kFP);
+                        PosPolar<T, TQ> g = PosPolar<T, TQ>(iFP, (TQ)j - 0.5, kFP);
 
 
                         if (extents.containsIK(g.i, g.k)){
 
                             g.localise(extents);
 
-                            if (getInternal && isInternal) baffles.push_back(g);
-                            if (getInternal == 0 && isInternal == 0) baffles.push_back(g);
+                            if (place == surfaceAndInternal){
+                                baffles.push_back(g);
+                            }
+                            else if (isInternal && place == internal){
+                                baffles.push_back(g);
+                            }
+                            else if (isInternal == 0 && place == surface){
+                                baffles.push_back(g);
+                            }
+
 
 
                         }
@@ -470,7 +415,7 @@ public:
 
 
 
-    std::vector<PosPolar<T, TQ>> getImpellerBlades(TQ atTheta, bool getInternal = 0) {
+    std::vector<PosPolar<T, TQ>> getImpellerBlades(TQ atTheta, TQ increment, GeomPlacement place) {
 
 
         TQ innerRadius = turbine.impellers[0].blades.innerRadius;
@@ -517,25 +462,35 @@ public:
                         idxR == 0 || idxR == nPointsR ||
                         j == impellerBottom || j == impellerTop;
 
+
+                        //Update polar coords
                         TQ rPolar = r;
-                        TQ tPolar = theta;
+                        TQ tPolar = theta + atTheta;
 
-                        TQ iFP = iCenter + r * cos(theta);
-                        TQ kFP = kCenter + r * sin(theta);
 
-                        PosPolar<T, TQ> g = PosPolar<T, TQ>(iFP, j, kFP);
+                        TQ iFP = iCenter + rPolar * cos(tPolar);
+                        TQ kFP = kCenter + rPolar * sin(tPolar);
 
-                        g.uDelta = -atTheta * rPolar * sin(tPolar);
+                        PosPolar<T, TQ> g = PosPolar<T, TQ>(iFP, (TQ)j - 0.5, kFP);
+
+                        g.uDelta = -increment * rPolar * sin(tPolar);
                         g.vDelta = 0.0;
-                        g.wDelta = atTheta * rPolar * cos(tPolar);
+                        g.wDelta = increment * rPolar * cos(tPolar);
 
                         bool isInternal = isSurface ? 0 : 1;
 
+
                         g.localise(extents);
 
-                        //BOTH THE SOLID AND SURFACE ELEMENTS ARE ROTATING
-                        if (getInternal && isInternal) blades.push_back(g);
-                        if (getInternal == 0 && isInternal == 0) blades.push_back(g);
+                        if (place == surfaceAndInternal){
+                            blades.push_back(g);
+                        }
+                        else if (isInternal && place == internal){
+                            blades.push_back(g);
+                        }
+                        else if (isInternal == 0 && place == surface){
+                            blades.push_back(g);
+                        }
                     }
                 }
             }
@@ -544,8 +499,7 @@ public:
     }
 
 
-
-    std::vector<PosPolar<T, TQ>> getImpellerDisk(bool getInternal = 0){
+    std::vector<PosPolar<T, TQ>> getImpellerDisk(TQ increment, GeomPlacement place){
 
         T bottom = T(roundf(turbine.impellers[0].disk.bottom));
         T top = T(roundf(turbine.impellers[0].disk.top));
@@ -590,12 +544,13 @@ public:
                     TQ iFP = iCenter + r * cos(tPolar);
                     TQ kFP = kCenter + r * sin(tPolar);
 
-                    PosPolar<T, TQ> g = PosPolar<T, TQ>(iFP, j, kFP);
+                    PosPolar<T, TQ> g = PosPolar<T, TQ>(iFP, (TQ)j - 0.5, kFP);
 
+                    //                    increment = 0.0;
 
-                    g.uDelta = -turbine.wa * rPolar * sin(tPolar);
+                    g.uDelta = -increment * rPolar * sin(tPolar);
                     g.vDelta = 0;
-                    g.wDelta = turbine.wa * rPolar * cos(tPolar);
+                    g.wDelta = increment * rPolar * cos(tPolar);
 
                     bool isInternal = isSurface ? 0 : 1;
 
@@ -604,8 +559,15 @@ public:
 
                         g.localise(extents);
 
-                        if (getInternal && isInternal) disk.push_back(g);
-                        if (getInternal == 0 && isInternal == 0) disk.push_back(g);
+                        if (place == surfaceAndInternal){
+                            disk.push_back(g);
+                        }
+                        else if (isInternal && place == internal){
+                            disk.push_back(g);
+                        }
+                        else if (isInternal == 0 && place == surface){
+                            disk.push_back(g);
+                        }
 
                     }
                 }
@@ -614,7 +576,7 @@ public:
         return disk;
     }
 
-    std::vector<PosPolar<T, TQ>> getImpellerHub(bool getInternal = 0){
+    std::vector<PosPolar<T, TQ>> getImpellerHub(TQ increment, GeomPlacement place){
 
         T diskBottom = T(roundf(turbine.impellers[0].disk.bottom));
         T diskTop = T(roundf(turbine.impellers[0].disk.top));
@@ -665,11 +627,12 @@ public:
                     TQ iFP = iCenter + r * cos(tPolar);
                     TQ kFP = kCenter + r * sin(tPolar);
 
-                    PosPolar<T, TQ> g = PosPolar<T, TQ>(iFP, j, kFP);
+                    PosPolar<T, TQ> g = PosPolar<T, TQ>(iFP, (TQ)j - 0.5, kFP);
+                    //                    increment = 0.0;
 
-                    g.uDelta = -turbine.wa * rPolar * sin(tPolar);
+                    g.uDelta = -increment * rPolar * sin(tPolar);
                     g.vDelta = 0;
-                    g.wDelta = turbine.wa * rPolar * cos(tPolar);
+                    g.wDelta = increment * rPolar * cos(tPolar);
 
                     bool isInternal = isSurface ? 0 : 1;
 
@@ -678,9 +641,15 @@ public:
 
                         g.localise(extents);
 
-
-                        if (getInternal && isInternal) hub.push_back(g);
-                        if (getInternal == 0 && isInternal == 0) hub.push_back(g);
+                        if (place == surfaceAndInternal){
+                            hub.push_back(g);
+                        }
+                        else if (isInternal && place == internal){
+                            hub.push_back(g);
+                        }
+                        else if (isInternal == 0 && place == surface){
+                            hub.push_back(g);
+                        }
 
                     }
                 }
@@ -689,7 +658,7 @@ public:
         return hub;
     }
 
-    std::vector<PosPolar<T, TQ>> getImpellerShaft(bool getInternal = 0){
+    std::vector<PosPolar<T, TQ>> getImpellerShaft(TQ increment, GeomPlacement place){
 
         T hubBottom = T(roundf(turbine.impellers[0].hub.bottom));
         T hubTop = T(roundf(turbine.impellers[0].hub.top));
@@ -738,12 +707,13 @@ public:
                     TQ iFP = iCenter + r * cos(theta);
                     TQ kFP = kCenter + r * sin(theta);
 
-                    PosPolar<T, TQ> g = PosPolar<T, TQ>(iFP, j, kFP);
+                    PosPolar<T, TQ> g = PosPolar<T, TQ>(iFP, (TQ)j - 0.5, kFP);
 
+                    //                    increment = 0.0;
 
-                    g.uDelta = -turbine.wa * rPolar * sin(tPolar);
+                    g.uDelta = -increment * rPolar * sin(tPolar);
                     g.vDelta = 0.0f;
-                    g.wDelta =  turbine.wa * rPolar * cos(tPolar);
+                    g.wDelta =  increment * rPolar * cos(tPolar);
 
                     bool isInternal = isSurface ? 0 : 1;
 
@@ -754,8 +724,15 @@ public:
 
                         g.localise(extents);
 
-                        if (getInternal && isInternal) shaft.push_back(g);
-                        if (getInternal == 0 && isInternal == 0) shaft.push_back(g);
+                        if (place == surfaceAndInternal){
+                            shaft.push_back(g);
+                        }
+                        else if (isInternal && place == internal){
+                            shaft.push_back(g);
+                        }
+                        else if (isInternal == 0 && place == surface){
+                            shaft.push_back(g);
+                        }
 
                     }
 
@@ -793,49 +770,36 @@ public:
 
 
 
-    //    TQ updateRotatingGeometry(tStepRT step, TQ impellerTheta)
-    //    {
+    //    void fastOneCURotateImpellerBlades(std::vector<PosPolar<tNi, TQ>> geom, TQ increment){
+    //
+    //        //Only works with ONE CU
+    //
+    //        for (auto &p: geom){
+    //
+    //            //Update polar coords. Polar not saved anymore.
+    //            TQ rPolar = p.rPolar;
+    //            TQ tPolar = p.tPolar+ increment;
+    //
+    //            TQ iFP = iCenter + rPolar * cos(tPolar);
+    //            TQ kFP = kCenter + rPolar * sin(tPolar);
     //
     //
-    //        TQ thisStepImpellerIncrementWA = calcThisStepImpellerIncrement(step);
+    //            //Update the vector of points
+    //            p.tPolar = tPolar;
     //
-    //        impellerTheta += thisStepImpellerIncrementWA;
+    //            updateCoordinateFraction(iFP, &p.i, &p.iCartFraction);
+    ////          updateCoordinateFraction(jFP, &p.j, &p.jCartFraction); //j doesnt change
+    //            updateCoordinateFraction(kFP, &p.k, &p.kCartFraction);
     //
-    //
-    //
-    //
-    //
-    //        //Only updates the rotating elements
-    //
-    //#pragma omp parallel for
-    //        for (int i = 0; i < geomRotating.size(); i++)
-    //        {
-    //
-    //            PosPolar<T, TQ> &g = geomRotating[i];
-    //
-    //            g.tPolar += thisStepImpellerIncrementWA;
+    //            p.uDelta = -increment * rPolar * sin(tPolar);
+    //            p.vDelta = 0.0;
+    //            p.wDelta = increment * rPolar * cos(tPolar);
     //
     //
-    //
-    //            g.iFP = iCenter + g.rPolar * cos(g.tPolar);
-    //            g.kFP = kCenter + g.rPolar * sin(g.tPolar);
-    //
-    //            g.uDelta = -thisStepImpellerIncrementWA * g.rPolar * sin(g.tPolar);
-    //            g.wDelta =  thisStepImpellerIncrementWA * g.rPolar * cos(g.tPolar);
-    //
-    //            UpdateCoordinateFraction(g.iFP, &g.i_cart, &g.iCartFraction);
-    //            UpdateCoordinateFraction(g.kFP, &g.k_cart, &g.kCartFraction);
-    //
-    //
+    //            //Localise not needed as function used when simulation run with only 1 CU.
+    //            //g.localise(extents);
     //        }
-    //
-    //
-    //
-    //        return impellerTheta;
     //    }
-
-
-
 
 
 

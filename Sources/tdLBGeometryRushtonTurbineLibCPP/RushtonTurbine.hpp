@@ -98,7 +98,7 @@ public:
 
     tStepRT startingStep = 0;
     int impellerStartAngle = 0.0;
-    tStepRT impellerStartupStepsUntilNormalSpeed = 0;
+    tStepRT impellerStartupStepsUntilNormalSpeed = 200;
 
 
     // Model resolution

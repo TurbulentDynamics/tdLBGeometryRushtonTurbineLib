@@ -187,11 +187,11 @@ public:
     }
 
 
-    void generateRotatingNonUpdatingGeometry(TQ increment, GeomPlacement place) {
+    void generateRotatingNonUpdatingGeometry(TQ deltaTheta, GeomPlacement place) {
 
-        std::vector<PosPolar<T, TQ>> disk = getImpellerDisk(increment, place);
-        std::vector<PosPolar<T, TQ>> hub = getImpellerHub(increment, place);
-        std::vector<PosPolar<T, TQ>> shaft = getImpellerShaft(increment, place);
+        std::vector<PosPolar<T, TQ>> disk = getImpellerDisk(deltaTheta, place);
+        std::vector<PosPolar<T, TQ>> hub = getImpellerHub(deltaTheta, place);
+        std::vector<PosPolar<T, TQ>> shaft = getImpellerShaft(deltaTheta, place);
 
         geomRotatingNonUpdating.insert( geomRotatingNonUpdating.end(), disk.begin(), disk.end() );
         geomRotatingNonUpdating.insert( geomRotatingNonUpdating.end(), hub.begin(), hub.end() );
@@ -199,17 +199,17 @@ public:
     }
 
 
-    void generateRotatingGeometry(TQ atTheta, TQ increment, GeomPlacement place){
+    void generateRotatingGeometry(TQ atTheta, TQ deltaTheta, GeomPlacement place){
 
-        std::vector<PosPolar<T, TQ>> blades = getImpellerBlades(atTheta, increment, place);
+        std::vector<PosPolar<T, TQ>> blades = getImpellerBlades(atTheta, deltaTheta, place);
         geomRotating.insert( geomRotating.end(), blades.begin(), blades.end() );
     }
 
-    void updateRotatingGeometry(TQ atTheta, TQ increment, GeomPlacement place){
+    void updateRotatingGeometry(TQ atTheta, TQ deltaTheta, GeomPlacement place){
 
         geomRotating.clear();
 
-        std::vector<PosPolar<T, TQ>> blades = getImpellerBlades(atTheta, increment, place);
+        std::vector<PosPolar<T, TQ>> blades = getImpellerBlades(atTheta, deltaTheta, place);
         geomRotating.insert( geomRotating.end(), blades.begin(), blades.end() );
     }
 
@@ -358,11 +358,17 @@ public:
 
         TQ deltaBaffleOffset = 2.0/(TQ)turbine.baffles.numBaffles * M_PI;
 
-        std::vector<PosPolar<T, TQ>> baffles;
+        T lowerY = (T)extents.y0;
+        if ((T)extents.y0 == 0) lowerY = 1;
 
+        T upperY = (T)extents.y1;
+        if ((T)extents.y1 == turbine.tankHeight) upperY = turbine.tankHeight - 1;
+
+
+        std::vector<PosPolar<T, TQ>> baffles;
         for (T nBaffle = 1; nBaffle <= turbine.baffles.numBaffles; ++nBaffle)
         {
-            for (T j = (T)extents.y0; j <= (T)extents.y1; ++j)
+            for (T j = lowerY; j <= upperY; ++j)
             {
                 for (T idxR = 0; idxR <= nPointsR; ++idxR)
                 {
@@ -415,7 +421,7 @@ public:
 
 
 
-    std::vector<PosPolar<T, TQ>> getImpellerBlades(TQ atTheta, TQ increment, GeomPlacement place) {
+    std::vector<PosPolar<T, TQ>> getImpellerBlades(TQ atTheta, TQ deltaTheta, GeomPlacement place) {
 
 
         TQ innerRadius = turbine.impellers[0].blades.innerRadius;
@@ -437,7 +443,7 @@ public:
         TQ deltaR = (outerRadius - innerRadius) / nPointsR;
 
 
-        TQ deltaTheta = 2.0/(TQ)turbine.impellers[0].numBlades * M_PI;
+        TQ deltaBlade = 2.0/(TQ)turbine.impellers[0].numBlades * M_PI;
 
 
         std::vector<PosPolar<T, TQ>> blades;
@@ -450,7 +456,7 @@ public:
                     TQ r = innerRadius  + deltaR * idxR;
                     for (T idxThickness = 0; idxThickness <= nPointsThickness; ++idxThickness)
                     {
-                        TQ theta = deltaTheta * nBlade +
+                        TQ theta = deltaBlade * nBlade +
                         turbine.impellers[0].firstBladeOffset +
                         (idxThickness - nPointsThickness / 2.0f) * resolutionBladeThickness / r;
 
@@ -473,9 +479,9 @@ public:
 
                         PosPolar<T, TQ> g = PosPolar<T, TQ>(iFP, (TQ)j - 0.5, kFP);
 
-                        g.uDelta = -increment * rPolar * sin(tPolar);
+                        g.uDelta = -deltaTheta * rPolar * sin(tPolar);
                         g.vDelta = 0.0;
-                        g.wDelta = increment * rPolar * cos(tPolar);
+                        g.wDelta = deltaTheta * rPolar * cos(tPolar);
 
                         bool isInternal = isSurface ? 0 : 1;
 
@@ -499,7 +505,7 @@ public:
     }
 
 
-    std::vector<PosPolar<T, TQ>> getImpellerDisk(TQ increment, GeomPlacement place){
+    std::vector<PosPolar<T, TQ>> getImpellerDisk(TQ deltaTheta, GeomPlacement place){
 
         T bottom = T(roundf(turbine.impellers[0].disk.bottom));
         T top = T(roundf(turbine.impellers[0].disk.top));
@@ -546,11 +552,9 @@ public:
 
                     PosPolar<T, TQ> g = PosPolar<T, TQ>(iFP, (TQ)j - 0.5, kFP);
 
-                    //                    increment = 0.0;
-
-                    g.uDelta = -increment * rPolar * sin(tPolar);
+                    g.uDelta = -deltaTheta * rPolar * sin(tPolar);
                     g.vDelta = 0;
-                    g.wDelta = increment * rPolar * cos(tPolar);
+                    g.wDelta = deltaTheta * rPolar * cos(tPolar);
 
                     bool isInternal = isSurface ? 0 : 1;
 
@@ -576,7 +580,7 @@ public:
         return disk;
     }
 
-    std::vector<PosPolar<T, TQ>> getImpellerHub(TQ increment, GeomPlacement place){
+    std::vector<PosPolar<T, TQ>> getImpellerHub(TQ deltaTheta, GeomPlacement place){
 
         T diskBottom = T(roundf(turbine.impellers[0].disk.bottom));
         T diskTop = T(roundf(turbine.impellers[0].disk.top));
@@ -628,11 +632,10 @@ public:
                     TQ kFP = kCenter + r * sin(tPolar);
 
                     PosPolar<T, TQ> g = PosPolar<T, TQ>(iFP, (TQ)j - 0.5, kFP);
-                    //                    increment = 0.0;
 
-                    g.uDelta = -increment * rPolar * sin(tPolar);
+                    g.uDelta = -deltaTheta * rPolar * sin(tPolar);
                     g.vDelta = 0;
-                    g.wDelta = increment * rPolar * cos(tPolar);
+                    g.wDelta = deltaTheta * rPolar * cos(tPolar);
 
                     bool isInternal = isSurface ? 0 : 1;
 
@@ -658,14 +661,20 @@ public:
         return hub;
     }
 
-    std::vector<PosPolar<T, TQ>> getImpellerShaft(TQ increment, GeomPlacement place){
+    std::vector<PosPolar<T, TQ>> getImpellerShaft(TQ deltaTheta, GeomPlacement place){
 
         T hubBottom = T(roundf(turbine.impellers[0].hub.bottom));
         T hubTop = T(roundf(turbine.impellers[0].hub.top));
 
+        T lowerY = (T)extents.y0;
+        if ((T)extents.y0 == 0) lowerY = 1;
+
+        T upperY = (T)extents.y1;
+        if ((T)extents.y1 == turbine.tankHeight) upperY = turbine.tankHeight - 1;
+
 
         std::vector<PosPolar<T, TQ>> shaft;
-        for (T j = (T)extents.y0; j <= (T)extents.y1; ++j)
+        for (T j = lowerY; j <= upperY; ++j)
         {
             bool isWithinHub = j >= hubBottom && j <= hubTop;
 
@@ -709,11 +718,9 @@ public:
 
                     PosPolar<T, TQ> g = PosPolar<T, TQ>(iFP, (TQ)j - 0.5, kFP);
 
-                    //                    increment = 0.0;
-
-                    g.uDelta = -increment * rPolar * sin(tPolar);
+                    g.uDelta = -deltaTheta * rPolar * sin(tPolar);
                     g.vDelta = 0.0f;
-                    g.wDelta =  increment * rPolar * cos(tPolar);
+                    g.wDelta =  deltaTheta * rPolar * cos(tPolar);
 
                     bool isInternal = isSurface ? 0 : 1;
 
@@ -770,7 +777,7 @@ public:
 
 
 
-    //    void fastOneCURotateImpellerBlades(std::vector<PosPolar<tNi, TQ>> geom, TQ increment){
+    //    void fastOneCURotateImpellerBlades(std::vector<PosPolar<tNi, TQ>> geom, TQ deltaTheta){
     //
     //        //Only works with ONE CU
     //
@@ -778,7 +785,7 @@ public:
     //
     //            //Update polar coords. Polar not saved anymore.
     //            TQ rPolar = p.rPolar;
-    //            TQ tPolar = p.tPolar+ increment;
+    //            TQ tPolar = p.tPolar+ deltaTheta;
     //
     //            TQ iFP = iCenter + rPolar * cos(tPolar);
     //            TQ kFP = kCenter + rPolar * sin(tPolar);
@@ -791,9 +798,9 @@ public:
     ////          updateCoordinateFraction(jFP, &p.j, &p.jCartFraction); //j doesnt change
     //            updateCoordinateFraction(kFP, &p.k, &p.kCartFraction);
     //
-    //            p.uDelta = -increment * rPolar * sin(tPolar);
+    //            p.uDelta = -deltaTheta * rPolar * sin(tPolar);
     //            p.vDelta = 0.0;
-    //            p.wDelta = increment * rPolar * cos(tPolar);
+    //            p.wDelta = deltaTheta * rPolar * cos(tPolar);
     //
     //
     //            //Localise not needed as function used when simulation run with only 1 CU.

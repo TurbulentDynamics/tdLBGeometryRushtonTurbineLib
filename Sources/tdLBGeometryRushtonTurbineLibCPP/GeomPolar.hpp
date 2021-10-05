@@ -403,7 +403,7 @@ public:
                             else if (isInternal && place == internal){
                                 baffles.push_back(g);
                             }
-                            else if (isInternal == 0 && place == surface){
+                            else if (isInternal == 0 && place == onSurface){
                                 baffles.push_back(g);
                             }
 
@@ -494,7 +494,7 @@ public:
                         else if (isInternal && place == internal){
                             blades.push_back(g);
                         }
-                        else if (isInternal == 0 && place == surface){
+                        else if (isInternal == 0 && place == onSurface){
                             blades.push_back(g);
                         }
                     }
@@ -569,7 +569,7 @@ public:
                         else if (isInternal && place == internal){
                             disk.push_back(g);
                         }
-                        else if (isInternal == 0 && place == surface){
+                        else if (isInternal == 0 && place == onSurface){
                             disk.push_back(g);
                         }
 
@@ -650,7 +650,7 @@ public:
                         else if (isInternal && place == internal){
                             hub.push_back(g);
                         }
-                        else if (isInternal == 0 && place == surface){
+                        else if (isInternal == 0 && place == onSurface){
                             hub.push_back(g);
                         }
 
@@ -737,7 +737,7 @@ public:
                         else if (isInternal && place == internal){
                             shaft.push_back(g);
                         }
-                        else if (isInternal == 0 && place == surface){
+                        else if (isInternal == 0 && place == onSurface){
                             shaft.push_back(g);
                         }
 

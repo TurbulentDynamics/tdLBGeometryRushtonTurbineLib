@@ -11,7 +11,7 @@
 #include <stdio.h>
 
 enum GeomPlacement {
-    surface,
+    onSurface,
     internal,
     surfaceAndInternal,
     external

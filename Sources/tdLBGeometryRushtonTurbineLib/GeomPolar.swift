@@ -8,7 +8,6 @@
 import Foundation
 import tdLB
 import tdLBGeometry
-import tdLBOutputGeometry
 
 
 
@@ -46,12 +45,12 @@ public struct RushtonTurbinePolarSwift: Geometry {
     //    public var geomTranslating: [PosPolar<Int, Float>]
     //
     
-    public var tankRadius: Int {return turbine.tankRadius - diameterBorder / 2}
-    public var tankDiameter: Int {return turbine.tankDiameter - diameterBorder}
-    public var iCenter: Int {return turbine.iCenter + diameterBorder / 2}
-    public var kCenter: Int {return turbine.kCenter + diameterBorder / 2}
-    
     private let diameterBorder = 2
+
+    public var tankRadius: Int { return (turbine.gridX - diameterBorder) / 2 }
+    public var tankDiameter: Int { return turbine.tankDiameter - diameterBorder }
+    public var iCenter: Int { return tankRadius + diameterBorder / 2 }
+    public var kCenter: Int { return tankRadius + diameterBorder / 2 }
 
 
     public init(turbine: RushtonTurbine) {

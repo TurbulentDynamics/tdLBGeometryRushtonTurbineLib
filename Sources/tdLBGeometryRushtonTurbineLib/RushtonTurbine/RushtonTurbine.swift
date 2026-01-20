@@ -7,10 +7,9 @@
 import Foundation
 
 
-//TODO Create func to save the object to json, with string keys for impeller
 extension RushtonTurbine {
     func saveAsJson(to url: URL) throws {
-        print("Saving to:" + url.absoluteString)
+        try writeJSON(to: url)
     }
 }
 
@@ -153,9 +152,11 @@ extension RushtonTurbine {
         return String(data: try self.jsonData(), encoding: encoding)
     }
 
-    func writeJSON(to url: URL){
-        let j = try! jsonString()
-        try! j!.write(to: url, atomically: true, encoding: .utf8)
+    func writeJSON(to url: URL) throws {
+        guard let jsonStr = try jsonString() else {
+            throw NSError(domain: "JSONEncoding", code: 1, userInfo: [NSLocalizedDescriptionKey: "Failed to encode JSON string"])
+        }
+        try jsonStr.write(to: url, atomically: true, encoding: .utf8)
     }
 
     func with(
@@ -270,9 +271,11 @@ extension Baffles {
         return String(data: try self.jsonData(), encoding: encoding)
     }
 
-    func writeJSON(to url: URL){
-        let j = try! jsonString()
-        try! j!.write(to: url, atomically: true, encoding: .utf8)
+    func writeJSON(to url: URL) throws {
+        guard let jsonStr = try jsonString() else {
+            throw NSError(domain: "JSONEncoding", code: 1, userInfo: [NSLocalizedDescriptionKey: "Failed to encode JSON string"])
+        }
+        try jsonStr.write(to: url, atomically: true, encoding: .utf8)
     }
 
 
@@ -401,9 +404,11 @@ extension Impeller {
         return String(data: try self.jsonData(), encoding: encoding)
     }
 
-    func writeJSON(to url: URL){
-        let j = try! jsonString()
-        try! j!.write(to: url, atomically: true, encoding: .utf8)
+    func writeJSON(to url: URL) throws {
+        guard let jsonStr = try jsonString() else {
+            throw NSError(domain: "JSONEncoding", code: 1, userInfo: [NSLocalizedDescriptionKey: "Failed to encode JSON string"])
+        }
+        try jsonStr.write(to: url, atomically: true, encoding: .utf8)
     }
 
     func with(
@@ -518,9 +523,11 @@ extension Blades {
         return String(data: try self.jsonData(), encoding: encoding)
     }
 
-    func writeJSON(to url: URL){
-        let j = try! jsonString()
-        try! j!.write(to: url, atomically: true, encoding: .utf8)
+    func writeJSON(to url: URL) throws {
+        guard let jsonStr = try jsonString() else {
+            throw NSError(domain: "JSONEncoding", code: 1, userInfo: [NSLocalizedDescriptionKey: "Failed to encode JSON string"])
+        }
+        try jsonStr.write(to: url, atomically: true, encoding: .utf8)
     }
 
     func with(
@@ -614,9 +621,11 @@ extension Disk {
         return String(data: try self.jsonData(), encoding: encoding)
     }
 
-    func writeJSON(to url: URL){
-        let j = try! jsonString()
-        try! j!.write(to: url, atomically: true, encoding: .utf8)
+    func writeJSON(to url: URL) throws {
+        guard let jsonStr = try jsonString() else {
+            throw NSError(domain: "JSONEncoding", code: 1, userInfo: [NSLocalizedDescriptionKey: "Failed to encode JSON string"])
+        }
+        try jsonStr.write(to: url, atomically: true, encoding: .utf8)
     }
 
     func with(
@@ -688,9 +697,11 @@ extension Shaft {
         return String(data: try self.jsonData(), encoding: encoding)
     }
 
-    func writeJSON(to url: URL){
-        let j = try! jsonString()
-        try! j!.write(to: url, atomically: true, encoding: .utf8)
+    func writeJSON(to url: URL) throws {
+        guard let jsonStr = try jsonString() else {
+            throw NSError(domain: "JSONEncoding", code: 1, userInfo: [NSLocalizedDescriptionKey: "Failed to encode JSON string"])
+        }
+        try jsonStr.write(to: url, atomically: true, encoding: .utf8)
     }
 
 

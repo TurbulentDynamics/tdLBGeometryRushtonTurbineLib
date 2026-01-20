@@ -10,7 +10,6 @@
 import Foundation
 import tdLB
 import tdLBGeometry
-import tdLBOutputGeometry
 
 
 
@@ -564,9 +563,8 @@ extension RushtonTurbineMidPoint {
     //http://rosettacode.org/wiki/Bitmap/Midpoint_circle_algorithm#Python
     func drawMidPointCircleDict(radius: Int, xCenter: Int, yCenter: Int) -> [Int: [Int]] {
 
-        //TODO add throws
-        if radius > xCenter {print("ERROR: Radius is larger than xCenter")}
-        if radius > yCenter {print("ERROR: Radius is larger than yCenter")}
+        assert(radius <= xCenter, "ERROR: Radius (\(radius)) is larger than xCenter (\(xCenter))")
+        assert(radius <= yCenter, "ERROR: Radius (\(radius)) is larger than yCenter (\(yCenter))")
 
         let x0: Int = Int(xCenter)
         let y0: Int = Int(yCenter)
@@ -616,9 +614,8 @@ extension RushtonTurbineMidPoint {
     //http://rosettacode.org/wiki/Bitmap/Midpoint_circle_algorithm#Python
     func drawMidPointCircle(radius: Int, xCenter: Int, yCenter: Int) -> [(Int, Int)] {
 
-        //TODO add throws
-        if radius > xCenter {print("ERROR")}
-        if radius > yCenter {print("ERROR")}
+        assert(radius <= xCenter, "ERROR: Radius (\(radius)) is larger than xCenter (\(xCenter))")
+        assert(radius <= yCenter, "ERROR: Radius (\(radius)) is larger than yCenter (\(yCenter))")
 
         let x0: Int = Int(xCenter)
         let y0: Int = Int(yCenter)

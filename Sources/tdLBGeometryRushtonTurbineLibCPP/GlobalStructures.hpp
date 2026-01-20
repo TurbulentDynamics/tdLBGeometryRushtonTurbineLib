@@ -57,43 +57,37 @@ struct Extents{
         this-> z1 = z1;
     }
 
-    bool containsI(T i){
-        if (i >= x0 && i <= x1) return true;
-        else return false;
+    bool containsI(T i) const {
+        return i >= x0 && i <= x1;
     }
-    bool containsJ(T j){
-        if (j > y0 && j < y1) return true;
-        else return false;
+    bool containsJ(T j) const {
+        return j >= y0 && j <= y1;
     }
-    bool containsK(T k){
-        if (k > z0 && k < z1) return true;
-        else return false;
+    bool containsK(T k) const {
+        return k >= z0 && k <= z1;
     }
-    bool containsIK(T i, T k){
-        if (i > x0 && i < x1 && k > z0 && k < z1) return true;
-        else return false;
+    bool containsIK(T i, T k) const {
+        return containsI(i) && containsK(k);
+    }
+    bool containsIJK(T i, T j, T k) const {
+        return containsI(i) && containsJ(j) && containsK(k);
     }
 
 
-    bool doesntContainI(T i){
-        if (i < x0 || i > x1) return true;
-        else return false;
+    bool doesntContainI(T i) const {
+        return !containsI(i);
     }
-    bool doesntContainJ(T j){
-        if (j < y0 || j > y1) return true;
-        else return false;
+    bool doesntContainJ(T j) const {
+        return !containsJ(j);
     }
-    bool doesntContainK(T k){
-        if (k < z0 || k > z1) return true;
-        else return false;
+    bool doesntContainK(T k) const {
+        return !containsK(k);
     }
-    bool doesntContainIK(T i, T k){
-        if (i < x0 || i > x1 || k < z0 || k > z1) return true;
-        else return false;
+    bool doesntContainIK(T i, T k) const {
+        return !containsIK(i, k);
     }
-    bool doesntContainIJK(T i, T j, T k){
-        if (i < x0 || i > x1 || j < y0 || j > y1 || k < z0 || k > z1) return true;
-        else return false;
+    bool doesntContainIJK(T i, T j, T k) const {
+        return !containsIJK(i, j, k);
     }
 };
 

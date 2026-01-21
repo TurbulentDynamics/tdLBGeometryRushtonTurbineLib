@@ -37,7 +37,9 @@ let package = Package(
             dependencies: [
                 .product(name: "tdLBSwiftApi", package: "tdLBApi"),
                 "tdLBGeometryRushtonTurbineLibObjC"
-        ]),
+            ],
+            exclude: ["TankSchema.json"]
+        ),
         .target(
             name: "tdLBGeometryRushtonTurbineLibObjC",
             path: "Sources/tdLBGeometryRushtonTurbineLibObjC"

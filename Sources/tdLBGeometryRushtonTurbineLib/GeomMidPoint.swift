@@ -75,7 +75,6 @@ public struct RushtonTurbineMidPoint {
     }
 
     public init(fileName: String, outputJson: String) throws {
-
         self.turbine = try RushtonTurbine(fileName)
         self.output = try OutputGeometry(json: outputJson)
 
@@ -87,22 +86,21 @@ public struct RushtonTurbineMidPoint {
         self.iCenter = self.tankRadius + diameterBorder / 2
         self.kCenter = self.tankRadius + diameterBorder / 2
 
-        self.uav = self.turbine.impellers["0"]!.uav
+        // Use max uav from all impellers
+        self.uav = self.turbine.impellers.values.map { $0.uav }.max() ?? 0.1
 
         self.startingStep = self.turbine.startingStep
         self.impellerStartupStepsUntilNormalSpeed = self.turbine.impellerStartupStepsUntilNormalSpeed
         self.impellerStartAngle = self.turbine.impellerStartAngle
-        
+
         geomFixed = []
         geomRotating = []
         geomRotatingNonUpdating = []
         geomTranslating = []
     }
 
-    
-    
-    public init(turbine: RushtonTurbine) {
 
+    public init(turbine: RushtonTurbine) {
         self.turbine = turbine
         self.output = exampleTurbineOutput(turbine: turbine)
 
@@ -114,14 +112,13 @@ public struct RushtonTurbineMidPoint {
         self.iCenter = self.tankRadius + diameterBorder / 2
         self.kCenter = self.tankRadius + diameterBorder / 2
 
-        
-        //TOFIX
-        self.uav = self.turbine.impellers["0"]!.uav
+        // Use max uav from all impellers
+        self.uav = self.turbine.impellers.values.map { $0.uav }.max() ?? 0.1
 
         self.startingStep = self.turbine.startingStep
         self.impellerStartupStepsUntilNormalSpeed = self.turbine.impellerStartupStepsUntilNormalSpeed
         self.impellerStartAngle = self.turbine.impellerStartAngle
-        
+
         geomFixed = []
         geomRotating = []
         geomRotatingNonUpdating = []

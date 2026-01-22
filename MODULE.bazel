@@ -1,0 +1,10 @@
+"""
+tdLBGeometryRushtonTurbineLib - Geometry library for Rushton turbine simulations
+"""
+
+module(
+    name = "tdlb_geometry_rushton_turbine_lib",
+    version = "0.1.0",
+)
+
+bazel_dep(name = "rules_cc", version = "0.1.1")

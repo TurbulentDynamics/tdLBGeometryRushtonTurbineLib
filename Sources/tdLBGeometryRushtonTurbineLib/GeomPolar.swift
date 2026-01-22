@@ -8,7 +8,6 @@
 import Foundation
 import tdLB
 import tdLBGeometry
-import tdLBOutputGeometry
 
 
 
@@ -46,53 +45,51 @@ public struct RushtonTurbinePolarSwift: Geometry {
     //    public var geomTranslating: [PosPolar<Int, Float>]
     //
     
-    public var tankRadius: Int {return turbine.tankRadius - diameterBorder / 2}
-    public var tankDiameter: Int {return turbine.tankDiameter - diameterBorder}
-    public var iCenter: Int {return turbine.iCenter + diameterBorder / 2}
-    public var kCenter: Int {return turbine.kCenter + diameterBorder / 2}
-    
     private let diameterBorder = 2
+
+    public var tankRadius: Int { return (turbine.gridX - diameterBorder) / 2 }
+    public var tankDiameter: Int { return turbine.tankDiameter - diameterBorder }
+    public var iCenter: Int { return tankRadius + diameterBorder / 2 }
+    public var kCenter: Int { return tankRadius + diameterBorder / 2 }
 
 
     public init(turbine: RushtonTurbine) {
-        
         self.turbine = turbine
         self.output = exampleTurbineOutput(turbine: turbine)
-        
+
         self.gridX = self.turbine.gridX
         self.gridY = self.turbine.gridX
         self.gridZ = self.turbine.gridX
-        
-        
-        //TOFIX
-        self.uav = self.turbine.impellers["0"]!.uav
-        
+
+        // Use max uav from all impellers for startup calculation
+        self.uav = self.turbine.impellers.values.map { $0.uav }.max() ?? 0.1
+
         self.startingStep = self.turbine.startingStep
         self.impellerStartupStepsUntilNormalSpeed = self.turbine.impellerStartupStepsUntilNormalSpeed
         self.impellerStartAngle = self.turbine.impellerStartAngle
-        
+
         geomFixed = []
         geomRotating = []
         geomRotatingNonUpdating = []
         geomTranslating = []
     }
-    
-    
+
+
     public init(fileName: String, outputJson: String) throws {
-        
         self.turbine = try RushtonTurbine(fileName)
         self.output = try OutputGeometry(json: outputJson)
-        
+
         self.gridX = self.turbine.gridX
         self.gridY = self.turbine.gridX
         self.gridZ = self.turbine.gridX
-        
-        self.uav = self.turbine.impellers["0"]!.uav
-        
+
+        // Use max uav from all impellers for startup calculation
+        self.uav = self.turbine.impellers.values.map { $0.uav }.max() ?? 0.1
+
         self.startingStep = self.turbine.startingStep
         self.impellerStartupStepsUntilNormalSpeed = self.turbine.impellerStartupStepsUntilNormalSpeed
         self.impellerStartAngle = self.turbine.impellerStartAngle
-        
+
         geomFixed = []
         geomRotating = []
         geomRotatingNonUpdating = []
@@ -124,15 +121,20 @@ public struct RushtonTurbinePolarSwift: Geometry {
     }
     
     public mutating func generateRotatingNonUpdatingGeometry() {
-        
-        createImpellerHub(atθ: 0)
-        createImpellerDisk(atθ: 0)
+        // Generate geometry for all impellers
+        for (_, impeller) in turbine.impellers {
+            createImpellerHub(impeller: impeller, atθ: 0)
+            createImpellerDisk(impeller: impeller, atθ: 0)
+        }
+        // Shaft is shared across all impellers
         createImpellerShaft(atθ: 0)
     }
-    
+
     public mutating func generateRotatingGeometry(atθ: Float) {
-        
-        createImpellerBlades(atθ: atθ)
+        // Generate blade geometry for all impellers
+        for (_, impeller) in turbine.impellers {
+            createImpellerBlades(impeller: impeller, atθ: atθ)
+        }
     }
     
     public mutating func updateRotatingGeometry(atθ: Float) {
@@ -159,12 +161,13 @@ public struct RushtonTurbinePolarSwift: Geometry {
 extension RushtonTurbinePolarSwift {
     
     func calcImpellerIncrement(atStep step: Int) -> TQ {
-        
         if step >= self.turbine.impellerStartupStepsUntilNormalSpeed {
             return impellerIncrementFullStep
         }
-        
-        return 0.5 * TQ(self.turbine.impellers["0"]!.bladeTipAngularVelW0) * (1.0 - cos(TQ.pi * TQ(step) / TQ(self.turbine.impellerStartupStepsUntilNormalSpeed)))
+
+        // Use max angular velocity from all impellers
+        let maxAngularVel = turbine.impellers.values.map { $0.bladeTipAngularVelW0 }.max() ?? 0.0
+        return 0.5 * TQ(maxAngularVel) * (1.0 - cos(TQ.pi * TQ(step) / TQ(self.turbine.impellerStartupStepsUntilNormalSpeed)))
     }
     
     
@@ -249,9 +252,7 @@ extension RushtonTurbinePolarSwift {
         }
     }
     
-    mutating func createImpellerBlades(atθ angle: TQ) {
-        
-        let impeller = self.turbine.impellers["0"]!
+    mutating func createImpellerBlades(impeller: Impeller, atθ angle: TQ) {
         
         let innerRadius = TQ(impeller.blades.innerRadius)
         let outerRadius = TQ(impeller.blades.outerRadius)
@@ -306,8 +307,7 @@ extension RushtonTurbinePolarSwift {
         
     }
     
-    mutating func createImpellerDisk(atθ angle: TQ) {
-        let impeller = self.turbine.impellers["0"]!
+    mutating func createImpellerDisk(impeller: Impeller, atθ angle: TQ) {
         
         let hubRadius = TQ(impeller.hub.radius)
         let diskRadius = TQ(impeller.disk.radius)
@@ -366,11 +366,7 @@ extension RushtonTurbinePolarSwift {
         
     }
     
-    mutating func createImpellerHub(atθ angle: TQ) {
-        
-        let impeller = self.turbine.impellers["0"]!
-        
-        //        let hubRadius: TQ = TQ(impeller.hub.radius)
+    mutating func createImpellerHub(impeller: Impeller, atθ angle: TQ) {
         let hubRadius: TQ = TQ(impeller.hub.radius)
         
         let nPointsR: Int = Int((hubRadius - TQ(self.turbine.shaft.radius)) / TQ(self.turbine.resolution))
@@ -422,22 +418,20 @@ extension RushtonTurbinePolarSwift {
     }
     
     mutating func createImpellerShaft(atθ angle: TQ) {
-        
-        let impeller = self.turbine.impellers["0"]!
-        
         for j in 0..<self.turbine.tankHeight {
-            
-            let isWithinHub:Bool = j > impeller.hub.bottom && j < impeller.hub.top
-            
-            let rEnd: TQ = TQ(self.turbine.shaft.radius) // isWithinHub ? self.turbine.hub.radius : self.turbine.shaft.radius
+            // Check if this height is within any impeller's hub
+            let isWithinAnyHub = turbine.impellers.values.contains { impeller in
+                j > impeller.hub.bottom && j < impeller.hub.top
+            }
+
+            let rEnd: TQ = TQ(self.turbine.shaft.radius)
             let nPointsR: Int = Int(rEnd / TQ(self.turbine.resolution))
-            
+
             for idxR in 0...nPointsR {
-                
                 var r: TQ = 0
                 var dTheta: TQ = 0
                 var nPointsTheta: Int = 0
-                
+
                 if idxR == 0 {
                     r = 0
                     nPointsTheta = 1
@@ -445,20 +439,19 @@ extension RushtonTurbinePolarSwift {
                 } else {
                     r = TQ(idxR) * TQ(self.turbine.resolution)
                     nPointsTheta = 4 * Int((.pi * 2.0 * r / (4.0 * TQ(self.turbine.resolution))))
-                    
-                    if nPointsTheta == 0 {nPointsTheta = 1}
-                    
+
+                    if nPointsTheta == 0 { nPointsTheta = 1 }
+
                     dTheta = 2 * .pi / TQ(nPointsTheta)
                 }
-                
+
                 for idxTheta in 0..<nPointsTheta {
-                    
                     var theta: TQ = TQ(idxTheta) * dTheta
-                    
-                    if (j & 1) == 0 {theta += 0.5 * dTheta}
-                    
-                    let isSurface:Bool = idxR == nPointsR && !isWithinHub
-                    
+
+                    if (j & 1) == 0 { theta += 0.5 * dTheta }
+
+                    let isSurface: Bool = idxR == nPointsR && !isWithinAnyHub
+
                     let g = PosPolar<T, TQ>(
                         iFP: TQ(self.iCenter) + r * cos(theta),
                         jFP: TQ(j),
@@ -466,15 +459,13 @@ extension RushtonTurbinePolarSwift {
                         uDelta: -angle * TQ(r) * sin(theta),
                         vDelta: 0,
                         wDelta: angle * TQ(r) * cos(theta))
-                    
+
                     if isSurface {
                         self.geomRotatingNonUpdating.append(g.getPos3d())
                     }
-                    
                 }
             }
         }
-        
     }
     
 }//end of extension

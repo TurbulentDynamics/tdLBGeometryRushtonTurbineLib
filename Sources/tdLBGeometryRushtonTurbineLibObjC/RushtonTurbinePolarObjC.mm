@@ -49,25 +49,37 @@
 -(void)generateFixedGeometry {
     RushtonTurbinePolarCPP<int,int>* rushtonTurbinePolarCPP = (RushtonTurbinePolarCPP<int,int>*) self.RushtonTurbinePolarCPP;
 
-    rushtonTurbinePolarCPP-> generateFixedGeometry();
+    rushtonTurbinePolarCPP-> generateFixedGeometry(onSurface);
 }
 
 -(void)generateRotatingNonUpdatingGeometry {
+    [self generateRotatingNonUpdatingGeometryWithDeltaTheta:0.0];
+}
+
+-(void)generateRotatingNonUpdatingGeometryWithDeltaTheta:(double)deltaTheta {
     RushtonTurbinePolarCPP<int,int>* rushtonTurbinePolarCPP = (RushtonTurbinePolarCPP<int,int>*) self.RushtonTurbinePolarCPP;
 
-    rushtonTurbinePolarCPP-> generateRotatingNonUpdatingGeometry();
+    rushtonTurbinePolarCPP-> generateRotatingNonUpdatingGeometry(deltaTheta, onSurface);
 }
 
 -(void)generateRotatingGeometry:(double)atTheta {
+    [self generateRotatingGeometry:atTheta deltaTheta:0.0];
+}
+
+-(void)generateRotatingGeometry:(double)atTheta deltaTheta:(double)deltaTheta {
     RushtonTurbinePolarCPP<int,int>* rushtonTurbinePolarCPP = (RushtonTurbinePolarCPP<int,int>*) self.RushtonTurbinePolarCPP;
 
-    rushtonTurbinePolarCPP-> generateRotatingGeometry(atTheta);
+    rushtonTurbinePolarCPP-> generateRotatingGeometry(atTheta, deltaTheta, onSurface);
 }
 
 -(void)updateRotatingGeometry:(double)atTheta {
+    [self updateRotatingGeometry:atTheta deltaTheta:0.0];
+}
+
+-(void)updateRotatingGeometry:(double)atTheta deltaTheta:(double)deltaTheta {
     RushtonTurbinePolarCPP<int,int>* rushtonTurbinePolarCPP = (RushtonTurbinePolarCPP<int,int>*) self.RushtonTurbinePolarCPP;
 
-    rushtonTurbinePolarCPP-> updateRotatingGeometry(atTheta);
+    rushtonTurbinePolarCPP-> updateRotatingGeometry(atTheta, deltaTheta, onSurface);
 }
 
 -(NSArray<PosPolar_int*>*)returnFixedGeometry {
@@ -107,9 +119,9 @@
     RushtonTurbinePolarCPP<int,int>* rushtonTurbinePolarCPP = (RushtonTurbinePolarCPP<int,int>*) self.RushtonTurbinePolarCPP;
 
     NSMutableArray<PosPolar_int*>* result = @[].mutableCopy;
-    
-    std::vector<PosPolar<int, int>> resultCPP = rushtonTurbinePolarCPP-> returnRotatingGeometry(0.0);
-    
+
+    std::vector<PosPolar<int, int>> resultCPP = rushtonTurbinePolarCPP-> returnRotatingGeometry();
+
     for (auto&& pointCPP : resultCPP)
     {
         PosPolar_int* newPoint = [[PosPolar_int alloc] init:&pointCPP];

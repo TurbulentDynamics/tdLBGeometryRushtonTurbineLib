@@ -6,11 +6,114 @@
 //https://app.quicktype.io?share=a4Hldp81TGUIEjNVrBRX
 import Foundation
 
+// MARK: - Validation Errors
 
-//TODO Create func to save the object to json, with string keys for impeller
+/// Errors thrown during RushtonTurbine configuration validation.
+public enum RushtonTurbineValidationError: Error, LocalizedError {
+    case invalidTankDiameter(Int)
+    case invalidTankHeight(Int)
+    case invalidResolution(Double)
+    case invalidGridX(Int)
+    case impellerOutsideTank(impellerKey: String, position: Int, tankHeight: Int)
+    case bladeRadiusOutsideTank(impellerKey: String, outerRadius: Int, tankRadius: Int)
+    case invalidBaffleRadius(inner: Int, outer: Int)
+    case baffleOutsideTank(outerRadius: Int, tankRadius: Int)
+    case noImpellers
+    case invalidShaftRadius(Int)
+
+    public var errorDescription: String? {
+        switch self {
+        case .invalidTankDiameter(let d):
+            return "Tank diameter must be positive, got \(d)"
+        case .invalidTankHeight(let h):
+            return "Tank height must be positive, got \(h)"
+        case .invalidResolution(let r):
+            return "Resolution must be positive, got \(r)"
+        case .invalidGridX(let g):
+            return "Grid X must be positive, got \(g)"
+        case .impellerOutsideTank(let key, let pos, let height):
+            return "Impeller '\(key)' position (\(pos)) exceeds tank height (\(height))"
+        case .bladeRadiusOutsideTank(let key, let radius, let tankRadius):
+            return "Impeller '\(key)' blade outer radius (\(radius)) exceeds tank radius (\(tankRadius))"
+        case .invalidBaffleRadius(let inner, let outer):
+            return "Baffle inner radius (\(inner)) must be less than outer radius (\(outer))"
+        case .baffleOutsideTank(let outer, let tankRadius):
+            return "Baffle outer radius (\(outer)) exceeds tank radius (\(tankRadius))"
+        case .noImpellers:
+            return "At least one impeller must be defined"
+        case .invalidShaftRadius(let r):
+            return "Shaft radius must be positive, got \(r)"
+        }
+    }
+}
+
+// MARK: - RushtonTurbine Extension for Save
+
 extension RushtonTurbine {
+    /// Saves the turbine configuration to a JSON file.
+    /// - Parameter url: The file URL to save to.
     func saveAsJson(to url: URL) throws {
-        print("Saving to:" + url.absoluteString)
+        try writeJSON(to: url)
+    }
+
+    /// Validates the turbine configuration.
+    /// - Throws: `RushtonTurbineValidationError` if validation fails.
+    public func validate() throws {
+        // Basic dimension checks
+        guard tankDiameter > 0 else {
+            throw RushtonTurbineValidationError.invalidTankDiameter(tankDiameter)
+        }
+        guard tankHeight > 0 else {
+            throw RushtonTurbineValidationError.invalidTankHeight(tankHeight)
+        }
+        guard resolution > 0 else {
+            throw RushtonTurbineValidationError.invalidResolution(resolution)
+        }
+        guard gridX > 0 else {
+            throw RushtonTurbineValidationError.invalidGridX(gridX)
+        }
+        guard shaft.radius > 0 else {
+            throw RushtonTurbineValidationError.invalidShaftRadius(shaft.radius)
+        }
+
+        // Must have at least one impeller
+        guard !impellers.isEmpty else {
+            throw RushtonTurbineValidationError.noImpellers
+        }
+
+        let tankRadius = tankDiameter / 2
+
+        // Validate each impeller
+        for (key, impeller) in impellers {
+            guard impeller.impellerPosition < tankHeight else {
+                throw RushtonTurbineValidationError.impellerOutsideTank(
+                    impellerKey: key,
+                    position: impeller.impellerPosition,
+                    tankHeight: tankHeight
+                )
+            }
+            guard impeller.blades.outerRadius <= tankRadius else {
+                throw RushtonTurbineValidationError.bladeRadiusOutsideTank(
+                    impellerKey: key,
+                    outerRadius: impeller.blades.outerRadius,
+                    tankRadius: tankRadius
+                )
+            }
+        }
+
+        // Validate baffles
+        guard baffles.innerRadius < baffles.outerRadius else {
+            throw RushtonTurbineValidationError.invalidBaffleRadius(
+                inner: baffles.innerRadius,
+                outer: baffles.outerRadius
+            )
+        }
+        guard baffles.outerRadius <= tankRadius else {
+            throw RushtonTurbineValidationError.baffleOutsideTank(
+                outerRadius: baffles.outerRadius,
+                tankRadius: tankRadius
+            )
+        }
     }
 }
 
@@ -153,9 +256,11 @@ extension RushtonTurbine {
         return String(data: try self.jsonData(), encoding: encoding)
     }
 
-    func writeJSON(to url: URL){
-        let j = try! jsonString()
-        try! j!.write(to: url, atomically: true, encoding: .utf8)
+    func writeJSON(to url: URL) throws {
+        guard let jsonStr = try jsonString() else {
+            throw NSError(domain: "JSONEncoding", code: 1, userInfo: [NSLocalizedDescriptionKey: "Failed to encode JSON string"])
+        }
+        try jsonStr.write(to: url, atomically: true, encoding: .utf8)
     }
 
     func with(
@@ -270,9 +375,11 @@ extension Baffles {
         return String(data: try self.jsonData(), encoding: encoding)
     }
 
-    func writeJSON(to url: URL){
-        let j = try! jsonString()
-        try! j!.write(to: url, atomically: true, encoding: .utf8)
+    func writeJSON(to url: URL) throws {
+        guard let jsonStr = try jsonString() else {
+            throw NSError(domain: "JSONEncoding", code: 1, userInfo: [NSLocalizedDescriptionKey: "Failed to encode JSON string"])
+        }
+        try jsonStr.write(to: url, atomically: true, encoding: .utf8)
     }
 
 
@@ -401,9 +508,11 @@ extension Impeller {
         return String(data: try self.jsonData(), encoding: encoding)
     }
 
-    func writeJSON(to url: URL){
-        let j = try! jsonString()
-        try! j!.write(to: url, atomically: true, encoding: .utf8)
+    func writeJSON(to url: URL) throws {
+        guard let jsonStr = try jsonString() else {
+            throw NSError(domain: "JSONEncoding", code: 1, userInfo: [NSLocalizedDescriptionKey: "Failed to encode JSON string"])
+        }
+        try jsonStr.write(to: url, atomically: true, encoding: .utf8)
     }
 
     func with(
@@ -518,9 +627,11 @@ extension Blades {
         return String(data: try self.jsonData(), encoding: encoding)
     }
 
-    func writeJSON(to url: URL){
-        let j = try! jsonString()
-        try! j!.write(to: url, atomically: true, encoding: .utf8)
+    func writeJSON(to url: URL) throws {
+        guard let jsonStr = try jsonString() else {
+            throw NSError(domain: "JSONEncoding", code: 1, userInfo: [NSLocalizedDescriptionKey: "Failed to encode JSON string"])
+        }
+        try jsonStr.write(to: url, atomically: true, encoding: .utf8)
     }
 
     func with(
@@ -614,9 +725,11 @@ extension Disk {
         return String(data: try self.jsonData(), encoding: encoding)
     }
 
-    func writeJSON(to url: URL){
-        let j = try! jsonString()
-        try! j!.write(to: url, atomically: true, encoding: .utf8)
+    func writeJSON(to url: URL) throws {
+        guard let jsonStr = try jsonString() else {
+            throw NSError(domain: "JSONEncoding", code: 1, userInfo: [NSLocalizedDescriptionKey: "Failed to encode JSON string"])
+        }
+        try jsonStr.write(to: url, atomically: true, encoding: .utf8)
     }
 
     func with(
@@ -688,9 +801,11 @@ extension Shaft {
         return String(data: try self.jsonData(), encoding: encoding)
     }
 
-    func writeJSON(to url: URL){
-        let j = try! jsonString()
-        try! j!.write(to: url, atomically: true, encoding: .utf8)
+    func writeJSON(to url: URL) throws {
+        guard let jsonStr = try jsonString() else {
+            throw NSError(domain: "JSONEncoding", code: 1, userInfo: [NSLocalizedDescriptionKey: "Failed to encode JSON string"])
+        }
+        try jsonStr.write(to: url, atomically: true, encoding: .utf8)
     }
 
 

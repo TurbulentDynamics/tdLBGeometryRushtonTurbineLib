@@ -1,16 +1,44 @@
 //
-//  EggelsSomersConfig.swift
+//  ReferenceProportions.swift
 //
 //
 //  Created by Niall Ó Broin on 29/03/2020.
 //
 
 import Foundation
+import tdLB
 import tdLBGeometry
-import tdLBOutputGeometry
 
-
-
+/// Creates a Rushton turbine configuration using the Hartmann-Derksen reference proportions.
+///
+/// This function generates a standard Rushton turbine geometry based on the experimental
+/// configuration described in:
+///
+/// > Hartmann H, Derksen JJ, Montavon C, Pearson J, Hamill IS, Van den Akker HEA.
+/// > "Assessment of large eddy and rans stirred tank simulations by means of LDA."
+/// > Chem Eng Sci. 2004;59:2419–2432.
+///
+/// The proportions are based on a standard Rushton turbine with:
+/// - Tank height equal to tank diameter (H = T)
+/// - Impeller diameter D = T/3
+/// - Impeller position at 2/3 of tank height
+/// - 6 blades per impeller
+/// - 4 baffles
+///
+/// - Parameters:
+///   - gridX: The grid resolution (tank diameter in lattice units). Larger values produce finer geometry.
+///   - uav: Average velocity at blade tip (lattice units). Default is 0.1.
+///   - impellerStartupStepsUntilNormalSpeed: Number of timesteps for impeller to reach full speed. Default is 0 (instant start).
+///   - startingStep: Initial simulation timestep. Default is 0.
+///   - impellerStartAngle: Initial angular position of impeller blades in radians. Default is 0.0.
+///
+/// - Returns: A fully configured ``RushtonTurbine`` instance ready for geometry generation.
+///
+/// - Example:
+///   ```swift
+///   let turbine = RushtonTurbineReference(gridX: 300)
+///   var geometry = RushtonTurbineMidPoint(turbine: turbine)
+///   ```
 public func RushtonTurbineReference(
         gridX: Int,
         uav: Double = 0.1,
@@ -101,44 +129,40 @@ public func RushtonTurbineReference(
 
 
 
+/// Creates example output geometry configuration for a turbine.
+///
+/// Generates 2D slice planes at key positions for visualization and analysis.
+///
+/// - Parameter turbine: The turbine configuration.
+/// - Returns: An ``OutputGeometry`` with XY, XZ, and YZ planes plus volumetric output.
 func exampleTurbineOutput(turbine: RushtonTurbine) -> OutputGeometry {
-
     var output = OutputGeometry()
-    
+
+    // XY planes at tank center
     let xy0 = Ortho2D(at: turbine.tankDiameter/2 - 1, repeatStep: 10)
     let xy1 = Ortho2D(at: turbine.tankDiameter/2, repeatStep: 10)
     let xy2 = Ortho2D(at: turbine.tankDiameter/2 + 1, repeatStep: 10)
-    output.add(xy:xy0)
-    output.add(xy:xy1)
-    output.add(xy:xy2)
+    output.add(xy: xy0)
+    output.add(xy: xy1)
+    output.add(xy: xy2)
 
-    
-    let xz0 = Ortho2D(at: turbine.impellers["0"]!.impellerPosition - 1, repeatStep: 10)
-    let xz1 = Ortho2D(at: turbine.impellers["0"]!.impellerPosition, repeatStep: 10)
-    let xz2 = Ortho2D(at: turbine.impellers["0"]!.impellerPosition + 1, repeatStep: 10)
-    
-//    let xz0 = Ortho2D(at: turbine.impeller.impellerPosition - 1, repeatStep: 10)
-//    let xz1 = Ortho2D(at: turbine.impeller.impellerPosition, repeatStep: 10)
-//    let xz2 = Ortho2D(at: turbine.impeller.impellerPosition + 1, repeatStep: 10)
-    
-    
-    output.add(xz:xz0)
-    output.add(xz:xz1)
-    output.add(xz:xz2)
-    
+    // XZ planes at each impeller position
+    for impeller in turbine.impellers.values {
+        let xz0 = Ortho2D(at: impeller.impellerPosition - 1, repeatStep: 10)
+        let xz1 = Ortho2D(at: impeller.impellerPosition, repeatStep: 10)
+        let xz2 = Ortho2D(at: impeller.impellerPosition + 1, repeatStep: 10)
+        output.add(xz: xz0)
+        output.add(xz: xz1)
+        output.add(xz: xz2)
+    }
+
+    // YZ plane at tank center
     let yz0 = Ortho2D(at: turbine.tankDiameter/2, repeatStep: 10)
-    output.add(yz:yz0)
+    output.add(yz: yz0)
 
+    // Full volume output
     let v = Volume(repeatStep: 100)
     output.add(v)
-    
-    
-    
-//    let xzML = Ortho2D(at: impeller.impellerPosition / 2, repeatStep:10, from: 1000)
-    //TODO
-    //    let angle = Angle2D(atAngle: <#T##Int#>, repeatStep: <#T##Int#>, from: <#T##Int?#>, to: <#T##Int?#>)
-
 
     return output
-
 }
